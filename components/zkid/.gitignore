@@ -1,0 +1,29 @@
+# Rust build artifacts
+/target/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# Circuit artifacts (generated files)
+*.r1cs
+*.wasm
+*.wtns
+*.sym
+*.zkey
+*.vkey
+
+# OpenAC SDK build artifacts
+wallet-unit-poc/openac-sdk/assets/*.r1cs
+wallet-unit-poc/openac-sdk/assets/*.wasm
+wallet-unit-poc/openac-sdk/assets/keys/
+*.key
+
+# Web demo build artifacts
+wallet-unit-poc/web-demo/dist/
+wallet-unit-poc/web-demo/public/*.wasm
+wallet-unit-poc/web-demo/node_modules/
+
