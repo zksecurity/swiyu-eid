@@ -1,0 +1,17 @@
+
+
+server:
+  port: 8080
+spring:
+  docker:
+    compose:
+      enabled: false
+  application:
+    name: swiyu-verifier-service
+  cloud:
+    kubernetes:
+      config:
+        enabled: false
+      secrets:
+        enabled: true
+        paths: /data/secrets

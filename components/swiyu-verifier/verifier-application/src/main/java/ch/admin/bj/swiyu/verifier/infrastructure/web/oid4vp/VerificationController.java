@@ -1,0 +1,224 @@
+package ch.admin.bj.swiyu.verifier.infrastructure.web.oid4vp;
+
+import ch.admin.bj.swiyu.verifier.dto.ApiErrorDto;
+import ch.admin.bj.swiyu.verifier.dto.VPApiVersion;
+import ch.admin.bj.swiyu.verifier.dto.VerificationPresentationResponseDto;
+import ch.admin.bj.swiyu.verifier.dto.VerificationPresentationUnionDto;
+import ch.admin.bj.swiyu.verifier.dto.metadata.OpenidClientMetadataDto;
+import ch.admin.bj.swiyu.verifier.dto.requestobject.RequestObjectDto;
+import ch.admin.bj.swiyu.verifier.service.management.ManagementService;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.*;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.PresentationResult.Dcql;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.PresentationResult.EncryptedDcql;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.PresentationResult.Rejection;
+import io.micrometer.core.annotation.Timed;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * OpenID4VC Issuance Controller
+ * <p>
+ * Implements the OpenID4VCI defined endpoints
+ * <a href="https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html">OID4VCI Spec</a>
+ */
+@RestController
+@AllArgsConstructor
+@Slf4j
+@Tag(name = "Verfifier OID4VP API",
+        description = "Handles OpenID for Verifiable Presentations (OID4VP) endpoints, enabling verifiers to retrieve " +
+                "request objects, receive verification presentations, and access OpenID client metadata as specified " +
+                "by the OID4VP protocol. This API is intended for wallets to fetch credentials " +
+                "in compliance with OpenID standards. (IF-101)")
+@RequestMapping({"/oid4vp/api/"})
+public class VerificationController {
+
+    private final RequestObjectService requestObjectService;
+    private final PresentationResponseResolver presentationResponseResolver;
+    private final PresentationVerificationUsecase presentationVerificationUsecase;
+    private final ManagementService managementService;
+    private final MetadataService metadataService;
+
+    @Timed
+    @GetMapping(value = {"openid-client-metadata.json"})
+    @Operation(
+            summary = "Get client metadata",
+            description = "Metadata providing further information about the verifier, such as name and logo.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Request object either as plaintext or signed JWT",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = OpenidClientMetadataDto.class),
+                                    examples = {
+                                            @ExampleObject(name = "Sample Client Metadata", value = """
+                                                    {
+                                                        "client_name#en": "English name (all regions)",
+                                                        "client_name#fr": "French name (all regions)",
+                                                        "client_name#de-DE": "German name (region Germany)",
+                                                        "client_name#de-CH": "German name (region Switzerland)",
+                                                        "client_name#de": "German name (fallback)",
+                                                        "client_name": "Fallback name",
+                                                        "client_logo": "www.example.com/logo.png",
+                                                        "client_logo#fr": "www.example.com/logo_fr.png"
+                                                    }""")
+                                    }
+                            )
+                    )})
+    public OpenidClientMetadataDto getOpenIdClientMetadata() {
+        return metadataService.getOpenidClientMetadata();
+    }
+
+    @Timed
+    @GetMapping(value = {"request-object/{request_id}"}, produces = {"application/oauth-authz-req+jwt", MediaType.APPLICATION_JSON_VALUE})
+    @Operation(
+            summary = "Get Request Object",
+            description = "Can return a RequestObjectDto as JSON Object or a SignedJWT String depending on JAR (JWT secured authorization request) flag in verifier management",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = """
+                                    Request object either as plaintext or signed JWT.
+                                    
+                                    The 'application/oauth-authz-req+jwt' representation is a compact serialized JWS (optionally nested JWE) \
+                                    representing the Request Object claims. As this is a JWT and not a JSON object, its structural requirements \
+                                    cannot be expressed as a JSON Schema and are documented here instead:
+                                    - The JOSE header MUST require the 'profile_version' parameter to indicate the Swiss Profile version.
+                                    - The JWT Claims Set corresponds to the [RequestObject](#/components/schemas/RequestObject) schema documented \
+                                    for the 'application/json' representation below, with 'request' and 'request_uri' claims strictly prohibited.
+                                    
+                                    The 'application/json' representation is kept for documentation purposes only, mirroring the JWT Claims Set of \
+                                    the 'application/oauth-authz-req+jwt' representation; it is not actually returned when JAR (JWT-secured \
+                                    Authorization Request) is enabled.""",
+                            content = {
+                                    @Content(
+                                            mediaType = "application/oauth-authz-req+jwt",
+                                            schema = @Schema(type = "string", format = "jwt")
+                                    ),
+                                    @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = RequestObjectDto.class)
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Request Object not found",
+                            content = @Content(schema = @Schema(implementation = ApiErrorDto.class))
+                    )
+            }
+    )
+    public ResponseEntity<Object> getRequestObject(@PathVariable(name = "request_id") UUID requestId) {
+        String jwt = requestObjectService.assembleRequestObject(requestId);
+        return ResponseEntity
+                .ok()
+                .contentType(new MediaType("application", "oauth-authz-req+jwt"))
+                .body(jwt);
+    }
+
+    @Timed
+    @PostMapping(value = {"request-object/{request_id}/response-data"},
+            consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(
+            summary = "Receive Verification Presentation (from e.g. Wallet)",
+            description = "Handles various types of verification presentations including standard presentations, rejections, DCQL presentations, and encrypted DCQL presentations. The method automatically determines the request type based on the provided parameters.",
+            parameters = {
+                    @Parameter(
+                            name = "request_id",
+                            description = "The unique identifier of the verification request",
+                            required = true,
+                            in = ParameterIn.PATH
+                    ),
+                    @Parameter(
+                            name = "SWIYU-API-Version",
+                            description = "Optional API version. Supported values: " +
+                                    "2 (DEFAULT) - This supports OID4VP 1.0",
+                            in = ParameterIn.HEADER,
+                            schema = @Schema(type = "string", allowableValues = {"2"})
+                    )
+            },
+            externalDocs = @ExternalDocumentation(
+                    description = "OpenId4VP response parameters",
+                    url = "https://openid.net/specs/openid-4-verifiable-presentations-1_0-ID2.html#section-6.1"
+            ),
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+                                    schema = @Schema(
+                                            implementation = VerificationPresentationUnionDto.class,
+                                            description = "The verification presentation request. Type is determined " +
+                                                    "automatically based on the provided parameters."
+                                    )
+                            )
+                    }
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Verification Presentation received and processed successfully",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(type = "object", implementation = VerificationPresentationResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request. The request body is not valid",
+                            content = @Content(schema = @Schema(implementation = ApiErrorDto.class))
+                    )
+            }
+    )
+    public VerificationPresentationResponseDto receiveVerificationPresentation(
+            @RequestHeader(name = "SWIYU-API-Version", required = false) String versionString,
+            @PathVariable(name = "request_id") UUID requestId,
+            VerificationPresentationUnionDto unionDto) {
+
+        log.info("Received verification presentation for request_id: {} with version: {}", requestId, versionString);
+        VPApiVersion version = VPApiVersion.fromValue(versionString);
+
+        var managementEntity = managementService.getManagementById(requestId);
+        VerificationPresentationUnionDto decryptedUnionDto = presentationResponseResolver.decryptIfNecessary(managementEntity, unionDto);
+
+        if (!managementEntity.matchesOauthState(decryptedUnionDto.getState())) {
+            throw new IllegalArgumentException("OAuth2.0 State mismatch. Expected to receive the state as in Request Object");
+        }
+
+        PresentationResult result = presentationResponseResolver.mapToPresentationResult(managementEntity, version, decryptedUnionDto);
+
+        var response = switch (result) {
+            // Processing rejection
+            case Rejection(var rejectionDto) ->
+                    presentationVerificationUsecase.receiveVerificationPresentationClientRejection(requestId, rejectionDto);
+
+            // Processing DCQL presentation
+            case Dcql(var dcqlDto) ->
+                    presentationVerificationUsecase.receiveVerificationPresentationDCQL(requestId, dcqlDto);
+
+            // Processing encrypted DCQL presentation
+            case EncryptedDcql(var encryptedDcqlDto) ->
+                    presentationVerificationUsecase.receiveVerificationPresentationDCQL(requestId, encryptedDcqlDto);
+
+        };
+
+        log.info("Successfully processed verification presentation for request_id: {}", requestId);
+        return response;
+    }
+}

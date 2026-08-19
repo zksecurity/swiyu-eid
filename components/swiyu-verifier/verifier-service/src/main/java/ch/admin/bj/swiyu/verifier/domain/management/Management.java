@@ -1,0 +1,251 @@
+package ch.admin.bj.swiyu.verifier.domain.management;
+
+import ch.admin.bj.swiyu.verifier.common.exception.ProcessClosedException;
+import ch.admin.bj.swiyu.verifier.common.exception.VerificationErrorResponseCode;
+import ch.admin.bj.swiyu.verifier.domain.management.dcql.DcqlQuery;
+import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+import static ch.admin.bj.swiyu.verifier.domain.management.VerificationStatus.FAILED;
+
+@Entity
+@Table(
+        name = "management",
+        indexes = @Index(name = "idx_management_expires_at", columnList = "expires_at")
+)
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+public class Management {
+
+    @Embedded
+    @Valid
+    private final AuditMetadata auditMetadata = new AuditMetadata();
+
+    @Id
+    @Builder.Default
+    private UUID id = UUID.randomUUID(); // Generate the ID manually
+
+    /**
+     * Optimistic locking version counter — incremented by JPA on every UPDATE.
+     * Together with {@link #claimForProcessing()} this ensures that two concurrent
+     * threads cannot both pass the PENDING-check (second line of defence after the
+     * atomic SQL claim in the repository).
+     */
+    @Version
+    private Long version;
+
+    @Builder.Default
+    private String requestNonce = UUID.randomUUID().toString();
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private VerificationStatus state = VerificationStatus.PENDING;
+
+    @NotNull
+    @Builder.Default
+    private Boolean jwtSecuredAuthorizationRequest = true;
+
+    @Column(name = "wallet_response", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private ResponseData walletResponse;
+
+    @Column(name = "expiration_in_seconds")
+    private int expirationInSeconds;
+
+    // Expiration time as unix epoch
+    @Column(name = "expires_at")
+    private long expiresAt;
+
+    @Column(name = "accepted_issuer_dids")
+    private List<String> acceptedIssuerDids;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "trust_anchors")
+    private List<TrustAnchor> trustAnchors;
+
+    /**
+     * The OAuth State is an opaque value used by the client to maintain state between the request and callback.<br>
+     * It must be ensured that the value is a cryptographically strong pseudo-random number with at least 128 bits of entropy
+     * and the value is chosen fresh for each Authorization Request
+     */
+    @Builder.Default
+    @Column(name = "oauth_state")
+    private String oauthState = UUID.randomUUID().toString();
+
+    @Builder.Default
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "configuration_override", columnDefinition = "jsonb")
+    private ConfigurationOverride configurationOverride = ConfigurationOverride.builder().build();
+
+    @Column(name = "dcql_query", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @NotNull
+    private DcqlQuery dcqlQuery;
+
+    @Builder.Default
+    @Column(name = "response_specification", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @NotNull
+    private ResponseSpecification responseSpecification = ResponseSpecification.builder().responseModeType(ResponseModeType.DIRECT_POST).build();
+
+    @Column(name = "redirect_uri")
+    @Convert(converter = UriAttributeConverter.class)
+    private URI redirectURI;
+
+    @Column(name = "response_code")
+    private UUID responseCode;
+
+    /**
+     * SHA-256 query hash linking this session to a persisted {@link ch.admin.bj.swiyu.verifier.domain.vqps.Vqps} entry.
+     * When set, the request object service looks up the vqPS JWT by this hash (the PK of
+     * {@code vqps_cache}) and injects it into the {@code verifier_info} array of the Authorization Request.
+     */
+    @Column(name = "vqps_query_hash")
+    private String vqpsQueryHash;
+
+    /**
+     * Guarded set State, preventing illegal transaction
+     *
+     * @param state the new state to be set
+     */
+    public void setState(VerificationStatus state) {
+        if (this.getState() == null) {
+            this.state = state;
+        } else {
+            throw new IllegalStateException("State may not be changed through setter");
+        }
+    }
+
+    public boolean isVerificationPending() {
+        return state == VerificationStatus.PENDING;
+    }
+
+    /**
+     * Marks this session as exclusively claimed for processing by transitioning the
+     * state from {@link VerificationStatus#PENDING} to {@link VerificationStatus#IN_PROGRESS}.
+     * If a concurrent thread has already called this method and flushed the version increment,
+     * JPA will throw an {@link jakarta.persistence.OptimisticLockException}.
+     *
+     * @throws ch.admin.bj.swiyu.verifier.common.exception.ProcessClosedException if the
+     *                                                                            session is not {@code PENDING} or has already expired
+     */
+    public void claimForProcessing() {
+        if (!isProcessStillOpen()) {
+            throw new ProcessClosedException();
+        }
+        this.state = VerificationStatus.IN_PROGRESS;
+    }
+
+    public void verificationFailed(VerificationErrorResponseCode errorCode, String errorDescription) {
+        ensureClaimedForProcessing();
+        this.state = FAILED;
+        this.walletResponse = ResponseData.builder()
+                .errorCode(errorCode)
+                .errorDescription(errorDescription)
+                .build();
+        this.updateRedirectURIIfNecessary();
+    }
+
+    public void verificationFailedDueToClientRejection(String description, VerificationErrorResponseCode walletErrorCode) {
+        ensureClaimedForProcessing();
+        this.state = FAILED;
+        this.walletResponse = ResponseData.builder()
+                .errorCode(walletErrorCode)
+                .errorDescription(description)
+                .build();
+        this.updateRedirectURIIfNecessary();
+    }
+
+    private void ensureClaimedForProcessing() {
+        if (this.getState() != VerificationStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Object should be claimed for processing!");
+        }
+    }
+
+    private static long calculateExpiresAt(int expirationInSeconds) {
+        return System.currentTimeMillis() + (expirationInSeconds * 1000L);
+    }
+
+    public void verificationSucceeded(String credentialSubjectData) {
+        ensureClaimedForProcessing();
+        this.state = VerificationStatus.SUCCESS;
+        this.walletResponse = ResponseData.builder()
+                .credentialSubjectData(credentialSubjectData)
+                .build();
+        this.updateRedirectURIIfNecessary();
+    }
+
+    public boolean isExpired() {
+        return System.currentTimeMillis() > expiresAt;
+    }
+
+    /**
+     * Returns {@code true} if the verification process is still open
+     * (not expired and still pending), {@code false} otherwise.
+     */
+    public boolean isProcessStillOpen() {
+        return !isExpired() && isVerificationPending();
+    }
+
+    /**
+     * Reset the timestamp at which this object will count as expired with the <code>expirationInSeconds</code>
+     *
+     * @return this object for daisy chaining
+     */
+    public Management resetExpiresAt() {
+        expiresAt = calculateExpiresAt(expirationInSeconds);
+        return this;
+    }
+
+    @NotNull
+    public ConfigurationOverride getConfigurationOverride() {
+        return Objects.requireNonNullElseGet(this.configurationOverride, () -> ConfigurationOverride.builder().build());
+    }
+
+    /**
+     * Verifies if the given OAuth state matches the expected state.
+     *
+     * @param state The OAuth state to verify
+     * @return true if both states are blank or equal, false otherwise
+     */
+    public boolean matchesOauthState(String state) {
+        return oauthState.equals(state);
+    }
+
+    /**
+     * Creates a response code for the redirect_uri and updates the redirect_uri with the response_code query_parameter if redirect_uri was provided initially
+     * (does not overwrite existing query parameters)
+     */
+    private void updateRedirectURIIfNecessary() {
+        if (this.redirectURI == null) {
+            return;
+        }
+
+        // only set response code if null otherwise has already been set
+        if (this.responseCode != null) {
+            return;
+        }
+
+        this.responseCode = UUID.randomUUID();
+        this.redirectURI = UriComponentsBuilder.fromUri(this.redirectURI)
+                .queryParam("response_code", this.responseCode.toString())
+                .build().toUri();
+    }
+}

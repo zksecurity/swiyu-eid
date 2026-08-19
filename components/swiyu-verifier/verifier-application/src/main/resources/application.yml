@@ -1,0 +1,202 @@
+
+
+application:
+  external-url: "${EXTERNAL_URL:}"
+  client_id: "${VERIFIER_DID:}"
+  client_id_prefix: "decentralized_identifier"
+  signing_key: "${secret.signing_key:${SIGNING_KEY:}}"
+  signing-key-verification-method: "${DID_VERIFICATION_METHOD:}"
+  client-metadata-file: "${OPENID_CLIENT_METADATA_FILE:}"
+  # Schema of the generated deeplink. Keep in mind that the wallet must support this.
+  # iOS is not capable of letting the user choose between the apps being opened by the schema.
+  # the standard is openid-credential-offer
+  # default for swiss ecosystem is swiyu://
+  # It is not recommended to change this value unless you want to use this issuer in a different ecosystem.
+  deeplink-schema: ${DEEPLINK_SCHEMA:swiyu-verify}
+
+  key-management-method: "${SIGNING_KEY_MANAGEMENT_METHOD:key}"
+  max-compressed-cipher-text-length: ${MAX_COMPRESSED_CIPHER_TEXT_LENGTH:20971520} # 20 MiB
+  max-vcs-accepted: 1 # At the moment the default value is set to 1 as the dcql multiple flag is not fully supported
+  request-object-ttl-seconds: 600 # 10 Minutes
+  # Pin to unlock the hsm
+  hsm:
+    user-pin: "${secret.key.hsm.pin.user:${HSM_USER_PIN:}}"
+    # Key identifier or alias, or label when using pkcs11-tool
+    key-id: "${secret.key.hsm.id:${HSM_KEY_ID:}}"
+    # Optional pin to unlock the key
+    key-pin: "${secret.key.hsm.pin.key:${HSM_KEY_PIN:}}"
+    # File Path to the HSM config file. For settings see https://docs.oracle.com/en/java/javase/21/security/pkcs11-reference-guide1.html
+    pkcs11-config: "${HSM_CONFIG_PATH:}"
+
+    # For Cloud HSM like eg. securosys
+    # User for logging in on the host
+    user: "${HSM_USER:}"
+    # URI of the HSM Host or Proxy to be connected to
+    host: "${HSM_HOST:}"
+    # Password for the Host
+    password: "${HSM_PASSWORD:}"
+    # Port for either the proxy or host
+    port: "${HSM_PORT:}"
+    # When using a proxy with username / password authentication
+    proxy-user: "${HSM_PROXY_USER:}"
+    proxy-password: "${HSM_PROXY_PASSWORD:}"
+
+  template-replacement: # Hash Map of Values replaced in the templating
+    client-id: "${VERIFIER_DID:}" # the client id of the verifier, used for templating in the metadata
+
+  url-rewrite:
+    mapping: "${URL_REWRITE_MAPPING:{}}"
+  accepted-registry-hosts:
+    - "status-reg.trust-infra.swiyu-int.admin.ch"
+    - "status-reg.trust-infra.swiyu.admin.ch"
+    - "identifier-reg.trust-infra.swiyu.admin.ch"
+    - "identifier-reg.trust-infra.swiyu-int.admin.ch"
+
+  # ---- OpenID4VP Part ----
+
+  # TTL is set to 900 seconds -> 15 minutes
+  verification-ttl: ${VERIFICATION_TTL_SEC:900}
+  # Clearing interval is set to 60k * 7 = 420k -> 7minutes
+  # to make sure the data is cleared before the TTL expires
+  # which is more than twice as long
+  data-clear-interval: ${DATA_CLEAR_PROCESS_INTERVAL_MS:420000}
+
+verification:
+  # the acceptable window of the issued at claim for verification - used for determining if the holder key binding proof jwt is valid
+  acceptable-proof-time-window-seconds: ${VERIFICATION_PROOF_TIME_WINDOW_SEC:120}
+  object-size-limit: 204800 # 200 Kibibyte
+  expiry-must-be-present: true # Change this only with caution! If set to true, the verification will fail if a status list does not have an expiry date. If set to false, the verification will succeed even if the vc does not have an expiry date.
+
+
+spring:
+  jackson:
+    constructor-detector: use-properties-based
+  http:
+    clients:
+      read-timeout: 10s # 10 seconds for reading the response
+      connect-timeout: 5s # 5 seconds until tcp handshake is done
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
+    url: "${POSTGRES_JDBC}"
+    username: "${secret.db.username:${POSTGRES_USER}}"
+    password: "${secret.db.password:${POSTGRES_PASSWORD}}"
+  flyway:
+    enabled: true
+    locations: classpath:db/migration/common
+    default_schema: ${POSTGRES_DB_SCHEMA:public}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: ${POSTGRES_DB_SCHEMA:public}
+springdoc:
+  swagger-ui:
+    path: swagger-ui.html
+    csrf:
+      enabled: true
+  show-actuator: true
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-components: always
+      show-details: always
+      serviceRegistries:
+      identifierRegistries:
+    additionalKeysToSanitize: test
+    env:
+      show-values: ALWAYS # NEVER to hide all values
+      # Values to expose on the env endpoint
+      allowedProperties: >
+        local.server.port,
+        server.ports,
+        application.signing-key-verification-method,
+        application.client_id_prefix,
+        application.client_id,
+        application.external-url,
+        application.deeplink-schema,
+        verification.object-size-limit,
+        verification.expiry-must-be-present,
+        application.key-management-method,
+        spring.flyway.enabled,
+        springdoc.swagger-ui.path,
+        webhook.callback-interval,
+        application.client_id,
+        logging.expect-correlation-id,
+        APPLICATION_NAME,
+        application.client-metadata-file,
+        application.url-rewrite.mapping,
+        application.accepted-status-list-hosts.*,
+        application.verification-ttl,
+        webhook.callback-uri,
+        application.hsm.host,
+        application.hsm.port,
+        application.template-replacement.client-id
+  health:
+    # Set to false if no static signing key is configured (e.g. dynamic key management via ConfigurationOverride).
+    # Env: SIGNING_KEY_VERIFICATION_ENABLED
+    signing-key-verification-enabled: ${SIGNING_KEY_VERIFICATION_ENABLED:true}
+    # Set to false to disable the stale-callback health check.
+    # Env: CALLBACK_HEALTH_ENABLED
+    callback-enabled: ${CALLBACK_HEALTH_ENABLED:true}
+    # Set to false to disable the status-registry accessibility health check.
+    # Env: STATUS_REGISTRY_HEALTH_ENABLED
+    status-registry-enabled: ${STATUS_REGISTRY_HEALTH_ENABLED:true}
+    # Set to false to disable the identifier-registry DID resolution health check.
+    # Env: IDENTIFIER_REGISTRY_HEALTH_ENABLED
+    identifier-registry-enabled: ${IDENTIFIER_REGISTRY_HEALTH_ENABLED:true}
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, env
+
+webhook:
+  callback-uri: "${WEBHOOK_CALLBACK_URI:}"
+  api-key-header: "${WEBHOOK_API_KEY_HEADER:}"
+  api-key-value: "${WEBHOOK_API_KEY_VALUE:}"
+  callback-interval: ${WEBHOOK_INTERVAL:2000} # Every 2 seconds
+
+logging:
+  level:
+    ch.admin.bj.swiyu: INFO
+    ch.admin.bj.swiyu.verifier.infrastructure.web.config.RequestLoggingFilter: DEBUG
+
+monitoring:
+  basic-auth:
+    enabled: ${MONITORING_BASIC_AUTH_ENABLED:false}
+    username: "${MONITORING_BASIC_AUTH_USERNAME:}"
+    password: "${MONITORING_BASIC_AUTH_PASSWORD:}"
+
+caching:
+  status-list-cache-ttl: ${STATUS_LIST_CACHE_TTL_MILLI:0} # is not cached by default if set to 0, caching is disabled
+  status-list-cache-size: ${SWIYU_TRUST_REGISTRY_MAX_CACHE_SIZE:1000}
+  jwk-cache-ttl: ${JWK_CACHE_TTL_MILLI:${ISSUER_PUBLIC_KEY_CACHE_TTL_MILLI:3600000}} # 1 hour
+  trust-cache-ttl: ${TRUST_CACHE_TTL_MILLI:3600000} # 1 hour
+  request-backoff-seconds: 600 # 10 minutes
+
+swiyu:
+    # Optional: Trust Registry sidechannel API for fetching Trust Statements (idTS, piaTS).
+    # If not set, trust statement caching is disabled.
+    trust-registry:
+      api-url: "${SWIYU_TRUST_REGISTRY_API_URL:}"
+      max-cache-size: ${SWIYU_TRUST_REGISTRY_MAX_CACHE_SIZE:1000}
+      clock-skew-buffer-seconds: ${SWIYU_TRUST_REGISTRY_CLOCK_SKEW_BUFFER_SECONDS:60}
+      max-cache-ttl-seconds: ${SWIYU_TRUST_REGISTRY_MAX_CACHE_TTL_SECONDS:0}
+      # Optional: TMS B2B Authoring API for On-the-Fly vqPS registration
+      # If not set, the vqPS registration flow is disabled.
+      tms-authoring-url: "${SWIYU_TMS_AUTHORING_URL:}"
+      oauth-token-url: "${SWIYU_TMS_OAUTH_TOKEN_URL:}"
+      oauth-client-id: "${SWIYU_TMS_OAUTH_CLIENT_ID:}"
+      oauth-client-secret: "${secret.swiyu.trust-registry.tms-oauth-client-secret:${SWIYU_TMS_OAUTH_CLIENT_SECRET:}}"
+      bootstrap-refresh-token: "${secret.swiyu.trust-registry.tms-bootstrap-refresh-token:${SWIYU_TMS_BOOTSTRAP_REFRESH_TOKEN:}}"
+      token-refresh-interval: "${SWIYU_TMS_TOKEN_REFRESH_INTERVAL:PT12H}"
+

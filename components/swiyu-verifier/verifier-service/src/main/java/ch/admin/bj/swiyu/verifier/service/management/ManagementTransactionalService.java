@@ -1,0 +1,214 @@
+package ch.admin.bj.swiyu.verifier.service.management;
+
+import ch.admin.bj.swiyu.verifier.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.verifier.common.exception.ProcessClosedException;
+import ch.admin.bj.swiyu.verifier.common.exception.VerificationErrorResponseCode;
+import ch.admin.bj.swiyu.verifier.common.exception.VerificationException;
+import ch.admin.bj.swiyu.verifier.common.exception.VerificationNotFoundException;
+import ch.admin.bj.swiyu.verifier.domain.management.*;
+import ch.admin.bj.swiyu.verifier.domain.management.dcql.DcqlQuery;
+import ch.admin.bj.swiyu.verifier.dto.VerificationPresentationRejectionDto;
+import ch.admin.bj.swiyu.verifier.dto.management.CreateVerificationManagementDto;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static ch.admin.bj.swiyu.verifier.common.exception.VerificationException.submissionError;
+import static java.util.Objects.requireNonNullElse;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ManagementTransactionalService {
+
+    private static final String LOADED_MANAGEMENT_ENTITY_FOR = "Loaded management entity for ";
+    private static final String MANAGEMENT_ENTITY_NOT_FOUND = "Management entity not found: ";
+
+    private final ManagementRepository repository;
+    private final ApplicationProperties applicationProperties;
+
+    /**
+     * Load a Management entity by id and enforce expiration and response-code guards within the current transaction.
+     *
+     * <p>Behavior:
+     * <ul>
+     *   <li>If the entity does not exist a {@link ch.admin.bj.swiyu.verifier.common.exception.VerificationNotFoundException} is thrown.</li>
+     *   <li>If the entity is expired it is deleted and a {@link ch.admin.bj.swiyu.verifier.common.exception.VerificationNotFoundException} is thrown.</li>
+     *   <li>If the provided, mandatory if redirectUri set, responseCode is missing or does not match, a {@link IllegalArgumentException} is thrown.</li>
+     * </ul>
+     *
+     * @param id           the Management entity id
+     * @param responseCode the expected response code for redirect-enabled sessions (optional)
+     * @return the loaded {@link ch.admin.bj.swiyu.verifier.domain.management.Management} if it passed all checks
+     */
+    @Transactional
+    public Management findAndHandleExpiration(UUID id, UUID responseCode) {
+        var management = repository.findById(id).orElseThrow(() -> new VerificationNotFoundException(id));
+
+        if (management.isExpired()) {
+            repository.deleteById(id);
+            log.info("Deleted management for id {} since it is expired", management.getId());
+            throw new VerificationNotFoundException(id);
+        }
+
+        if (management.getResponseCode() != null && !management.getResponseCode().equals(responseCode)) {
+            var msg = "Matching verification for id %s with response_code could not be found".formatted(id);
+            log.warn(msg);
+            throw new IllegalArgumentException(msg);
+        }
+
+        return management;
+    }
+
+    /**
+     * Persists a new Management aggregate in its own transaction.
+     *
+     * @param dcqlQuery                    the parsed DCQL query
+     * @param request                      the creation request DTO
+     * @param trustAnchors                 resolved trust anchors
+     * @param responseSpecificationBuilder builder for the response specification
+     * @param vqpsQueryHash                optional SHA-256 query hash linking this session to a cached vqPS JWT (PK of {@code vqps_cache})
+     * @param redirectURI                  optional redirect URI for the response
+     */
+    @Transactional
+    public Management saveNewManagement(DcqlQuery dcqlQuery,
+                                        CreateVerificationManagementDto request,
+                                        List<TrustAnchor> trustAnchors,
+                                        ResponseSpecification.ResponseSpecificationBuilder responseSpecificationBuilder,
+                                        String vqpsQueryHash,
+                                        URI redirectURI) {
+        return repository.save(Management.builder()
+                .expirationInSeconds(applicationProperties.getVerificationTTL())
+                .dcqlQuery(dcqlQuery)
+                .jwtSecuredAuthorizationRequest(requireNonNullElse(request.jwtSecuredAuthorizationRequest(), true))
+                .responseSpecification(responseSpecificationBuilder.build())
+                .acceptedIssuerDids(request.acceptedIssuerDids())
+                .trustAnchors(trustAnchors)
+                .configurationOverride(ManagementMapper.toSigningOverride(request.configuration_override()))
+                .vqpsQueryHash(vqpsQueryHash)
+                .redirectURI(redirectURI)
+                .build()
+                .resetExpiresAt());
+    }
+
+    /**
+     * Deletes all expired Managements in a single transactional operation.
+     */
+    @Transactional
+    public void deleteExpiredManagements() {
+        repository.deleteByExpiresAtIsBefore(System.currentTimeMillis());
+    }
+
+
+    /**
+     * Claims a verification session for exclusive processing by transitioning its state
+     * from {@link VerificationStatus#PENDING} to {@link VerificationStatus#IN_PROGRESS}.
+     *
+     * <p>Concurrency is handled via <b>optimistic locking</b>: both threads may load and
+     * mutate the entity in memory, but only one can commit. Hibernate issues
+     * {@code UPDATE … WHERE version = ?} at flush time — the losing thread receives an
+     * {@link org.springframework.orm.ObjectOptimisticLockingFailureException}, which the
+     * caller must handle.</p>
+     *
+     * @param managementEntityId the session to claim
+     * @return the {@link Management} entity in state {@code IN_PROGRESS}
+     * @throws ProcessClosedException                                          if the session is not {@code PENDING} or has expired
+     * @throws EntityNotFoundException                                         if no session exists for the given id
+     * @throws org.springframework.orm.ObjectOptimisticLockingFailureException if a concurrent
+     *                                                                         thread committed first
+     */
+    @Transactional(timeout = 10)
+    public Management claimSessionForProcessing(UUID managementEntityId) {
+        Management m = repository.findById(managementEntityId)
+                .orElseThrow(() ->
+                        submissionError(VerificationErrorResponseCode.AUTHORIZATION_REQUEST_OBJECT_NOT_FOUND,
+                                MANAGEMENT_ENTITY_NOT_FOUND + managementEntityId)
+                );
+        if (m.isProcessStillOpen()) {
+            // Mutate state — Hibernate detects the dirty field (optimistic locking)
+            m.claimForProcessing();
+        } else {
+            log.warn("Submission rejected for session {}: current state={}, expired={}",
+                    managementEntityId, m.getState(), m.isExpired());
+            throw new ProcessClosedException();
+        }
+        return m;
+    }
+
+    /**
+     * Persists a successful verification result in its own short-lived transaction.
+     *
+     * @param managementEntityId    the id of the Management entity to update
+     * @param credentialSubjectData the credential subject data to store in the Management entity
+     * @return the redirect URI to which the client should be sent after successful verification
+     */
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW,
+            noRollbackFor = VerificationException.class,
+            timeout = 10
+    )
+    public URI markVerificationSucceeded(UUID managementEntityId, String credentialSubjectData) {
+        var managementEntity = getInProgressManagementEntity(managementEntityId);
+        managementEntity.verificationSucceeded(credentialSubjectData);
+        return managementEntity.getRedirectURI();
+    }
+
+    /**
+     * Persists a failed verification result in its own short-lived transaction.
+     */
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW,
+            noRollbackFor = VerificationException.class,
+            timeout = 10
+    )
+    public void markVerificationFailed(UUID managementEntityId, VerificationException e) {
+        var managementEntity = getInProgressManagementEntity(managementEntityId);
+        managementEntity.verificationFailed(e.getErrorResponseCode(), e.getErrorDescription());
+    }
+
+    /**
+     * Persists a failed verification result due to an explicit client/wallet rejection
+     * in its own short-lived transaction.
+     */
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW,
+            noRollbackFor = VerificationException.class,
+            timeout = 10
+    )
+    public void markVerificationFailedDueToClientRejection(UUID managementEntityId, VerificationPresentationRejectionDto rejection) {
+        var managementEntity = getInProgressManagementEntity(managementEntityId);
+        log.trace(LOADED_MANAGEMENT_ENTITY_FOR + "{}", managementEntityId);
+        managementEntity.verificationFailedDueToClientRejection(rejection.getErrorDescription(), ManagementMapper.toVerificationErrorResponseCode(rejection.getError()));
+    }
+
+    @Transactional
+    public Optional<Management> findById(UUID requestId) {
+        return repository.findById(requestId);
+    }
+
+    /**
+     * Returns the {@link Management} entity with the given
+     * {@code managementEntityId}
+     * that must be in {@link VerificationStatus#IN_PROGRESS}.
+     *
+     * @throws VerificationException if the entity is missing
+     *                               or is in a terminal state
+     */
+    private Management getInProgressManagementEntity(UUID managementEntityId) {
+        var managementEntity = repository.findById(managementEntityId)
+                .orElseThrow(() -> submissionError(VerificationErrorResponseCode.AUTHORIZATION_REQUEST_OBJECT_NOT_FOUND,
+                        MANAGEMENT_ENTITY_NOT_FOUND + managementEntityId));
+        if (!VerificationStatus.IN_PROGRESS.equals(managementEntity.getState())) {
+            throw new ProcessClosedException();
+        }
+        return managementEntity;
+    }
+}
