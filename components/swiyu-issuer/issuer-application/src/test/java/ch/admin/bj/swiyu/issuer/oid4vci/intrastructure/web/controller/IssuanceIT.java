@@ -1,0 +1,559 @@
+package ch.admin.bj.swiyu.issuer.oid4vci.intrastructure.web.controller;
+
+import ch.admin.bj.swiyu.issuer.PostgreSQLContainerInitializer;
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.common.config.SdjwtProperties;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.*;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.BatchCredentialIssuance;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.IssuerMetadata;
+import ch.admin.bj.swiyu.issuer.dto.credentialoffer.CreateCredentialOfferRequestDto;
+import ch.admin.bj.swiyu.issuer.dto.credentialoffer.CredentialOfferMetadataDto;
+import ch.admin.bj.swiyu.issuer.oid4vci.test.TestInfrastructureUtils;
+import ch.admin.bj.swiyu.issuer.service.persistence.CredentialPersistenceService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.ECDHDecrypter;
+import com.nimbusds.jose.crypto.ECDHEncrypter;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jwt.SignedJWT;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import tools.jackson.databind.ObjectMapper;
+
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+
+import static ch.admin.bj.swiyu.issuer.oid4vci.intrastructure.web.controller.IssuanceTestUtils.*;
+import static ch.admin.bj.swiyu.issuer.oid4vci.test.CredentialOfferTestData.*;
+import static ch.admin.bj.swiyu.issuer.oid4vci.test.TestInfrastructureUtils.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Testcontainers
+@ActiveProfiles("test")
+@ContextConfiguration(initializers = PostgreSQLContainerInitializer.class)
+@Transactional
+class IssuanceIT {
+
+    private StatusList testStatusList;
+    private List<ECKey> holderKeys;
+    @Autowired
+    private MockMvc mock;
+    @Autowired
+    private StatusListRepository statusListRepository;
+    @Autowired
+    private CredentialOfferStatusRepository credentialOfferStatusRepository;
+    @Autowired
+    private CredentialOfferRepository credentialOfferRepository;
+    @Autowired
+    private ApplicationProperties applicationProperties;
+    @Autowired
+    private SdjwtProperties sdjwtProperties;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @MockitoSpyBean
+    private IssuerMetadata issuerMetadata;
+    @MockitoSpyBean
+    private CredentialPersistenceService persistenceService;
+
+    @BeforeEach
+    void setUp() {
+        // Reset spies so that stubs set in individual tests (e.g. getBatchCredentialIssuance=null)
+        // do not bleed into subsequent tests that rely on the real bean behaviour.
+        reset(issuerMetadata);
+        reset(persistenceService);
+        testStatusList = saveStatusList(createStatusList());
+        holderKeys = IntStream.range(0, issuerMetadata.getIssuanceBatchSize())
+                .boxed()
+                .map(i -> assertDoesNotThrow(() -> createPrivateKey("Test-Key-%s".formatted(i))))
+                .toList();
+    }
+
+    @Test
+    void testSdJwtOffer_withProof_thenSuccess() throws Exception {
+
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenDto = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+
+        var credentialRequestString = getCredentialRequestString(mock, holderKeys, applicationProperties, "university_example_sd_jwt");
+
+        var response = IssuanceTestUtils.requestCredential(mock, (String) tokenDto.get("access_token"), credentialRequestString)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.credentials").isNotEmpty())
+                .andExpect(jsonPath("$.transaction_id").doesNotExist())
+                .andExpect(jsonPath("$.interval").doesNotExist())
+                .andReturn();
+
+        var credentials = extractCredentials(response);
+
+        assertEquals(issuerMetadata.getIssuanceBatchSize(), credentials.size());
+        var credential = credentials.get(0).getAsJsonObject();
+        var credentialString = credential.get("credential").getAsString();
+        testHolderBinding(credentialString, holderKeys.getFirst());
+    }
+
+    @Test
+    void testSdJwtOffer_withProofAndList_thenSuccess() throws Exception {
+
+        var configurationId = "university_example_sd_jwt_list";
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of(configurationId))
+                .credentialSubjectData(getUniversityCredentialListSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenDto = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+
+        var credentialRequestString = getCredentialRequestString(mock, holderKeys, applicationProperties, configurationId);
+
+        var response = IssuanceTestUtils.requestCredential(mock, (String) tokenDto.get("access_token"), credentialRequestString)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        var credentials = extractCredentials(response);
+
+        assertEquals(issuerMetadata.getIssuanceBatchSize(), credentials.size());
+        var credential = credentials.get(0).getAsJsonObject();
+        var credentialString = credential.get("credential").getAsString();
+        testHolderBinding(credentialString, holderKeys.getFirst());
+    }
+
+    @Test
+    void testSdJwtOffer_withMetadata_thenSuccess() throws Exception {
+
+        var vctMetadataUri = "vct_metadata_uri";
+        var vctMetadataUriIntegrity = "vct_metadata_uri#integrity";
+
+        var metadata = new CredentialOfferMetadataDto(false, vctMetadataUri, vctMetadataUriIntegrity);
+
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                .credentialMetadata(metadata)
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenResponse = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+        var token = tokenResponse.get("access_token");
+
+        var credentialRequestString = getCredentialRequestString(mock, holderKeys, applicationProperties, "university_example_sd_jwt");
+        var response = IssuanceTestUtils.requestCredential(mock, (String) token, credentialRequestString)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        var credentials = extractCredentials(response);
+
+        assertEquals(issuerMetadata.getIssuanceBatchSize(), credentials.size());
+        var credential = credentials.get(0).getAsJsonObject();
+        var credentialString = credential.get("credential").getAsString();
+        var claims = getVcClaims(credentialString);
+
+        assertEquals(vctMetadataUri, claims.get(vctMetadataUri).getAsString());
+        assertEquals(vctMetadataUriIntegrity, claims.get(vctMetadataUriIntegrity).getAsString());
+    }
+
+    @Test
+    void testSdJwtOffer_noBatch_withoutProof_thenSuccess() throws Exception {
+
+        doReturn(null).when(issuerMetadata).getBatchCredentialIssuance();
+        doReturn(false).when(issuerMetadata).isBatchIssuanceAllowed();
+
+        var unboundOffer = createUnboundCredentialOffer();
+
+        var tokenResponse = TestInfrastructureUtils.fetchOAuthToken(mock, unboundOffer.getPreAuthorizedCode().toString());
+        var token = tokenResponse.get("access_token");
+        var credentialRequestString = String.format("{\"credential_configuration_id\": \"%s\"}",
+                "unbound_example_sd_jwt");
+
+        // assumption if no proofs provided then only 1 credential is issued
+        var response = IssuanceTestUtils.requestCredential(mock, (String) token, credentialRequestString)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.credentials").isNotEmpty())
+                .andExpect(jsonPath("$.transaction_id").doesNotExist())
+                .andExpect(jsonPath("$.interval").doesNotExist())
+                .andReturn();
+
+        var credentials = extractCredentials(response);
+
+        // without proof also configured batch size credential is issued
+        assertEquals(1, credentials.size());
+    }
+
+    @Test
+    void testSdJwtOffer_batched_withoutProof_thenSuccess() throws Exception {
+
+        doReturn(new BatchCredentialIssuance(10)).when(issuerMetadata).getBatchCredentialIssuance();
+        doReturn(true).when(issuerMetadata).isBatchIssuanceAllowed();
+
+        var unboundOffer = createUnboundCredentialOffer();
+
+        var tokenResponse = TestInfrastructureUtils.fetchOAuthToken(mock, unboundOffer.getPreAuthorizedCode().toString());
+        var token = tokenResponse.get("access_token");
+        var credentialRequestString = String.format("{\"credential_configuration_id\": \"%s\"}",
+                "unbound_example_sd_jwt");
+
+        // assumption if no proofs provided then only 1 credential is issued
+        var response = IssuanceTestUtils.requestCredential(mock, (String) token, credentialRequestString)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.credentials").isNotEmpty())
+                .andExpect(jsonPath("$.transaction_id").doesNotExist())
+                .andExpect(jsonPath("$.interval").doesNotExist())
+                .andReturn();
+
+        var credentials = extractCredentials(response);
+
+        // without proof also configured batch size credential is issued
+        assertEquals(issuerMetadata.getIssuanceBatchSize(), credentials.size());
+    }
+
+    @Test
+    void testSdJwtOffer_withRequestAndResponseEncryption_thenSuccess() throws Exception {
+
+        var offerData = getUniversityCredentialSubjectData();
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenResponse = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+        var token = tokenResponse.get("access_token");
+
+        // Fetch issuer metadata for encryption info
+        var metadata = assertDoesNotThrow(() -> objectMapper.readValue(mock.perform(get("/oid4vci/.well-known/openid-credential-issuer").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString(), IssuerMetadata.class));
+
+        // Response Encryption
+        assertThat(metadata.getResponseEncryption()).isNotNull();
+        assertTrue(metadata.getResponseEncryption().getAlgValuesSupported().contains(JWEAlgorithm.ECDH_ES.getName()));
+        assertTrue(metadata.getResponseEncryption().getEncValuesSupported().contains(EncryptionMethod.A128GCM.getName()));
+        ECKey encryptionKey = new ECKeyGenerator(Curve.P_256)
+                .keyID("transportEncKeyEC")
+                .keyUse(KeyUse.ENCRYPTION)
+                .algorithm(JWEAlgorithm.ECDH_ES)
+                .generate();
+
+        var responseEncryptionJson = String.format("""
+                        {
+                            "alg": "%s",
+                            "enc": "%s",
+                            "jwk": %s
+                        }
+                        """, JWEAlgorithm.ECDH_ES.getName(), EncryptionMethod.A256GCM.getName(),
+                encryptionKey.toPublicJWK().toJSONString());
+        var credentialRequestString = getCredentialRequestString(mock, holderKeys, applicationProperties, responseEncryptionJson, "university_example_sd_jwt");
+
+        // Request encryption
+        var requestEncryption = metadata.getRequestEncryption();
+        assertThat(requestEncryption).isNotNull();
+        assertThat(requestEncryption.getJwks()).isNotNull();
+        assertTrue(requestEncryption.getZipValuesSupported().contains(CompressionAlgorithm.DEF.getName()));
+        var jwks = assertDoesNotThrow(() -> JWKSet.parse(requestEncryption.getJwks()));
+        var requestKey = jwks.getKeys().getFirst().toECKey();
+        var requestEncryptor = assertDoesNotThrow(() -> new ECDHEncrypter(requestKey));
+        var requestJweHeader = new JWEHeader.Builder(
+                JWEAlgorithm.ECDH_ES,
+                EncryptionMethod.parse(requestEncryption.getEncValuesSupported().getFirst()))
+                .keyID(requestKey.getKeyID())
+                .alg(JWEAlgorithm.ECDH_ES)
+                .compressionAlgorithm(CompressionAlgorithm.DEF).build();
+        var jweObject = new JWEObject(requestJweHeader, new Payload(credentialRequestString));
+        assertDoesNotThrow(() -> jweObject.encrypt(requestEncryptor));
+        var encryptedRequestMessage = assertDoesNotThrow(jweObject::serialize);
+        var response = mock.perform(post("/oid4vci/api/credential")
+                        .header("Authorization", String.format("BEARER %s", token))
+                        .header("SWIYU-API-Version", "2")
+                        .content(encryptedRequestMessage)
+                        .contentType("application/jwt") // For encrypted credential request must be application/jwt
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/jwt"))
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andReturn();
+
+        var jwe = JWEObject.parse(response.getResponse().getContentAsString());
+        jwe.decrypt(new ECDHDecrypter(encryptionKey.toECPrivateKey()));
+        var jweContent = jwe.getPayload().toString();
+        JsonObject credentialResponse = JsonParser.parseString(jweContent).getAsJsonObject();
+        JsonArray credentials = credentialResponse.get("credentials").getAsJsonArray();
+        JsonObject credential = credentials.get(0).getAsJsonObject();
+        var vc = credential.get("credential").getAsString();
+
+        TestInfrastructureUtils.verifyVC(sdjwtProperties, vc, offerData);
+    }
+
+
+    @Test
+    void testSdJwtOffer_withRMissingequestAndResponseEncryption_thenBadRequest() throws Exception {
+
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenResponse = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+        var token = tokenResponse.get("access_token");
+
+        // Response Encryption
+        ECKey encryptionKey = new ECKeyGenerator(Curve.P_256)
+                .keyID("transportEncKeyEC")
+                .keyUse(KeyUse.ENCRYPTION)
+                .algorithm(JWEAlgorithm.ECDH_ES)
+                .generate();
+
+        var responseEncryptionJson = String.format("""
+                        {
+                            "alg": "%s",
+                            "enc": "%s",
+                            "jwk": %s
+                        }
+                        """, JWEAlgorithm.ECDH_ES.getName(), EncryptionMethod.A256GCM.getName(),
+                encryptionKey.toPublicJWK().toJSONString());
+        var credentialRequestString = getCredentialRequestString(mock, holderKeys, applicationProperties, responseEncryptionJson, "university_example_sd_jwt");
+        mock.perform(post("/oid4vci/api/credential")
+                        .header("Authorization", String.format("BEARER %s", token))
+                        .header("SWIYU-API-Version", "2")
+                        .content(credentialRequestString)
+                        .contentType("application/jwt") // For encrypted credential request must be application/jwt
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_encryption_parameters"))
+                .andExpect(jsonPath("$.error_description").value("Message is not a correct JWE object"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 3, 10})
+    void testSdJwtOffer_withMultipleProof_thenSuccess(int numberOfProofs) throws Exception {
+
+        List<ECKey> holderPrivateKeys = createHolderPrivateKeys(numberOfProofs);
+
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenResponse = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+        var token = tokenResponse.get("access_token");
+        var credentialRequestString = getCredentialRequestString(mock, holderPrivateKeys, applicationProperties, "university_example_sd_jwt");
+
+        var response = IssuanceTestUtils.requestCredential(mock, (String) token, credentialRequestString)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.credentials").isNotEmpty())
+                .andExpect(jsonPath("$.transaction_id").doesNotExist())
+                .andExpect(jsonPath("$.interval").doesNotExist())
+                .andReturn();
+
+        var credentials = extractCredentials(response);
+
+        assertEquals(numberOfProofs, credentials.size());
+
+        for (int j = 0; j < numberOfProofs; j++) {
+            var credential = credentials.get(j).getAsJsonObject();
+            var credentialString = credential.get("credential").getAsString();
+            testHolderBinding(credentialString, holderPrivateKeys.get(j));
+        }
+
+        // check if only correct number of status references exist and correct value have not been overwritten
+        var storedOfferStatusReferences = credentialOfferStatusRepository.findByOfferId(offer.getOfferId());
+        assertEquals(numberOfProofs, storedOfferStatusReferences.size());
+
+        credentials.forEach(cred -> {
+            var vc = cred.getAsJsonObject().get("credential").getAsString();
+
+            // get vc claims to extract status list index and verify that correct status list reference has been linked to the offer
+            var sdJwtTokenParts = vc.split("~");
+            var jwt = sdJwtTokenParts[0];
+
+            try {
+                SignedJWT signedJWT = SignedJWT.parse(jwt);
+                Map<String, Object> statusClaim = (Map<String, Object>) signedJWT.getJWTClaimsSet().getClaims().get("status");
+                Map<String, Object> statusListClaim = (Map<String, Object>) statusClaim.get("status_list");
+
+                // check if reference can be found in repository with correct offer id, status list id and index
+                assertTrue(storedOfferStatusReferences.stream().anyMatch(ref ->
+                        ref.getId().getOfferId().equals(offer.getOfferId())
+                                && ref.getId().getIndex() == ((long) statusListClaim.get("idx"))
+                                && ref.getId().getStatusListId().equals(testStatusList.getId()))
+                );
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 11})
+    void testSdJwtOffer_invalidBatchSizes_thenBadRequest(int numberOfProofs) throws Exception {
+
+        List<ECKey> holderPrivateKeys = createHolderPrivateKeys(numberOfProofs);
+
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenResponse = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+        var token = tokenResponse.get("access_token");
+        var credentialRequestString = getCredentialRequestString(mock, holderPrivateKeys, applicationProperties, "university_example_sd_jwt");
+
+        IssuanceTestUtils.requestCredential(mock, (String) token, credentialRequestString)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void testSdJwtOffer_noBatchIssuanceAllowed_thenException() throws Exception {
+
+        doReturn(null).when(issuerMetadata).getBatchCredentialIssuance();
+
+        var numberOfProofs = 2;
+
+        List<ECKey> holderPrivateKeys = createHolderPrivateKeys(numberOfProofs);
+
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenResponse = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+        var token = tokenResponse.get("access_token");
+        var credentialRequestString = getCredentialRequestString(mock, holderPrivateKeys, applicationProperties, "university_example_sd_jwt");
+
+        IssuanceTestUtils.requestCredential(mock, (String) token, credentialRequestString)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void testSdJwtOffer_noBatchIssuanceAllowed_thenSuccess() throws Exception {
+
+        doReturn(null).when(issuerMetadata).getBatchCredentialIssuance();
+        doReturn(false).when(issuerMetadata).isBatchIssuanceAllowed();
+
+        var numberOfProofs = 1;
+
+        List<ECKey> holderPrivateKeys = createHolderPrivateKeys(numberOfProofs);
+
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                // .credentialMetadata(getCredentialMetadataDto())
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+        var tokenDto = fetchOAuthToken(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString());
+        var token = tokenDto.get("access_token");
+        var credentialRequestString = getCredentialRequestString(mock, holderPrivateKeys, applicationProperties, "university_example_sd_jwt");
+
+        IssuanceTestUtils.requestCredential(mock, (String) token, credentialRequestString)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // verify that only 1 status list entry has been created beforehand (as batch issuance is not allowed)
+        verify(persistenceService, times(1)).saveStatusListEntries(anyList(), eq(offer.getOfferId()), eq(numberOfProofs));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2})
+    void testSdJwtOffer_batchIssuanceAllowed_proofAmountTooSmall_thenException(int numberOfProofs) throws Exception {
+
+        doReturn(new BatchCredentialIssuance(10)).when(issuerMetadata).getBatchCredentialIssuance();
+        doReturn(true).when(issuerMetadata).isBatchIssuanceAllowed();
+
+        List<ECKey> holderPrivateKeys = createHolderPrivateKeys(numberOfProofs);
+
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("university_example_sd_jwt"))
+                .credentialSubjectData(getUniversityCredentialSubjectData())
+                .statusLists(List.of(testStatusList.getUri()))
+                // .credentialMetadata(getCredentialMetadataDto())
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+        var credentialOffer = extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(offer);
+
+        // verify that only 1 status list entry has been created beforehand (as batch issuance is not allowed)
+        verify(persistenceService, times(1)).saveStatusListEntries(anyList(), eq(offer.getOfferId()), eq(10));
+
+        var tokenDto = fetchOAuthTokenDpop(mock, credentialOffer.getGrants().preAuthorizedCode().preAuthCode().toString(), null, null, null);
+        var token = tokenDto.get("access_token");
+        var credentialRequestString = getCredentialRequestString(mock, holderPrivateKeys, applicationProperties, "university_example_sd_jwt");
+
+        IssuanceTestUtils.requestCredential(mock, (String) token, credentialRequestString)
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    private StatusList saveStatusList(StatusList statusList) {
+        return statusListRepository.save(statusList);
+    }
+
+    private CredentialOffer createUnboundCredentialOffer() throws Exception {
+        var offerRequest = CreateCredentialOfferRequestDto.builder()
+                .metadataCredentialSupportedId(List.of("unbound_example_sd_jwt"))
+                .credentialSubjectData(Map.of("animal", "animal"))
+                .statusLists(List.of(testStatusList.getUri()))
+                .build();
+
+        var offer = createInitialCredentialWithDeeplinkResponse(mock, offerRequest);
+
+        return credentialOfferRepository.findById(offer.getOfferId()).orElseThrow();
+    }
+}

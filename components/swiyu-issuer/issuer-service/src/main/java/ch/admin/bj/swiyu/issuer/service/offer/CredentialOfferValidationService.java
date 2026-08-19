@@ -1,0 +1,266 @@
+package ch.admin.bj.swiyu.issuer.service.offer;
+
+import ch.admin.bj.swiyu.issuer.common.exception.BadRequestException;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.StatusList;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.CredentialConfiguration;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.IssuerMetadata;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.MetadataClaimDescriptor;
+import ch.admin.bj.swiyu.issuer.dto.credentialoffer.CreateCredentialOfferRequestDto;
+import ch.admin.bj.swiyu.issuer.service.DataIntegrityService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static ch.admin.bj.swiyu.issuer.service.SdJwtCredential.SDJWT_PROTECTED_CLAIMS;
+
+/**
+ * Service responsible for validating credential offers and their data.
+ *
+ * <p>This service encapsulates all validation logic related to credential offers,
+ * including format validation, claim validation, date validation, and issuer DID matching.</p>
+ */
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class CredentialOfferValidationService {
+
+    private final IssuerMetadata issuerMetadata;
+    private final DataIntegrityService dataIntegrityService;
+
+    /**
+     * Determines the issuer DID for a given status list.
+     * <p>
+     * If the status list contains a configuration override with a non-empty issuer DID,
+     * that value is returned. Otherwise, the provided default issuer ID is used.
+     *
+     * @param statusList      the status list to resolve the issuer DID from
+     * @param defaultIssuerId the default issuer ID to use if no override is present
+     * @return the resolved issuer DID
+     */
+    private static String determineIssuerDid(StatusList statusList, String defaultIssuerId) {
+        var override = statusList.getConfigurationOverride();
+        return override.issuerDidOrDefault(defaultIssuerId);
+    }
+
+    /**
+     * Validates a credential offer create request, performing sanity checks with configurations.
+     *
+     * @param createCredentialRequest the create credential request to be validated
+     * @param offerData               the parsed offer data
+     * @throws BadRequestException   if validation fails
+     * @throws IllegalStateException if the credential configuration format is unsupported
+     */
+    public void validateCredentialOfferCreateRequest(
+            @Valid CreateCredentialOfferRequestDto createCredentialRequest,
+            Map<String, Object> offerData) {
+
+        // Date checks, if exists
+        validateOfferedCredentialValiditySpan(createCredentialRequest);
+
+        for (String metadataCredentialSupportedId : createCredentialRequest.getMetadataCredentialSupportedId()) {
+            var credentialConfiguration = issuerMetadata.getCredentialConfigurationById(metadataCredentialSupportedId);
+
+            // Check if credential format is supported otherwise throw error
+            validateCredentialFormat(credentialConfiguration);
+
+            var metadata = createCredentialRequest.getCredentialMetadata();
+            var isDeferredRequest = (metadata != null && Boolean.TRUE.equals(metadata.deferred()));
+
+            validateCredentialRequestOfferData(offerData, isDeferredRequest, credentialConfiguration);
+        }
+    }
+
+    /**
+     * Validates the credential format is supported.
+     *
+     * @param credentialConfiguration the credential configuration
+     * @throws IllegalStateException if the format is not supported
+     */
+    public void validateCredentialFormat(CredentialConfiguration credentialConfiguration) {
+        if (!List.of("vc+sd-jwt", "dc+sd-jwt").contains(credentialConfiguration.getFormat())) {
+            throw new IllegalStateException("Unsupported credential configuration format %s, only supporting vc+sd-jwt or dc+sd-jwt"
+                    .formatted(credentialConfiguration.getFormat()));
+        }
+    }
+
+    /**
+     * Validates the credential request offer data.
+     *
+     * @param offerData               the offer data to validate
+     * @param allowEmptyData          empty data can be allowed with initial deferred request
+     * @param credentialConfiguration the credential configuration
+     * @throws BadRequestException if validation fails
+     */
+    public void validateCredentialRequestOfferData(
+            Map<String, Object> offerData,
+            boolean allowEmptyData,
+            CredentialConfiguration credentialConfiguration) {
+
+        // with deferred requests the offer data can be empty initially if the data is set it must be validated
+        if (allowEmptyData && CollectionUtils.isEmpty(offerData)) {
+            return;
+        }
+
+        // data cannot be empty
+        if (CollectionUtils.isEmpty(offerData)) {
+            throw new BadRequestException("Credential claims (credential subject data) is missing!");
+        }
+
+        var validatedOfferData = dataIntegrityService.getVerifiedOfferData(offerData, null);
+
+        // check if credentialSubjectData contains protected claims
+        validateProtectedClaims(validatedOfferData);
+
+        var metadata = credentialConfiguration.getCredentialMetadata();
+
+        if (metadata == null || metadata.getClaimDescriptor() == null) {
+            log.warn("Credential metadata or credential claims is missing! - Therefore input is not validated");
+            return;
+        }
+
+        List<MetadataClaimDescriptor> metadataClaimsDescriptors = metadata.getClaimDescriptor();
+
+        // validate missing and surplus using dedicated helpers
+        validatePathClaimsMissing(metadataClaimsDescriptors, validatedOfferData);
+    }
+
+    /**
+     * Validates that offer data does not contain protected claims.
+     *
+     * @param offerData the offer data to validate
+     * @throws BadRequestException if protected claims are found
+     */
+    private void validateProtectedClaims(Map<String, Object> offerData) {
+        List<String> reservedClaims = new ArrayList<>(offerData.keySet().stream()
+                .filter(SDJWT_PROTECTED_CLAIMS::contains)
+                .toList());
+
+        if (!reservedClaims.isEmpty()) {
+            throw new BadRequestException(
+                    "The following claims are not allowed in the credentialSubjectData: " + reservedClaims);
+        }
+    }
+
+    /**
+     * Validate that all descriptor paths are present in the offer data.
+     */
+    private void validatePathClaimsMissing(List<MetadataClaimDescriptor> claimDescriptors, Map<String, Object> offerData) {
+
+        // checks if mandatory claims are present, if path does not exist or if there is a value mismatch in the sd jwt's claims, if any of this is the case the claim is treated as missing
+        var missing = claimDescriptors.stream()
+                .filter(claimDescriptor -> {
+                    try {
+                        if (claimDescriptor.isMandatory()) {
+                            ClaimsPathPointerUtil.validateRequestedClaims(offerData, claimDescriptor.getPath(), null);
+                        }
+                        return false;
+                    } catch (Exception e) {
+                        log.error("Error while validating descriptor path %s against offer data, treating as missing"
+                                .formatted(formatPath(claimDescriptor.getPath())), e);
+                        return true;
+                    }
+                })
+                .collect(Collectors.toSet());
+
+        if (!missing.isEmpty()) {
+            var formatted = missing.stream()
+                    .map(descriptor -> formatPath(descriptor.getPath()))
+                    .sorted()
+                    .collect(Collectors.joining(","));
+            throw new BadRequestException("Mandatory credential claims are missing: [%s]".formatted(formatted));
+        }
+    }
+
+    private String formatPath(List<Object> path) {
+        // Use dot notation, arrays shown as [idx]
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0, n = path.size(); i < n; i++) {
+            Object o = path.get(i);
+            if (i > 0) {
+                sb.append(' ');
+            }
+            sb.append(o);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Validates the validity span of the offered credential.
+     *
+     * @param credentialOffer the credential offer to validate
+     * @throws BadRequestException if the validity span is invalid
+     */
+    public void validateOfferedCredentialValiditySpan(@Valid CreateCredentialOfferRequestDto credentialOffer) {
+        var validUntil = credentialOffer.getCredentialValidUntil();
+        if (validUntil == null) {
+            return;
+        }
+        if (validUntil.isBefore(Instant.now())) {
+            throw new BadRequestException(
+                    "Credential is already expired (would only be valid until %s, server time is %s)"
+                            .formatted(validUntil, Instant.now()));
+        }
+        var validFrom = credentialOffer.getCredentialValidFrom();
+        if (validFrom != null && validFrom.isAfter(validUntil)) {
+            throw new BadRequestException(
+                    "Credential would never be valid - Valid from %s until %s"
+                            .formatted(validFrom, validUntil));
+        }
+    }
+
+    /**
+     * The issuer did (iss) of VCs and the linked status lists have to be the same or verifications will fail.
+     * <p>
+     * Developer Note: Since Token Status List Draft 04 requirement for matching iss claim in Referenced Token
+     * and Status List Token has been removed. The wallet and verifier must be first migrated before this check
+     * can be removed.
+     *
+     * @param issuerDid       the issuer DID
+     * @param defaultIssuerId the default issuer ID
+     * @param statusLists     the status lists to validate
+     * @throws BadRequestException if issuer DIDs don't match
+     */
+    @Deprecated(since = "Token Status List Draft 04")
+    public void ensureMatchingIssuerDids(
+            String issuerDid,
+            String defaultIssuerId,
+            List<StatusList> statusLists) {
+
+        var mismatchingStatusLists = statusLists.stream()
+                .filter(statusList -> !determineIssuerDid(statusList, defaultIssuerId).equals(issuerDid))
+                .toList();
+
+        if (!mismatchingStatusLists.isEmpty()) {
+            throw new BadRequestException(
+                    "Status List issuer did is not the same as credential issuer did for %s"
+                            .formatted(mismatchingStatusLists.stream()
+                                    .map(StatusList::getUri)
+                                    .toList()
+                                    .toString()));
+        }
+    }
+
+    /**
+     * Determines the issuer DID from the request or default configuration.
+     *
+     * @param requestDto      the credential offer request
+     * @param defaultIssuerId the default issuer ID
+     * @return the issuer DID to use
+     */
+    public String determineIssuerDid(CreateCredentialOfferRequestDto requestDto, String defaultIssuerId) {
+        var override = requestDto.getConfigurationOverride();
+        if (override != null) {
+            return StringUtils.getIfBlank(override.issuerDid(), () -> defaultIssuerId);
+        }
+        return defaultIssuerId;
+    }
+}

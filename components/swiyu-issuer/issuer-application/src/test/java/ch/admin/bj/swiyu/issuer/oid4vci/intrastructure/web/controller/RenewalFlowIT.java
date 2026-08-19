@@ -1,0 +1,460 @@
+package ch.admin.bj.swiyu.issuer.oid4vci.intrastructure.web.controller;
+
+import ch.admin.bj.swiyu.core.status.registry.client.api.StatusBusinessApiApi;
+import ch.admin.bj.swiyu.core.status.registry.client.invoker.ApiClient;
+import ch.admin.bj.swiyu.core.status.registry.client.model.StatusListEntryCreationDto;
+import ch.admin.bj.swiyu.issuer.PostgreSQLContainerInitializer;
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.common.config.SwiyuProperties;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.IssuerMetadata;
+import ch.admin.bj.swiyu.issuer.dto.credentialofferstatus.UpdateCredentialStatusRequestTypeDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.OAuthTokenDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.CredentialObjectDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.CredentialResponseDto;
+import ch.admin.bj.swiyu.issuer.dto.statuslist.StatusListDto;
+import ch.admin.bj.swiyu.issuer.management.infrastructure.web.controller.StatusListTestHelper;
+import ch.admin.bj.swiyu.issuer.oid4vci.test.TestInfrastructureUtils;
+import com.authlete.sd.SDJWT;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.model.HttpRequest;
+import org.mockserver.model.HttpResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mockserver.MockServerContainer;
+import org.testcontainers.utility.DockerImageName;
+import reactor.core.publisher.Mono;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static ch.admin.bj.swiyu.issuer.oid4vci.intrastructure.web.controller.IssuanceTestUtils.*;
+import static ch.admin.bj.swiyu.issuer.oid4vci.test.CredentialOfferTestData.getMinimalPayloadForDeferredUniversityCredential;
+import static ch.admin.bj.swiyu.issuer.oid4vci.test.CredentialOfferTestData.getMinimalPayloadForUniversityCredential;
+import static ch.admin.bj.swiyu.issuer.oid4vci.test.TestInfrastructureUtils.createEcKey;
+import static ch.admin.bj.swiyu.issuer.oid4vci.test.TestInfrastructureUtils.fetchOAuthTokenDpop;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Testcontainers
+@ActiveProfiles("test")
+@ContextConfiguration(initializers = PostgreSQLContainerInitializer.class)
+@Transactional
+class RenewalFlowIT {
+
+    public static final String TEST_BUSINESS_ISSUER_CREDENTIAL_RENEWAL_ENDPOINT = "/test/credential-renewal/endpoint";
+    @Container
+    static MockServerContainer mockServerContainer = new MockServerContainer(
+            DockerImageName.parse("mockserver/mockserver:5.15.0"));
+
+    static MockServerClient mockServerClient;
+    private final ApiClient mockApiClient = Mockito.mock(ApiClient.class);
+    @Autowired
+    MockMvc mockMvc;
+    @Autowired
+    ObjectMapper objectMapper;
+    @MockitoSpyBean
+    ApplicationProperties applicationProperties;
+    @Autowired
+    IssuerMetadata issuerMetadata;
+    @Autowired
+    SwiyuProperties swiyuProperties;
+    @MockitoBean
+    private StatusBusinessApiApi statusBusinessApi;
+    private StatusListTestHelper statusListTestHelper;
+    private String payload;
+    private OAuthTokenDto oauthTokenResponse;
+    private ECKey dpopKey;
+    private String managementId;
+
+    @BeforeAll
+    static void initialization() {
+        mockServerClient = new MockServerClient(
+                mockServerContainer.getHost(),
+                mockServerContainer.getServerPort());
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+        // Reset the spy so that no stub from a previous test (e.g. isRenewalFlowEnabled(false)
+        // set by testRenewalWhenDisabled_throwsException) leaks into the next test through the
+        // shared bean. We re-stub everything we need below.
+        Mockito.reset(applicationProperties);
+
+        mockServerClient.reset();
+        statusListTestHelper = new StatusListTestHelper(mockMvc, objectMapper);
+        final StatusListEntryCreationDto statusListEntry = statusListTestHelper.buildStatusListEntry();
+        when(statusBusinessApi.createStatusListEntry(swiyuProperties.businessPartnerId()))
+                .thenReturn(Mono.just(statusListEntry));
+        when(statusBusinessApi.updateStatusListEntry(any(), any(), any())).thenReturn(Mono.empty());
+        when(statusBusinessApi.getApiClient()).thenReturn(mockApiClient);
+        when(mockApiClient.getBasePath()).thenReturn(statusListEntry.getStatusRegistryUrl());
+
+        final StatusListDto statusListDto = assertDoesNotThrow(() -> statusListTestHelper.createStatusList(
+                1000,
+                // Space for 1000 entries; length / batch size is how many VCs we can store in
+                // the status list
+                null,
+                2,
+                // 2 Bits for having the states issue, revoke and suspend (and one unused state)
+                null,
+                null,
+                null,
+                null));
+        // We will need the status list uri as identifier to indicate which status list
+        // will be used a VC we create
+        var statusListUri = statusListDto.getStatusRegistryUrl();
+
+        payload = getMinimalPayloadForUniversityCredential(statusListUri);
+        
+        // here
+        assertDoesNotThrow(this::createCredential);
+
+        doReturn(120).when(applicationProperties).getNonceLifetimeSeconds();
+        doReturn(true).when(applicationProperties).isRenewalFlowEnabled();
+        doReturn(mockServerContainer.getEndpoint() + TEST_BUSINESS_ISSUER_CREDENTIAL_RENEWAL_ENDPOINT)
+                .when(applicationProperties).getBusinessIssuerRenewalApiEndpoint();
+    }
+
+    @Test
+    void renewAccessToken_deferred_thenSuccess() throws Exception {
+
+        var jwk = createEcKey("test-key-1");
+
+        var deferredPayload = getMinimalPayloadForDeferredUniversityCredential(null);
+
+        // Arrange: mock business issuer to return a successful renewal response (payload)
+        var newOffer = TestInfrastructureUtils.createCredentialOffer(mockMvc, deferredPayload).andReturn();
+        var management = getManagementJsonObject(newOffer);
+        var preAuthCode = IssuanceTestUtils.getPreAuthCodeFromDeeplink(management.get("offer_deeplink").getAsString());
+        var oAuthToken = fetchOAuthTokenDpop(mockMvc, preAuthCode, dpopKey, "http://localhost:8080", null);
+
+        requestCredentialWithDpop(mockMvc, (String) oAuthToken.get("access_token"), getCredentialRequestString(mockMvc, List.of(jwk), applicationProperties, "university_example_sd_jwt"), issuerMetadata, dpopKey)
+                .andExpect(status().isAccepted())
+                .andReturn();
+
+        // Act: refresh the access token using the refresh token and DPoP key
+        refreshTokenWithDpop((String) oAuthToken.get("refresh_token"), dpopKey);
+
+        // Ensure the management/offer is in READY state as the business issuer would set it
+        updateStatus(mockMvc, management.get("management_id").getAsString(), UpdateCredentialStatusRequestTypeDto.READY)
+                .andExpect(status().isOk());
+
+        // Act: refresh the access token using the refresh token and DPoP key
+        refreshTokenWithDpop((String) oAuthToken.get("refresh_token"), dpopKey);
+    }
+
+    @Test
+    void testRenewalSuccess() throws Exception {
+        var RENEWAL_FLOWS = 4;
+        mockServerClient
+                .when(
+                        new HttpRequest()
+                                .withMethod("POST")
+                                .withPath(TEST_BUSINESS_ISSUER_CREDENTIAL_RENEWAL_ENDPOINT))
+                .respond(
+                        HttpResponse.response()
+                                .withStatusCode(200)
+                                .withHeader("Content-Type", "application/json")
+                                .withBody(payload));
+
+        // renew token
+        var tokenResponse = refreshTokenWithDpop(oauthTokenResponse.getRefreshToken(), dpopKey);
+
+        // issue batches of VCs
+        var credentials = new LinkedList<JWTClaimsSet>();
+        for (var i = 0; i < RENEWAL_FLOWS; i++) {
+            var credentialRequestString = createCredentialRequestStringWithNewKeys();
+            var credentialResponseString = requestCredentialWithDpop(mockMvc,
+                    tokenResponse.getAccessToken(), credentialRequestString, issuerMetadata,
+                    dpopKey)
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("application/json"))
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString();
+            var credentialResponse = assertDoesNotThrow(() -> objectMapper
+                    .readValue(credentialResponseString, CredentialResponseDto.class));
+            var credentialClaims = credentialResponse.credentials().stream()
+                    .map(this::getCredentialClaimsSet)
+                    .toList();
+            var statusIndexes = credentialClaims.stream()
+                    .map(this::getStatusIndex)
+                    .collect(Collectors.toSet());
+            assertThat(statusIndexes).hasSameSizeAs(credentialClaims);
+            credentials.addAll(credentialClaims);
+        }
+        assertThat(credentials)
+                .as("Should have gotten issued the full batch of VCs for each renewal flow run")
+                .hasSize(RENEWAL_FLOWS * issuerMetadata.getIssuanceBatchSize());
+        var allStatusIndexes = credentials.stream()
+                .map(this::getStatusIndex)
+                .collect(Collectors.toSet());
+        assertThat(allStatusIndexes)
+                .as("Every VC accross all batches should have a disinct state to prevent linking through states")
+                .hasSameSizeAs(credentials);
+
+    }
+
+    @Test
+    void testRenewalWhenDisabled_throwsException() throws Exception {
+
+        doReturn(false).when(applicationProperties).isRenewalFlowEnabled();
+
+        // renew token
+        var tokenResponse = refreshTokenWithDpop(oauthTokenResponse.getRefreshToken(), dpopKey);
+
+        var holderKeys = IntStream.range(0, issuerMetadata.getIssuanceBatchSize())
+                .boxed()
+                .map(privindex -> assertDoesNotThrow(
+                        () -> createPrivateKey("Test-Key-%s".formatted(privindex))))
+                .toList();
+
+        var credentialRequestString = getCredentialRequestString(mockMvc, holderKeys, applicationProperties, "university_example_sd_jwt");
+
+        // set to issued
+        requestCredentialWithDpop(mockMvc, tokenResponse.getAccessToken(), credentialRequestString,
+                issuerMetadata, dpopKey)
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andReturn();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = UpdateCredentialStatusRequestTypeDto.class, names = {"SUSPENDED", "REVOKED"})
+    void givenRevoked_testRenewalInvalidAccessToken_thenException(UpdateCredentialStatusRequestTypeDto statusType)
+            throws Exception {
+
+        var tokenResponse = refreshTokenWithDpop(oauthTokenResponse.getRefreshToken(), dpopKey);
+
+        // status update after token refresh => token is valid but credential is not in
+        // a state that allows renewal
+        updateStatus(mockMvc, managementId, statusType);
+
+        var holderKeys = IntStream.range(0, issuerMetadata.getIssuanceBatchSize())
+                .boxed()
+                .map(privindex -> assertDoesNotThrow(
+                        () -> createPrivateKey("Test-Key-%s".formatted(privindex))))
+                .toList();
+
+        var credentialRequestString = getCredentialRequestString(mockMvc, holderKeys, applicationProperties, "university_example_sd_jwt");
+
+        // set to issued
+        requestCredentialWithDpop(mockMvc, tokenResponse.getAccessToken(), credentialRequestString,
+                issuerMetadata, dpopKey)
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.error_description")
+                        .value("Credential management is %s, no renewal possible"
+                                .formatted(statusType.name())))
+                .andReturn();
+    }
+
+    @Test
+    void testRenewalInvalidAccessToken_thenException() throws Exception {
+        var credentialRequestString = createCredentialRequestStringWithNewKeys();
+        // set to issued
+        requestCredentialWithDpop(mockMvc, UUID.randomUUID().toString(), credentialRequestString,
+                issuerMetadata, dpopKey)
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andReturn();
+    }
+
+    @Test
+    void testRenewalInvalidRefreshToken_thenException() throws Exception {
+
+        mockMvc.perform(post("/oid4vci/api/token")
+                        .header("DPoP", createDpop(
+                                mockMvc,
+                                issuerMetadata.getNonceEndpoint(),
+                                "POST",
+                                "http://localhost:8080/oid4vci/api/token",
+                                null,
+                                dpopKey))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .param("grant_type", "refresh_token")
+                        .param("refresh_token", UUID.randomUUID().toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * This test mocks the business issuer being not able to process the request due
+     * to various issues
+     *
+     * @param statusCode status the business issuer responds with
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "420", // renewal quota exceeded
+            "451", // cannot renew due to legal reasons
+            "409", // SID detects a conflict
+            "404", // Management ID not found
+            "500", // Internal Error Business Issuer
+            "503" // Peripheral systems not available
+    })
+    void testRenewalExternalFailures(String statusCode) throws Exception {
+
+        var expectedStatus = Integer.parseInt(statusCode);
+        mockServerClient
+                .when(
+                        new HttpRequest()
+                                .withMethod("POST")
+                                .withPath(TEST_BUSINESS_ISSUER_CREDENTIAL_RENEWAL_ENDPOINT))
+                .respond(
+                        HttpResponse.response()
+                                .withStatusCode(expectedStatus)
+                                .withHeader("Content-Type", "application/json"));
+
+        // renew token
+        var tokenResponse = assertDoesNotThrow(
+                () -> refreshTokenWithDpop(oauthTokenResponse.getRefreshToken(), dpopKey));
+
+        var credentialRequestString = createCredentialRequestStringWithNewKeys();
+
+        // set to issued
+        assertDoesNotThrow(() -> requestCredentialWithDpop(mockMvc, tokenResponse.getAccessToken(),
+                credentialRequestString, issuerMetadata, dpopKey)
+                .andExpect(status().is(expectedStatus))
+                .andExpect(content().contentType("application/json"))
+                .andReturn());
+
+    }
+
+    private JsonObject createCredential() throws Exception {
+
+        var holderKeys = IntStream.range(0, issuerMetadata.getIssuanceBatchSize())
+                .boxed()
+                .map(privindex -> assertDoesNotThrow(
+                        () -> createPrivateKey("Test-Key-%s".formatted(privindex))))
+                .toList();
+
+        MvcResult result = TestInfrastructureUtils.createCredentialOffer(mockMvc, payload)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        var managementJsonObject = getManagementJsonObject(result);
+
+        managementId = managementJsonObject.get("management_id").getAsString();
+
+        var preAuthCode = IssuanceTestUtils
+                .getPreAuthCodeFromDeeplink(managementJsonObject.get("offer_deeplink").getAsString());
+
+        dpopKey = assertDoesNotThrow(() -> new ECKeyGenerator(Curve.P_256)
+                .keyID("HolderDPoPKey")
+                .keyUse(KeyUse.SIGNATURE)
+                .generate());
+
+        oauthTokenResponse = requestTokenWithDpop(preAuthCode, dpopKey);
+
+        var credentialRequestString = getCredentialRequestString(mockMvc, holderKeys, applicationProperties, "university_example_sd_jwt");
+
+        // set to issued
+        requestCredentialWithDpop(mockMvc, oauthTokenResponse.getAccessToken(), credentialRequestString,
+                issuerMetadata, dpopKey)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andReturn();
+
+        return managementJsonObject;
+    }
+
+    private OAuthTokenDto requestTokenWithDpop(String preAuthCode, ECKey dpopKey) throws Exception {
+        MvcResult tokenResult = mockMvc.perform(post("/oid4vci/api/token")
+                        .header("DPoP", createDpop(
+                                mockMvc,
+                                issuerMetadata.getNonceEndpoint(),
+                                "POST",
+                                "http://localhost:8080/oid4vci/api/token",
+                                null,
+                                dpopKey))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .param("grant_type", "urn:ietf:params:oauth:grant-type:pre-authorized_code")
+                        .param("pre-authorized_code", preAuthCode))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        return objectMapper.readValue(tokenResult.getResponse().getContentAsString(), OAuthTokenDto.class);
+    }
+
+    private OAuthTokenDto refreshTokenWithDpop(String refreshToken, ECKey dpopKey) throws Exception {
+        MvcResult tokenResult = mockMvc.perform(post("/oid4vci/api/token")
+                        .header("DPoP", createDpop(
+                                mockMvc,
+                                issuerMetadata.getNonceEndpoint(),
+                                "POST",
+                                "http://localhost:8080/oid4vci/api/token",
+                                null,
+                                dpopKey))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .param("grant_type", "refresh_token")
+                        .param("refresh_token", refreshToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        return objectMapper.readValue(tokenResult.getResponse().getContentAsString(), OAuthTokenDto.class);
+    }
+
+    private String createCredentialRequestStringWithNewKeys() throws Exception {
+        var holderKeys = IntStream.range(0, issuerMetadata.getIssuanceBatchSize())
+                .boxed()
+                .map(privindex -> assertDoesNotThrow(
+                        () -> createPrivateKey("Test-Key-%s".formatted(privindex))))
+                .toList();
+        return getCredentialRequestString(mockMvc, holderKeys, applicationProperties, "university_example_sd_jwt");
+    }
+
+    private JWTClaimsSet getCredentialClaimsSet(CredentialObjectDto issuedCredential) {
+        var sdjwt = SDJWT.parse(issuedCredential.credential());
+        var jwt = assertDoesNotThrow(() -> SignedJWT.parse(sdjwt.getCredentialJwt()));
+        return assertDoesNotThrow(jwt::getJWTClaimsSet);
+    }
+
+    private long getStatusIndex(JWTClaimsSet credentialClaimSet) {
+        Map<String, Map<String, Object>> tokenStatusListMap = (Map<String, Map<String, Object>>) credentialClaimSet
+                .getClaim("status");
+        return (long) tokenStatusListMap.get("status_list").get("idx");
+    }
+
+    private JsonObject getManagementJsonObject(MvcResult result) throws Exception {
+        return JsonParser.parseString(result.getResponse().getContentAsString())
+                .getAsJsonObject();
+    }
+}

@@ -1,0 +1,242 @@
+package ch.admin.bj.swiyu.issuer.service;
+
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.common.exception.CredentialException;
+import ch.admin.bj.swiyu.issuer.common.exception.Oid4vcException;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.*;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.CredentialResponseEncryptionClass;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.encryption.CredentialResponseEncryptor;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.holderbinding.HolderKeyBinding;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.CredentialConfiguration;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.IssuerCredentialResponseEncryption;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.IssuerMetadata;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.CredentialEnvelopeDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.CredentialObjectDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.CredentialResponseDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.DeferredCredentialResponseDto;
+import com.nimbusds.jose.JWSSigner;
+import jakarta.annotation.Nullable;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.*;
+
+import static ch.admin.bj.swiyu.issuer.common.exception.CredentialRequestError.INVALID_CREDENTIAL_REQUEST;
+
+@Slf4j
+@Getter
+public abstract class CredentialBuilder {
+    private final ApplicationProperties applicationProperties;
+    private final IssuerMetadata issuerMetadata;
+    private final DataIntegrityService dataIntegrityService;
+    private final StatusListRepository statusListRepository;
+    private final CredentialOfferStatusRepository credentialOfferStatusRepository;
+    private final JwsSignatureFacade jwsSignatureFacade;
+    private final VerifiableCredentialStatusFactory statusFactory;
+    private CredentialResponseEncryptor credentialResponseEncryptor;
+    private CredentialOffer credentialOffer;
+    private CredentialConfiguration credentialConfiguration;
+    private List<HolderKeyBinding> holderKeyBindings = new ArrayList<>();
+    private List<String> metadataCredentialsSupportedIds;
+
+    CredentialBuilder(ApplicationProperties applicationProperties,
+                      IssuerMetadata issuerMetadata,
+                      DataIntegrityService dataIntegrityService,
+                      StatusListRepository statusListRepository,
+                      JwsSignatureFacade jwsSignatureFacade,
+                      CredentialOfferStatusRepository credentialOfferStatusRepository) {
+        this.applicationProperties = applicationProperties;
+        this.issuerMetadata = issuerMetadata;
+        this.dataIntegrityService = dataIntegrityService;
+        this.statusListRepository = statusListRepository;
+        this.credentialOfferStatusRepository = credentialOfferStatusRepository;
+        this.jwsSignatureFacade = jwsSignatureFacade;
+        this.statusFactory = new VerifiableCredentialStatusFactory();
+    }
+
+    public CredentialBuilder credentialOffer(CredentialOffer credentialOffer) {
+        this.credentialOffer = credentialOffer;
+        this.credentialConfiguration = getOfferCredentialConfiguration(credentialOffer);
+        return this;
+    }
+
+    public CredentialBuilder credentialResponseEncryption(
+            IssuerCredentialResponseEncryption offeredEncryption,
+            CredentialResponseEncryptionClass requestedEncryption) {
+        this.credentialResponseEncryptor = new CredentialResponseEncryptor(offeredEncryption,
+                requestedEncryption);
+        return this;
+    }
+
+    public CredentialEnvelopeDto buildCredentialEnvelope() {
+        // if no holder bindings are set, we only create 1 credential
+        List<CredentialObjectDto> credentials = getCredential(holderKeyBindings).stream()
+                .map(CredentialObjectDto::new)
+                .toList();
+        var credentialResponseDto = new CredentialResponseDto(credentials);
+        return buildEnvelopeDto(credentialResponseDto);
+    }
+
+    public CredentialEnvelopeDto buildDeferredCredential(UUID transactionId) {
+        var credentialResponseDto = new DeferredCredentialResponseDto(transactionId.toString(),
+                applicationProperties.getMinDeferredOfferIntervalSeconds());
+
+        return buildEnvelopeDto(credentialResponseDto, HttpStatus.ACCEPTED);
+    }
+
+    public CredentialEnvelopeDto buildEnvelopeDto(Object payload) {
+
+        return buildEnvelopeDto(payload, HttpStatus.OK);
+    }
+
+    public CredentialEnvelopeDto buildEnvelopeDto(Object payload, HttpStatus httpStatus) {
+        var payloadJson = "";
+        try {
+            payloadJson = new ObjectMapper().writeValueAsString(payload);
+        } catch (JacksonException e) {
+            throw new CredentialException(e.getMessage());
+        }
+        var contentType = MediaType.APPLICATION_JSON_VALUE;
+        if (getCredentialResponseEncryptor().isEncryptionRequired()) {
+            payloadJson = getCredentialResponseEncryptor().encryptResponse(payloadJson);
+            contentType = "application/jwt";
+        }
+
+        return new CredentialEnvelopeDto(contentType, payloadJson, httpStatus);
+    }
+
+    /**
+     * Sets the holder binding for the credential. If not set, the credential will
+     * be issued without a holder binding.
+     *
+     * @param holderKeys List of JSON string representing the holder's JWK.
+     * @return the updated CredentialBuilder instance.
+     */
+    public CredentialBuilder holderBindings(List<String> holderKeys) {
+
+        this.holderKeyBindings = !CollectionUtils.isEmpty(holderKeys)
+                ? holderKeys.stream()
+                  .map(HolderKeyBinding::new)
+                  .toList()
+                : List.of();
+        return this;
+    }
+
+    /**
+     * Sets the list of supported credential IDs for the credential type.
+     *
+     * @param metadataCredentialsSupportedIds List of supported credential IDs.
+     * @return the updated CredentialBuilder instance.
+     */
+    public CredentialBuilder credentialType(List<String> metadataCredentialsSupportedIds) {
+        this.metadataCredentialsSupportedIds = metadataCredentialsSupportedIds;
+        return this;
+    }
+
+    public abstract List<String> getCredential(@Nullable List<HolderKeyBinding> holderPublicKeys);
+
+    /**
+     * Unpacks the credential offer data and checks the integrity, if applicable
+     *
+     * @return the data as to be used in credentialSubject
+     */
+    protected Map<String, Object> getOfferData() {
+        return this.dataIntegrityService.getVerifiedOfferData(this.credentialOffer.getOfferData(),
+                this.credentialOffer.getId());
+    }
+
+    /**
+     * Create all status list references in the way they are to be added to the VC
+     * JSON
+     * eg
+     *
+     * <pre>
+     * <code>
+     *    {
+     *      "status": {
+     *           "status_list": {
+     *              "idx": 0,
+     *              "uri": "https://example.com/statuslists/1"
+     *          }
+     *      },
+     *      "credentialStatus": {
+     *          "id": "https://university.example/credentials/status/3#94567",
+     *          "type": "BitstringStatusListEntry",
+     *          "statusPurpose": "revocation",
+     *          "statusListIndex": "94567",
+     *          "statusListCredential": "https://university.example/credentials/status/3"
+     *      }
+     *   }
+     *  </code>
+     * </pre>
+     */
+    protected Map<String, List<VerifiableCredentialStatusReference>> getStatusReferences() {
+        Map<String, List<VerifiableCredentialStatusReference>> statuses = new HashMap<>();
+        Set<CredentialOfferStatus> byOfferStatusId = credentialOfferStatusRepository
+                .findByOfferId(this.credentialOffer.getId());
+
+        byOfferStatusId.stream()
+                .map((CredentialOfferStatus credentialOfferStatus) -> statusFactory.createStatusListReference(
+                        credentialOfferStatus.getId()
+                                .getIndex(), getStatusList(credentialOfferStatus)))
+                .forEach(status -> statusFactory.mergeByIdentifier(statuses, status));
+        return statuses;
+    }
+
+    protected void freeUnusedStatusReferences(List<VerifiableCredentialStatusReference> usedStatusReferences) {
+
+        // get all status references for the offer
+        Set<CredentialOfferStatus> byOfferStatusId = credentialOfferStatusRepository
+                .findByOfferId(this.credentialOffer.getId());
+
+        // filter out the ones that are still used in the credential to be issued, the rest can be deleted to free up capacity for future credentials
+        var superfluousStatusReferences = byOfferStatusId.stream()
+                .filter(credentialOfferStatus -> {
+                    var statusList = getStatusList(credentialOfferStatus);
+
+                    return usedStatusReferences.stream().noneMatch(ref -> ref.getIdentifier().equals(statusList.getUri())
+                            && ref.getIndex() == credentialOfferStatus.getId().getIndex());
+                })
+                .toList();
+
+        log.info("Freeing up {} superfluous status references for offer id {}", superfluousStatusReferences.size(),
+                this.credentialOffer.getId());
+
+        // delete the rest to free up capacity for future credentials
+        credentialOfferStatusRepository.deleteAll(superfluousStatusReferences);
+    }
+
+    abstract JWSSigner createSigner();
+
+    private StatusList getStatusList(CredentialOfferStatus credentialOfferStatus) {
+        return statusListRepository.findById(credentialOfferStatus.getId()
+                        .getStatusListId())
+                .orElseThrow(() -> new CredentialException(
+                        "StatusList not found for ID: " + credentialOfferStatus.getId()
+                                .getStatusListId()));
+    }
+
+    /**
+     * Gets the credential configuration form the issuer metadata matching the
+     * credential supported id of the offer
+     *
+     * @param offer
+     * @return the Credential Configuration
+     */
+    private CredentialConfiguration getOfferCredentialConfiguration(CredentialOffer offer) {
+        return Optional.ofNullable(issuerMetadata.getCredentialConfigurationSupported()
+                        .get(
+                                offer.getMetadataCredentialSupportedId()
+                                        .getFirst()))
+                .orElseThrow(() -> new Oid4vcException(INVALID_CREDENTIAL_REQUEST,
+                        "Requested Credential is not offered (anymore). Credential supported id was "
+                                + offer.getMetadataCredentialSupportedId()
+                                .getFirst()));
+    }
+
+}

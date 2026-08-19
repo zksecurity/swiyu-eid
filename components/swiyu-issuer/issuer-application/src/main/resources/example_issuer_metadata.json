@@ -1,0 +1,413 @@
+{
+  "credential_issuer": "${external-url}",
+  "credential_endpoint": "${external-url}/oid4vci/api/credential",
+  "deferred_credential_endpoint": "${external-url}/oid4vci/api/deferred_credential",
+  "nonce_endpoint": "${external-url}/oid4vci/api/nonce",
+  "display": [
+    {
+      "name": "Mein Test Aussteller",
+      "locale": "de-CH",
+      "logo": {
+        "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAABD0lEQVR4nOyYsUrEQBRFVQYRYYUtZi0UC0vFUrBeYW1sF2E/wU623P8RkTSCf7FFipDaIkxhmkyapBgCYivz5sKAmynuaS9vOPDgcRlVXl/spcTB2AJ/oRCCQggKIVT8pJ4pfeqNnKmG1u5aaLpc6ecXb2Q26/Yji3s2uZVRCEEhBIUQFEKIl1rp2XS5Ckwe395J0WS+ODw7l1JX1zZ7ldJ9qVMfXd1cvn8GhKLpy+Lr6VFKk1sZhRAUQlAIIR5GZyqzWQcmJ/PFyf2DN2qyty7fSoODbWKEhtaGe/HvLRaEunzLTv1vUAhBIQSFEPGfDa7+7svCG4VvcRixwo5FciujEIJCCAohkhP6CQAA///lDD1tMy8HCAAAAABJRU5ErkJggg=="
+      }
+    },
+    {
+      "name": "My test issuer",
+      "locale": "en-US",
+      "logo": {
+        "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAABD0lEQVR4nOyYsUrEQBRFVQYRYYUtZi0UC0vFUrBeYW1sF2E/wU623P8RkTSCf7FFipDaIkxhmkyapBgCYivz5sKAmynuaS9vOPDgcRlVXl/spcTB2AJ/oRCCQggKIVT8pJ4pfeqNnKmG1u5aaLpc6ecXb2Q26/Yji3s2uZVRCEEhBIUQFEKIl1rp2XS5Ckwe395J0WS+ODw7l1JX1zZ7ldJ9qVMfXd1cvn8GhKLpy+Lr6VFKk1sZhRAUQlAIIR5GZyqzWQcmJ/PFyf2DN2qyty7fSoODbWKEhtaGe/HvLRaEunzLTv1vUAhBIQSFEPGfDa7+7svCG4VvcRixwo5FciujEIJCCAohkhP6CQAA///lDD1tMy8HCAAAAABJRU5ErkJggg=="
+      }
+    }
+  ],
+  "batch_credential_issuance": {
+    "batch_size": 10
+  },
+  "credential_configurations_supported": {
+    "${stage}university_example_sd_jwt": {
+      "format": "dc+sd-jwt",
+      "credential_signing_alg_values_supported": [
+        "ES256", "Ed25519"
+      ],
+      "cryptographic_binding_methods_supported": [
+        "jwk"
+      ],
+      "proof_types_supported": {
+        "jwt": {
+          "proof_signing_alg_values_supported": [
+            "ES256", "Ed25519"
+          ]
+        }
+      },
+      "display": [
+        {
+          "name": "${stage}Beispiel Credential",
+          "locale": "de-CH",
+          "logo": {
+            "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABMUlEQVR4nO2VTU4CQRCFv9c9ToIXYccRhMR4Ar2DbrmI8SB6Ak0UjsCOi2iE6So3I0kPg7R/CQve8qVev+p+NTVwxB6opGgwnFwqVGO8aVUVbs3sbfnysE9bFXUhvyDGa6wlQkS+roG/MQCtsASWcq4Aoczg5zgQA6cp4nqQTdFgOL5SqCaYeXaW/EwKI7ylJdxtIdc8bze00zW7/6SykCWdE6sblDKd3NgcDuCOFEaEMMoNIvLmBOg3AL1vT8sOuIP31eXT9e8hd27gNSFuV3WfCEACdfoLEWxd7zRw9KTUJMwyXX/IvpClPGR33JllffRfLMfpcHJLrKabbEKElO5el8/TfdqyDNS7UorWzIF8yb9A4TbtTFeIYFbvrv+mgbseldJq88NxcGf+teqIQnwAtnl4Gff2T2YAAAAASUVORK5CYII="
+          },
+          "description": "Beispiel Credential",
+          "background_color": "#007AFF"
+        },
+        {
+          "name": "${stage}Example Credential",
+          "locale": "en-US",
+          "logo": {
+            "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABMUlEQVR4nO2VTU4CQRCFv9c9ToIXYccRhMR4Ar2DbrmI8SB6Ak0UjsCOi2iE6So3I0kPg7R/CQve8qVev+p+NTVwxB6opGgwnFwqVGO8aVUVbs3sbfnysE9bFXUhvyDGa6wlQkS+roG/MQCtsASWcq4Aoczg5zgQA6cp4nqQTdFgOL5SqCaYeXaW/EwKI7ylJdxtIdc8bze00zW7/6SykCWdE6sblDKd3NgcDuCOFEaEMMoNIvLmBOg3AL1vT8sOuIP31eXT9e8hd27gNSFuV3WfCEACdfoLEWxd7zRw9KTUJMwyXX/IvpClPGR33JllffRfLMfpcHJLrKabbEKElO5el8/TfdqyDNS7UorWzIF8yb9A4TbtTFeIYFbvrv+mgbseldJq88NxcGf+teqIQnwAtnl4Gff2T2YAAAAASUVORK5CYII="
+          },
+          "description": "Test Credential",
+          "background_color": "#007AFF"
+        }
+      ],
+      "vct": "urn:vct:com.example.credential",
+      "vct_metadata_uri": "${external-url}/oid4vci/vct/my-vct-v01",
+      "vct_metadata_uri#integrity": "sha256-ThisIsNotActuallyTheCorrectSRI.ItDependsOnTheExactContentOfVctMetadata=",
+      "credential_metadata": {
+        "display": [
+          {
+            "name": "${stage}Beispiel Credential",
+            "locale": "de-CH",
+            "logo": {
+              "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABMUlEQVR4nO2VTU4CQRCFv9c9ToIXYccRhMR4Ar2DbrmI8SB6Ak0UjsCOi2iE6So3I0kPg7R/CQve8qVev+p+NTVwxB6opGgwnFwqVGO8aVUVbs3sbfnysE9bFXUhvyDGa6wlQkS+roG/MQCtsASWcq4Aoczg5zgQA6cp4nqQTdFgOL5SqCaYeXaW/EwKI7ylJdxtIdc8bze00zW7/6SykCWdE6sblDKd3NgcDuCOFEaEMMoNIvLmBOg3AL1vT8sOuIP31eXT9e8hd27gNSFuV3WfCEACdfoLEWxd7zRw9KTUJMwyXX/IvpClPGR33JllffRfLMfpcHJLrKabbEKElO5el8/TfdqyDNS7UorWzIF8yb9A4TbtTFeIYFbvrv+mgbseldJq88NxcGf+teqIQnwAtnl4Gff2T2YAAAAASUVORK5CYII="
+            },
+            "description": "Beispiel Credential",
+            "background_color": "#007AFF"
+          },
+          {
+            "name": "${stage}Example Credential",
+            "locale": "en-US",
+            "logo": {
+              "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABMUlEQVR4nO2VTU4CQRCFv9c9ToIXYccRhMR4Ar2DbrmI8SB6Ak0UjsCOi2iE6So3I0kPg7R/CQve8qVev+p+NTVwxB6opGgwnFwqVGO8aVUVbs3sbfnysE9bFXUhvyDGa6wlQkS+roG/MQCtsASWcq4Aoczg5zgQA6cp4nqQTdFgOL5SqCaYeXaW/EwKI7ylJdxtIdc8bze00zW7/6SykCWdE6sblDKd3NgcDuCOFEaEMMoNIvLmBOg3AL1vT8sOuIP31eXT9e8hd27gNSFuV3WfCEACdfoLEWxd7zRw9KTUJMwyXX/IvpClPGR33JllffRfLMfpcHJLrKabbEKElO5el8/TfdqyDNS7UorWzIF8yb9A4TbtTFeIYFbvrv+mgbseldJq88NxcGf+teqIQnwAtnl4Gff2T2YAAAAASUVORK5CYII="
+            },
+            "description": "Test Credential",
+            "background_color": "#007AFF"
+          }
+        ],
+        "claims": [
+          {
+            "mandatory": true,
+            "path": [
+              "type"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Abschluss Typ"
+              }
+            ]
+          },
+          {
+            "mandatory": true,
+            "path": [
+              "name"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Diplomtitle"
+              }
+            ]
+          },
+          {
+            "mandatory": false,
+            "path": [
+              "average_grade"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Notendurchschnitt"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "university_example_sd_jwt": {
+      "format": "dc+sd-jwt",
+      "credential_signing_alg_values_supported": [
+        "ES256", "Ed25519"
+      ],
+      "cryptographic_binding_methods_supported": [
+        "jwk"
+      ],
+      "proof_types_supported": {
+        "jwt": {
+          "proof_signing_alg_values_supported": [
+            "ES256", "Ed25519"
+          ]
+        }
+      },
+      "vct": "${external-url}/oid4vci/vct/my-vct-v01",
+      "credential_metadata": {
+        "claims": [
+          {
+            "mandatory": true,
+            "path": [
+              "type"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Abschluss Typ"
+              }
+            ]
+          },
+          {
+            "mandatory": true,
+            "path": [
+              "name"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Diplomtitle"
+              }
+            ]
+          },
+          {
+            "mandatory": false,
+            "path": [
+              "average_grade"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Notendurchschnitt"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "university_example_sd_jwt_list": {
+      "format": "dc+sd-jwt",
+      "credential_signing_alg_values_supported": [
+        "ES256", "Ed25519"
+      ],
+      "cryptographic_binding_methods_supported": [
+        "jwk"
+      ],
+      "proof_types_supported": {
+        "jwt": {
+          "proof_signing_alg_values_supported": [
+            "ES256", "Ed25519"
+          ]
+        }
+      },
+      "vct": "${external-url}/oid4vci/vct/my-vct-v01",
+      "credential_metadata": {
+        "claims": [
+          {
+            "mandatory": true,
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Universitätsname"
+              }
+            ],
+            "path": [
+              "nested",
+              "name"
+            ]
+          },
+          {
+            "mandatory": true,
+            "value_type": "array",
+            "path": [
+              "nested",
+              "type"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Abschluss Typen"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "unbound_example_sd_jwt": {
+      "format": "dc+sd-jwt",
+      "credential_signing_alg_values_supported": [
+        "ES256", "Ed25519"
+      ],
+      "vct": "unbound_example_sd_jwt",
+      "credential_metadata": {
+        "claims": [
+          {
+            "mandatory": true,
+            "path": [
+              "animal"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Tier"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "university_example_high_key_attestation_required_sd_jwt": {
+      "format": "dc+sd-jwt",
+      "credential_signing_alg_values_supported": [
+        "ES256", "Ed25519"
+      ],
+      "cryptographic_binding_methods_supported": [
+        "jwk"
+      ],
+      "proof_types_supported": {
+        "jwt": {
+          "proof_signing_alg_values_supported": [
+            "ES256", "Ed25519"
+          ],
+          "key_attestations_required": {
+            "key_storage": [
+              "iso_18045_high"
+            ]
+          }
+        }
+      },
+      "vct": "${external-url}/oid4vci/vct/my-vct-v01",
+      "credential_metadata": {
+        "claims": [
+          {
+            "mandatory": true,
+            "path": [
+              "type"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Abschluss Typ"
+              }
+            ]
+          },
+          {
+            "mandatory": true,
+            "path": [
+              "name"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Diplomtitle"
+              }
+            ]
+          },
+          {
+            "mandatory": false,
+            "path": [
+              "average_grade"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Notendurchschnitt"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "university_example_any_key_attestation_required_sd_jwt": {
+      "format": "dc+sd-jwt",
+      "credential_signing_alg_values_supported": [
+        "ES256", "Ed25519"
+      ],
+      "cryptographic_binding_methods_supported": [
+        "jwk"
+      ],
+      "proof_types_supported": {
+        "jwt": {
+          "proof_signing_alg_values_supported": [
+            "ES256", "Ed25519"
+          ],
+          "key_attestations_required": {}
+        }
+      },
+      "vct": "${external-url}/oid4vci/vct/my-vct-v01",
+      "credential_metadata": {
+        "claims": [
+          {
+            "mandatory": true,
+            "path": [
+              "type"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Abschluss Typ"
+              }
+            ]
+          },
+          {
+            "mandatory": true,
+            "path": [
+              "name"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Diplomtitle"
+              }
+            ]
+          },
+          {
+            "mandatory": false,
+            "path": [
+              "average_grade"
+            ],
+            "display": [
+              {
+                "locale": "de-CH",
+                "name": "Notendurchschnitt"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "test": {
+      "format": "dc+sd-jwt",
+      "credential_signing_alg_values_supported": [
+        "ES256", "Ed25519"
+      ],
+      "cryptographic_binding_methods_supported": [
+        "jwk"
+      ],
+      "proof_types_supported": {
+        "jwt": {
+          "proof_signing_alg_values_supported": [
+            "ES256", "Ed25519"
+          ]
+        }
+      },
+      "vct": "test",
+      "credential_metadata": {
+        "claims": [
+          {
+            "mandatory": true,
+            "path": [
+              "lastName"
+            ]
+          },
+          {
+            "mandatory": false,
+            "path": [
+              "firstName"
+            ]
+          },
+          {
+            "mandatory": false,
+            "path": [
+              "dateOfBirth"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

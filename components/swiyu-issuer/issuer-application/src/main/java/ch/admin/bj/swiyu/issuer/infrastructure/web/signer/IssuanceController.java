@@ -1,0 +1,302 @@
+package ch.admin.bj.swiyu.issuer.infrastructure.web.signer;
+
+import ch.admin.bj.swiyu.issuer.common.exception.CredentialRequestError;
+import ch.admin.bj.swiyu.issuer.common.exception.Oid4vcException;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.ClientAgentInfo;
+import ch.admin.bj.swiyu.issuer.dto.exception.ApiErrorDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.*;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.CreateCredentialRequestDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.CredentialResponseDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.DeferredCredentialResponseDto;
+import ch.admin.bj.swiyu.issuer.service.AuthorizationService;
+import ch.admin.bj.swiyu.issuer.service.credential.CredentialServiceOrchestrator;
+import ch.admin.bj.swiyu.issuer.service.enc.JweService;
+import io.micrometer.core.annotation.Timed;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.Set;
+
+/**
+ * OpenID4VC Issuance Controller
+ * <p>
+ * Implements the OpenID4VCI defined endpoints
+ * <a href="https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html">OID4VCI Spec</a>
+ * </p>
+ */
+@RestController
+@AllArgsConstructor
+@Slf4j
+@Tag(name = "Issuer OID4VCI API", description = "Public OpenID for Verifiable Credential Issuance (OID4VCI) API " +
+        "endpoints, including issuing OAuth tokens for credential requests, issuing verifiable credentials, " +
+        "and supporting deferred credential issuance (IF-111)")
+@RequestMapping(value = {"/oid4vci/api"})
+public class IssuanceController {
+    public static final String DPOP_HTTP_HEADER = "DPoP";
+
+    private final CredentialServiceOrchestrator credentialServiceOrchestrator;
+    private final JweService jweService;
+
+    private final Validator validator;
+    private final ObjectMapper objectMapper;
+
+    private final AuthorizationService authorizationSerivce;
+
+    /**
+     * Build response headers with a Content-Type mapped from the envelope's declared format onto a
+     * fixed literal — so no request-derived text can ever reach the response header
+     * (prevents HTTP response splitting, CWE-113).
+     */
+    private static HttpHeaders responseHeadersFor(CredentialEnvelopeDto envelope) {
+        var headers = new HttpHeaders();
+        if (CredentialEnvelopeDto.APPLICATION_JWT_VALUE.equals(envelope.getContentType())) {
+            headers.set(HttpHeaders.CONTENT_TYPE, CredentialEnvelopeDto.APPLICATION_JWT_VALUE);
+        } else {
+            headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        }
+        return headers;
+    }
+
+    @Timed
+    @PostMapping(value = {"/token"}, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Submit form data",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "OAuth 2.0 access token request to be submitted",
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+                            schema = @Schema(implementation = OAuthAccessTokenRequestDto.class)
+                    )
+            )
+    )
+    public OAuthTokenDto oauthTokenEndpoint(
+            @RequestHeader(name = DPOP_HTTP_HEADER, required = false) String dpop,
+            @ModelAttribute OAuthAccessTokenRequestDto oauthAccessTokenRequestDto,
+            HttpServletRequest request) {
+        return authorizationSerivce.processOAuthTokenEndpointRequest(dpop, oauthAccessTokenRequestDto, request);
+    }
+
+    @Timed
+    @PostMapping(value = {"/nonce"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Provide a self-contained nonce in a publicly accessible endpoint.",
+            description = """
+                    Provide nonces for proof of possessions in a manner not requiring the service to save it.
+                    The nonce should be used only once. The nonce has a (very) limit lifetime.
+                    The response should not be cached.
+                    For more information see <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#section-7.2">OID4VCI Nonce Endpoint specification</a></br>
+                    Also provides a DPoP nonce. For more details towards demonstrating proof of possession refer to <a href="https://datatracker.ietf.org/doc/html/rfc9449#name-authorization-server-provid">RFC9449</a>
+                    """)
+    public ResponseEntity<NonceResponseDto> createNonce() {
+        return authorizationSerivce.createNonceResponse();
+    }
+
+    @Timed
+    @PostMapping(value = {"/credential"}, produces = {MediaType.APPLICATION_JSON_VALUE, CredentialEnvelopeDto.APPLICATION_JWT_VALUE})
+    @Operation(
+            summary = "Collect credential associated with the bearer token with the requested credential properties.",
+            description = "Issues a credential for a given bearer token and credential request. Supports API versioning via SWIYU-API-Version header. Returns the issued credential in JSON or JWT format.",
+            parameters = {
+                    @Parameter(
+                            name = "Authorization",
+                            description = "Bearer token for authentication. Format: 'Bearer ...",
+                            required = true,
+                            in = ParameterIn.HEADER
+                    )
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = CreateCredentialRequestDto.class)
+                            ),
+                            @Content(
+                                    mediaType = CredentialEnvelopeDto.APPLICATION_JWT_VALUE, // See: OID4VCI 1.0 Chapter 10
+                                    schema = @Schema(implementation = String.class, description = """
+                                            An encoded JWT as described in RFC7519, with the claims as found in the unencrypted request
+                                            """)
+                            )
+                    }
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Credential issued successfully.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = CredentialResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "202",
+                            description = "Successful deferred credential. The credential will be issued later",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = DeferredCredentialResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid request or validation error",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ApiErrorDto.class)
+                            )
+                    )
+            }
+    )
+    @SecurityRequirement(name = "bearer-jwt")
+    public ResponseEntity<String> createCredential(@RequestHeader("Authorization") String bearerToken,
+                                                   @RequestHeader(name = DPOP_HTTP_HEADER, required = false) String dpop,
+                                                   @NotNull @RequestBody String requestMessage,
+                                                   HttpServletRequest request) {
+        String unparsedRequestDto = jweService.decryptRequest(requestMessage, request.getContentType());
+
+        // data needed exclusively for deferred flow -> are removed as soon as the credential is issued
+        ClientAgentInfo clientInfo = getClientAgentInfo(request);
+
+        String accessToken = this.authorizationSerivce.getValidatedAccessToken(bearerToken, dpop, request);
+        CreateCredentialRequestDto dto = parseRequestDto(unparsedRequestDto, CreateCredentialRequestDto.class, true);
+        CredentialEnvelopeDto credentialEnvelope = credentialServiceOrchestrator.createCredential(dto, accessToken, clientInfo, dpop);
+
+        var headers = responseHeadersFor(credentialEnvelope);
+
+        return ResponseEntity.status(credentialEnvelope.getHttpStatus())
+                .headers(headers)
+                .body(credentialEnvelope.getOid4vciCredentialJson());
+    }
+
+    @Timed
+    @PostMapping(value = {"/deferred_credential"}, consumes = {"application/json", CredentialEnvelopeDto.APPLICATION_JWT_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE, CredentialEnvelopeDto.APPLICATION_JWT_VALUE})
+    @Operation(
+            summary = "Collect credential associated with the bearer token and the transaction id. This endpoint is used for deferred issuance.",
+            description = "Issues a credential for a deferred transaction. Requires a valid bearer token and transaction details in the request body.",
+            parameters = {
+                    @Parameter(
+                            name = "Authorization",
+                            description = "Bearer token for authentication",
+                            required = true,
+                            in = ParameterIn.HEADER
+                    )
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = DeferredCredentialEndpointRequestDto.class)
+                            ),
+                            @Content(
+                                    mediaType = CredentialEnvelopeDto.APPLICATION_JWT_VALUE, // See: OID4VCI 1.0 Chapter 10
+                                    schema = @Schema(implementation = String.class, description = """
+                                            An encoded JWT as described in RFC7519, with the claims as found in the unencrypted request
+                                            """)
+                            )
+                    }
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Credential issued successfully",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = CredentialResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "202",
+                            description = "Credential issuance still pending — retry with the transaction_id",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = DeferredCredentialResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid request or validation error",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ApiErrorDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized"
+                    )
+            }
+    )
+    @SecurityRequirement(name = "bearer-jwt")
+    public ResponseEntity<String> createDeferredCredential(@RequestHeader("Authorization") String bearerToken,
+                                                           @RequestHeader(name = DPOP_HTTP_HEADER, required = false) String dpop,
+                                                           @NotNull @RequestBody String requestMessage,
+                                                           HttpServletRequest request) {
+        String unparsedRequestDto = jweService.decryptRequest(requestMessage, request.getContentType());
+
+        DeferredCredentialEndpointRequestDto deferredCredentialRequestDto = parseRequestDto(
+                unparsedRequestDto, DeferredCredentialEndpointRequestDto.class, false);
+
+        String accessToken = this.authorizationSerivce.getValidatedAccessToken(bearerToken, dpop, request);
+        CredentialEnvelopeDto credentialEnvelope = credentialServiceOrchestrator.createCredentialFromDeferredRequest(deferredCredentialRequestDto, accessToken);
+        var headers = responseHeadersFor(credentialEnvelope);
+        return ResponseEntity.status(credentialEnvelope.getHttpStatus())
+                .headers(headers)
+                .body(credentialEnvelope.getOid4vciCredentialJson());
+    }
+
+    private @NotNull ClientAgentInfo getClientAgentInfo(HttpServletRequest request) {
+        // data needed exclusively for deferred flow -> are removed as soon as the credential is issued
+        return new ClientAgentInfo(
+                request.getRemoteAddr(),
+                request.getHeader("user-agent"),
+                request.getHeader("accept-language"),
+                request.getHeader("accept-encoding")
+        );
+    }
+
+    private <T> void validateRequestDtoOrThrow(T dto, Validator validator) {
+        Set<ConstraintViolation<T>> violations = validator.validate(dto);
+        if (!violations.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (ConstraintViolation<T> constraintViolation : violations) {
+                sb.append(String.format("%s: %s", constraintViolation.getPropertyPath(), constraintViolation.getMessage()));
+            }
+            throw new ConstraintViolationException(sb.toString(), violations);
+        }
+    }
+
+    private <T> T parseRequestDto(String unparsedRequestDto,
+                                  Class<T> dtoClass,
+                                  boolean validate) {
+
+        try {
+            T dto = objectMapper.readValue(unparsedRequestDto, dtoClass);
+
+            if (validate) {
+                validateRequestDtoOrThrow(dto, validator);
+            }
+
+            return dto;
+        } catch (ConstraintViolationException | StreamReadException e) {
+            throw new Oid4vcException(e, CredentialRequestError.INVALID_CREDENTIAL_REQUEST, e.getMessage());
+        }
+    }
+}

@@ -1,0 +1,89 @@
+spring:
+  jackson:
+    constructor-detector: use-properties-based
+  http:
+  docker:
+    compose:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+application:
+  issuer-id: "did:tdw:example"
+  external-url: "http://localhost:8080"
+  offer-validity: 864000 # 60 * 60 * 24 * 10 => 10 days;
+  deferred-offer-validity-seconds: 864000 # 60 * 60 * 24 * 10 => 10 days;
+  trusted-attestation-providers: [ "did:webvh:scid:test-attestation-builder" ]
+  template-replacement:
+    external-url: "http://localhost:8080"
+    stage: "local-"
+  status-list:
+    private-key: |
+      -----BEGIN EC PRIVATE KEY-----
+      MHcCAQEEIMUIbiziNKtPQFlCeZUgcvM22GPN9rqlsT1mluTDRI0aoAoGCCqGSM49
+      AwEHoUQDQgAEm38isThXK8WxACgw4ycYrwY2OLWvOYWm96utBFwhBhnXOpdFb4e8
+      +QzpPS7/vMQCX/EZvgDbEXrv/fC5W8M9YQ==
+      -----END EC PRIVATE KEY-----
+    verification-method: "did:tdw:example#12345"
+    key-management-method: "key"
+    status-list-size-limit: 204800 # 200KiB
+    status-list-cache-time: 15m
+    status-list-expiration-time: 365d
+  offer-expiration-interval: "PT15M"
+  encryption-key-rotation-interval: "PT15M"
+  encryption-enforce: false
+  dpop-enforce: false
+  deeplink-schema: swiyu
+  token-ttl: 600
+  allow-token-refresh: true
+  allow-refresh-token-rotation: false
+  enable-vc-hash-storage: true
+  acceptable-proof-time-window-seconds: 120
+  nonce-lifetime-seconds: 120
+  openid-file: "classpath:example_openid.json"
+  min-deferred-offer-interval-seconds: 10
+  metadata-file: "classpath:example_issuer_metadata.json"
+  # vct metadata files. They key will become part of the url
+  vct-metadata-files:
+    my-vct-v01: "classpath:example_vct_metadata.json"
+  overlays-capture-architecture-metadata-files:
+    my-oca-v01: "classpath:example_oca.json"
+  json-schema-metadata-files:
+    my-schema-v01: "classpath:example_json_schema.json"
+  key:
+    sdjwt:
+      key-management-method: "key"
+      private-key: "-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEIDqMm9PvL4vpyFboAwaeViQsH30CkaDcVtRniZPezFxpoAoGCCqGSM49\nAwEHoUQDQgAEQgjeqGSdu+2jq8+n78+6fXk2Yh22lQKBYCnu5FWPvKtat3wFEsQX\nqNHYgPXBxWmOBw5l2PE/gUDUJqGJSc1LuQ==\n-----END EC PRIVATE KEY-----"
+      verification-method: "did:example:localhost%3A8080:abcabc#sdjwt"
+  signed-metadata-enabled: false
+swiyu:
+  status-registry:
+    api-url: "https://irrelevant.as.all.interaction.are.mocked"
+    token-url: "https://irrelevant.as.all.interaction.are.mocked"
+    bootstrap-refresh-token: "irrelevant as all interaction are mocked"
+    customer-key: "irrelevant as all interaction are mocked"
+    customer-secret: "irrelevant as all interaction are mocked"
+    enable-refresh-token-flow: false
+    token-refresh-interval: "PT5S"
+  business-partner-id: "00000000-0000-0000-0000-000000000000"
+
+monitoring:
+  basic-auth:
+    enabled: false
+http:
+  max-redirects: 5
+  object-size-limit: 1048576 # 1MB - DID log with ~400 entries.
+
+webhook:
+  callback-interval: 5000
+
+caching:
+  publicKeyCacheTTL: 5000
+  encryptionMetadataCacheTTL: 5000
+
+management:
+  endpoint:
+    env:
+      show-values: NEVER
+      allowedProperties:

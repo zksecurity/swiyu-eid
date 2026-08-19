@@ -1,0 +1,29 @@
+package ch.admin.bj.swiyu.issuer.dto.exception;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Getter;
+import org.springframework.http.HttpStatusCode;
+
+@Builder
+@Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(name = "ApiError", description = "Error response object")
+public class ApiErrorDto {
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, type = "string")
+    @JsonProperty("error")
+    String errorCode;
+    @JsonProperty("error_description")
+    String errorDescription;
+    @JsonProperty("detail")
+    String errorDetails;
+    @JsonIgnore
+    HttpStatusCode status;
+    @JsonProperty("trace_id")
+    String traceId;
+}

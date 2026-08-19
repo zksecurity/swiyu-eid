@@ -1,0 +1,147 @@
+package ch.admin.bj.swiyu.issuer.service;
+
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.common.exception.OAuthError;
+import ch.admin.bj.swiyu.issuer.common.exception.OAuthException;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.*;
+import ch.admin.bj.swiyu.issuer.service.webhook.EventProducerService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
+class OAuthServiceTest {
+
+    private OAuthService oauthService;
+    private CredentialOfferRepository credentialOfferRepository;
+    private CredentialManagementRepository credentialManagementRepository;
+    private ApplicationProperties applicationProperties;
+    private CredentialStateMachine credentialStateMachine;
+
+    @BeforeEach
+    void setUp() {
+        applicationProperties = Mockito.mock(ApplicationProperties.class);
+        EventProducerService eventProducerService = Mockito.mock(EventProducerService.class);
+        credentialOfferRepository = Mockito.mock(CredentialOfferRepository.class);
+        credentialManagementRepository = Mockito.mock(CredentialManagementRepository.class);
+        credentialStateMachine = Mockito.mock(CredentialStateMachine.class);
+        oauthService = new OAuthService(
+                applicationProperties,
+                eventProducerService,
+                credentialOfferRepository,
+                credentialManagementRepository,
+                credentialStateMachine
+        );
+        Mockito.when(applicationProperties.getTokenTTL()).thenReturn(3600L);
+        Mockito.when(applicationProperties.isAllowTokenRefresh()).thenReturn(true);
+    }
+
+    @Test
+    void refreshOAuthToken_whenRevoked_thenThrowsOAuthException() {
+        var refreshToken = UUID.randomUUID();
+        var mockMgmt = Mockito.mock(CredentialManagement.class);
+        Mockito.when(credentialManagementRepository.findByRefreshToken(refreshToken)).thenReturn(Optional.ofNullable(mockMgmt));
+        Mockito.when(mockMgmt.getCredentialManagementStatus()).thenReturn(CredentialStatusManagementType.REVOKED);
+        var refreshTokenString = refreshToken.toString();
+        Assertions.assertThrows(OAuthException.class, () -> oauthService.refreshOAuthToken(refreshTokenString));
+    }
+
+    @Test
+    void refreshOAuthToken_whenRotation_thenSuccess() {
+        Mockito.when(applicationProperties.isAllowRefreshTokenRotation()).thenReturn(true);
+        var credentialOffer = Mockito.mock(CredentialOffer.class);
+        Mockito.when(credentialOffer.getCredentialStatus()).thenReturn(CredentialOfferStatusType.ISSUED);
+        var refreshToken = UUID.randomUUID();
+        var mockMgmt = Mockito.mock(CredentialManagement.class);
+        Mockito.when(credentialManagementRepository.findByRefreshToken(refreshToken)).thenReturn(Optional.ofNullable(mockMgmt));
+        Mockito.when(mockMgmt.getCredentialManagementStatus()).thenReturn(CredentialStatusManagementType.ISSUED);
+        Mockito.when(mockMgmt.getId()).thenReturn(UUID.randomUUID());
+        Mockito.when(mockMgmt.getCredentialOffers()).thenReturn(Set.of(credentialOffer));
+        Mockito.when(mockMgmt.getRefreshToken()).thenReturn(refreshToken);
+        // ensure save does not throw
+        Mockito.when(credentialManagementRepository.save(mockMgmt)).thenReturn(mockMgmt);
+
+        var newOAuthTokenResponse = Assertions.assertDoesNotThrow(() -> oauthService.refreshOAuthToken(refreshToken.toString()));
+        assertThat(newOAuthTokenResponse.getRefreshToken())
+                .as("Refresh tokens must have rotated")
+                .isNotEqualTo(refreshToken.toString());
+        // verify that repository save was called (tokens updated)
+        Mockito.verify(credentialManagementRepository).save(mockMgmt);
+    }
+
+    @Test
+    void refreshOAuthToken_whenNoRotation_thenSuccess() {
+        Mockito.when(applicationProperties.isAllowRefreshTokenRotation()).thenReturn(false);
+        var credentialOffer = Mockito.mock(CredentialOffer.class);
+        Mockito.when(credentialOffer.getCredentialStatus()).thenReturn(CredentialOfferStatusType.ISSUED);
+        var refreshToken = UUID.randomUUID();
+        var mockMgmt = Mockito.mock(CredentialManagement.class);
+        Mockito.when(credentialManagementRepository.findByRefreshToken(refreshToken)).thenReturn(Optional.ofNullable(mockMgmt));
+        Mockito.when(mockMgmt.getCredentialManagementStatus()).thenReturn(CredentialStatusManagementType.ISSUED);
+        Mockito.when(mockMgmt.getId()).thenReturn(UUID.randomUUID());
+        Mockito.when(mockMgmt.getCredentialOffers()).thenReturn(Set.of(credentialOffer));
+        Mockito.when(mockMgmt.getRefreshToken()).thenReturn(refreshToken);
+        // ensure save does not throw
+        Mockito.when(credentialManagementRepository.save(mockMgmt)).thenReturn(mockMgmt);
+
+        var newOAuthTokenResponse = Assertions.assertDoesNotThrow(() -> oauthService.refreshOAuthToken(refreshToken.toString()));
+        assertThat(newOAuthTokenResponse.getRefreshToken())
+                .as("Refresh tokens must remain the same when refresh token rotation is disabled")
+                .isEqualTo(refreshToken.toString());
+        // verify that repository save was called (tokens updated)
+        Mockito.verify(credentialManagementRepository).save(mockMgmt);
+    }
+
+    @Test
+    void refreshOAuthToken_whenInvalidToken_thenThrowError() {
+        var exception = assertThrows(OAuthException.class, () -> oauthService.refreshOAuthToken("invalid token"));
+        assertThat(exception.getError()).isEqualTo(OAuthError.INVALID_REQUEST);
+    }
+
+    @Test
+    void getUnrevokedCredentialOfferByRefreshToken_whenInvalidRefreshToken_thenThrowError() {
+        var exception = assertThrows(OAuthException.class, () -> oauthService.getUnrevokedCredentialOfferByRefreshToken("invalid token"));
+        assertThat(exception.getError()).isEqualTo(OAuthError.INVALID_REQUEST);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"bearer 0c16dd9c-1dcd-4fc1-b503-bc42c505f113", "BEARER 0c16dd9c-1dcd-4fc1-b503-bc42c505f113", "dpop 0c16dd9c-1dcd-4fc1-b503-bc42c505f113", "DPoP 0c16dd9c-1dcd-4fc1-b503-bc42c505f113"})
+    void getAccessToken_whenCorrectAuthorizationHeader_thenSuccess(String authorizationRequestHeader) {
+        final String ACCESS_TOKEN = "0c16dd9c-1dcd-4fc1-b503-bc42c505f113";
+        var extractedToken = oauthService.getAccessToken(authorizationRequestHeader);
+        assertThat(extractedToken).as("extracted token should match the access token").isEqualTo(ACCESS_TOKEN);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "bearer ", "dpop ", "barer 0c16dd9c-1dcd-4fc1-b503-bc42c505f113", "0c16dd9c-1dcd-4fc1-b503-bc42c505f113"})
+    void getAccessToken_whenIllegalAuthorizationHeader_thenOAuthException(String authorizationRequestHeader){
+        assertThrows(OAuthException.class, () -> oauthService.getAccessToken(authorizationRequestHeader));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"EXPIRED", "CANCELLED", "ISSUED"})
+    void issueOAuthToken_whenTerminal_thenDoNotExpireOffer(String offerState) {
+        var state = CredentialOfferStatusType.valueOf(offerState);
+        var preAuthCode = UUID.randomUUID();
+        var offer = Mockito.mock(CredentialOffer.class);
+        when(offer.getCredentialStatus()).thenReturn(state);
+        when(offer.hasExpirationTimeStampPassed()).thenReturn(true);
+        when(offer.isTerminatedOffer()).thenCallRealMethod();
+        when(credentialOfferRepository.findByPreAuthorizedCode(preAuthCode)).thenReturn(Optional.of(offer));
+        var error = assertThrows(OAuthException.class, () -> oauthService.issueOAuthToken(preAuthCode.toString()));
+        assertThat(error.getMessage()).isEqualToIgnoringCase("Credential has already been used");
+        Mockito.verify(credentialStateMachine, times(0)).sendEventAndUpdateStatus(any(CredentialOffer.class), any());
+    }
+}

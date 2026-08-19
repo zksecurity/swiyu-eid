@@ -1,0 +1,44 @@
+
+application:
+  enable-jwt-authentication: true
+  data-integrity-jwks: |
+    {
+    "keys":[
+      {
+        "kty":"EC",
+        "crv":"P-256",
+        "x":"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+        "y":"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+        "use":"enc",
+        "kid":"1"
+      },
+      {
+        "kty":"EC",
+        "crv":"P-256",
+        "kid":"testkey",
+        "x":"_gHQsZT-CB_KvIfpvJsDxVSXkuwRJsuof-oMihcupQU",
+        "y":"71y_zEPAglUXBghaBxypTAzlNx57KNY9lv8LTbPkmZA"
+      }
+    ]
+    }
+  authentication-jwks: |
+    {
+    "keys":[
+      {
+        "kty":"EC",
+        "crv":"P-256",
+        "x":"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+        "y":"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+        "use":"enc",
+        "kid":"1"
+      },
+      {
+        "kty":"EC",
+        "crv":"P-256",
+        "kid":"testkey",
+        "x":"_gHQsZT-CB_KvIfpvJsDxVSXkuwRJsuof-oMihcupQU",
+        "y":"71y_zEPAglUXBghaBxypTAzlNx57KNY9lv8LTbPkmZA"
+      }
+    ]
+    }
+  signed-metadata-enabled: ${ENABLE_SIGNED_METADATA:false}

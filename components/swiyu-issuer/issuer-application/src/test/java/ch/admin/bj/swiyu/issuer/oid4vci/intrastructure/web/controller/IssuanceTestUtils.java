@@ -1,0 +1,210 @@
+package ch.admin.bj.swiyu.issuer.oid4vci.intrastructure.web.controller;
+
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.holderbinding.ProofType;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.IssuerMetadata;
+import ch.admin.bj.swiyu.issuer.dto.credentialofferstatus.UpdateCredentialStatusRequestTypeDto;
+import ch.admin.bj.swiyu.issuer.service.test.TestServiceUtils;
+import ch.admin.bj.swiyu.issuer.util.DemonstratingProofOfPossessionTestUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jwt.SignedJWT;
+import lombok.experimental.UtilityClass;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import tools.jackson.databind.ObjectMapper;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@UtilityClass
+public class IssuanceTestUtils {
+
+    public static ResultActions requestCredential(MockMvc mock, String token, String credentialRequestString) throws Exception {
+        return mock.perform(post("/oid4vci/api/credential")
+                .header("Authorization", String.format("BEARER %s", token))
+                .contentType("application/json")
+                .content(credentialRequestString)
+        );
+    }
+
+    public static ResultActions requestCredentialWithDpop(MockMvc mock, String token, String credentialRequestString, IssuerMetadata issuerMetadata, ECKey dpopKey) throws Exception {
+        return mock.perform(post("/oid4vci/api/credential")
+                .header("Authorization", String.format("BEARER %s", token))
+                .header("SWIYU-API-Version", "2")
+                .header("DPoP", createDpop(
+                        mock,
+                        issuerMetadata.getNonceEndpoint(),
+                        "POST",
+                        issuerMetadata.getCredentialEndpoint(),
+                        token,
+                        dpopKey
+                ))
+                .content(credentialRequestString)
+        );
+    }
+
+    public static ResultActions requestCredentialFromDeferred(MockMvc mock, String accessToken, String deferredCredentialRequestString) throws Exception {
+        return mock.perform(post("/oid4vci/api/deferred_credential")
+                        .header("Authorization", String.format("BEARER %s", accessToken))
+                        .contentType("application/json")
+                        .content(deferredCredentialRequestString))
+                .andExpect(status().isOk());
+    }
+
+    public static ResultActions updateStatus(MockMvc mock, String managementId, UpdateCredentialStatusRequestTypeDto statusType) throws Exception {
+        return mock.perform(patch("/management/api/credentials/" + managementId + "/status?credentialStatus=%s".formatted(statusType.name()))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+    }
+
+    public static ResultActions updateStatusAndSubjectDataForDeferred(MockMvc mock, String managementId, Map<String, String> subjectData) throws Exception {
+
+        var objectMapper = new ObjectMapper();
+
+        return mock.perform(patch("/management/api/credentials/" + managementId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(subjectData)));
+    }
+
+    public static JsonArray extractCredentials(MvcResult response) throws UnsupportedEncodingException {
+        var responseJson = JsonParser.parseString(response.getResponse().getContentAsString()).getAsJsonObject();
+
+        return responseJson.get("credentials").getAsJsonArray();
+    }
+
+    /**
+     * Tests that the public components of the holderPrivateKey are in the VC's cnf claim
+     * <p>
+     * "cnf":{
+     * "jwk":{
+     * "kty": "EC",
+     * "use": "sig",
+     * "crv": "P-256",
+     * "x": "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
+     * "y": "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA"
+     * }
+     * }
+     */
+    public void testHolderBinding(String vc, ECKey holderPrivateKey) throws ParseException {
+        JsonObject claims = getVcClaims(vc);
+        assertNotNull(claims.get("cnf"));
+        JsonObject cnf = claims.get("cnf").getAsJsonObject();
+        assertNotNull(cnf.get("jwk"));
+        JsonObject cnfJwk = cnf.get("jwk").getAsJsonObject();
+
+        assertNotNull(cnfJwk);
+        assertEquals(holderPrivateKey.getKeyID(), cnfJwk.get("kid").getAsString());
+        assertEquals(holderPrivateKey.getCurve().toString(), cnfJwk.get("crv").getAsString());
+        assertEquals(holderPrivateKey.getX().toString(), cnfJwk.get("x").getAsString());
+        assertEquals(holderPrivateKey.getY().toString(), cnfJwk.get("y").getAsString());
+    }
+
+    public static JsonObject getVcClaims(String vc) throws ParseException {
+        var jwt = SignedJWT.parse(vc.split("~")[0]);
+        return JsonParser.parseString(jwt.getPayload().toString()).getAsJsonObject();
+    }
+
+    public static String getCredentialRequestString(MockMvc mock, List<ECKey> holderPrivateKeys, ApplicationProperties applicationProperties, String encryption, String credentialConfigurationId) throws Exception {
+
+        var nonceResponse = mock.perform(post("/oid4vci/api/nonce")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        JsonObject nonceResponseJson = JsonParser.parseString(nonceResponse).getAsJsonObject();
+        String nonce = nonceResponseJson.get("c_nonce").getAsString();
+
+        List<String> proofs = new ArrayList<>(holderPrivateKeys.size());
+        for (ECKey holderPrivateKey : holderPrivateKeys) {
+            String proof = TestServiceUtils.createHolderProof(holderPrivateKey, applicationProperties.getTemplateReplacement().get("external-url"),
+                    nonce,
+                    ProofType.JWT.getClaimTyp()
+            );
+            proofs.add(proof);
+        }
+        var proofString = proofs.stream().reduce((a, b) -> a + "\", \"" + b).orElse("");
+        if (encryption == null) {
+            return String.format("{\"credential_configuration_id\": \"%s\", \"proofs\": {\"jwt\": [\"%s\"]}}",
+                    credentialConfigurationId, proofString);
+        } else {
+            return String.format("{\"credential_configuration_id\": \"%s\", \"credential_response_encryption\": %s, \"proofs\": {\"jwt\": [\"%s\"]}}", credentialConfigurationId, encryption, proofString);
+        }
+    }
+
+    public static String getCredentialRequestString(MockMvc mock, List<ECKey> holderPrivateKeys, ApplicationProperties applicationProperties, String credentialConfigurationId) throws Exception {
+        return getCredentialRequestString(mock, holderPrivateKeys, applicationProperties, null, credentialConfigurationId);
+    }
+
+    public static List<ECKey> createHolderPrivateKeys(int numberOfKeys) throws JOSEException {
+        List<ECKey> holderPrivateKeys = new ArrayList<>(numberOfKeys);
+        for (int i = 0; i < numberOfKeys; i++) {
+            holderPrivateKeys.add(createPrivateKey("Test-Key-" + i));
+        }
+        return holderPrivateKeys;
+    }
+
+    public static ECKey createPrivateKey(String keyName) throws JOSEException {
+        return new ECKeyGenerator(Curve.P_256)
+                .keyUse(KeyUse.SIGNATURE)
+                .keyID(keyName)
+                .issueTime(new Date())
+                .generate();
+    }
+
+    public static String getAccessTokenFromDeeplink(MockMvc mock, String deeplink) throws Exception {
+        var decodedDeeplink = URLDecoder.decode(deeplink, StandardCharsets.UTF_8);
+        var credentialOfferString = decodedDeeplink.replace("swiyu://?credential_offer=", "");
+
+        var credentialOffer = JsonParser.parseString(credentialOfferString).getAsJsonObject();
+        var grants = credentialOffer.get("grants").getAsJsonObject();
+        var preAuthorizedCode = grants.get("urn:ietf:params:oauth:grant-type:pre-authorized_code").getAsJsonObject()
+                .get("pre-authorized_code").getAsString();
+
+        var tokenResponse = mock.perform(post("/oid4vci/api/token")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("grant_type", "urn:ietf:params:oauth:grant-type:pre-authorized_code")
+                        .param("pre-authorized_code", preAuthorizedCode))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return JsonParser.parseString(tokenResponse)
+                .getAsJsonObject()
+                .get("access_token")
+                .getAsString();
+    }
+
+    public String getPreAuthCodeFromDeeplink(String deeplink) throws Exception {
+        var decodedDeeplink = URLDecoder.decode(deeplink, StandardCharsets.UTF_8);
+        var credentialOfferString = decodedDeeplink.replace("swiyu://?credential_offer=", "");
+
+        var credentialOffer = JsonParser.parseString(credentialOfferString).getAsJsonObject();
+        var grants = credentialOffer.get("grants").getAsJsonObject();
+        return grants.get("urn:ietf:params:oauth:grant-type:pre-authorized_code").getAsJsonObject()
+                .get("pre-authorized_code").getAsString();
+    }
+
+
+    public static String createDpop(MockMvc mockMvc, String nonceEndpoint, String httpMethod, String httpUri, String accessToken, ECKey dpopKey) {
+        // Fetch a fresh nonce
+        var nonceResponse = assertDoesNotThrow(() -> mockMvc.perform(post(nonceEndpoint))
+                .andExpect(status().isOk())
+                .andReturn());
+        String dpopNonce = nonceResponse.getResponse().getHeader("DPoP-Nonce");
+        return DemonstratingProofOfPossessionTestUtil.createDPoPJWT(httpMethod, httpUri, accessToken, dpopKey, dpopNonce);
+    }
+}

@@ -1,0 +1,270 @@
+package ch.admin.bj.swiyu.issuer.oid4vci.intrastructure.web.controller;
+
+import ch.admin.bj.swiyu.issuer.PostgreSQLContainerInitializer;
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.*;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.holderbinding.AttackPotentialResistance;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.holderbinding.ProofType;
+import ch.admin.bj.swiyu.issuer.dto.callback.CallbackErrorEventTypeDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.CredentialRequestErrorDto;
+import ch.admin.bj.swiyu.issuer.oid4vci.test.TestInfrastructureUtils;
+import ch.admin.bj.swiyu.issuer.service.did.DidKeyResolverFacade;
+import ch.admin.bj.swiyu.issuer.service.test.TestServiceUtils;
+import ch.admin.bj.swiyu.issuer.service.webhook.AsyncCredentialEventHandler;
+import ch.admin.bj.swiyu.issuer.service.webhook.ErrorEvent;
+import ch.admin.bj.swiyu.issuer.service.webhook.OfferStateChangeEvent;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.UUID;
+
+import static ch.admin.bj.swiyu.issuer.dto.oid4vci.CredentialRequestErrorDto.INVALID_PROOF;
+import static ch.admin.bj.swiyu.issuer.oid4vci.test.CredentialOfferTestData.createTestOffer;
+import static ch.admin.bj.swiyu.issuer.oid4vci.test.TestInfrastructureUtils.*;
+import static ch.admin.bj.swiyu.issuer.service.test.TestServiceUtils.createKeyAttestationJwt;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Testcontainers
+@ActiveProfiles("test")
+@ContextConfiguration(initializers = PostgreSQLContainerInitializer.class)
+class KeyAttestationFlowIT {
+    private static ECKey jwk;
+    private final UUID testOfferNoAttestationId = UUID.randomUUID();
+    private final UUID testOfferAnyAttestationId = UUID.randomUUID();
+    private final UUID testOfferHighAttestationId = UUID.randomUUID();
+    @MockitoBean
+    DidKeyResolverFacade resolver;
+
+    @Autowired
+    MockMvc mock;
+
+    @Autowired
+    CredentialOfferStatusRepository credentialOfferStatusRepository;
+
+    @Autowired
+    CredentialOfferRepository credentialOfferRepository;
+
+    @Autowired
+    CredentialManagementRepository credentialManagementRepository;
+
+    @MockitoSpyBean
+    ApplicationProperties applicationProperties;
+    @MockitoSpyBean
+    AsyncCredentialEventHandler testEventListener;
+    @Autowired
+    private DidKeyResolverFacade didKeyResolver;
+
+    @BeforeEach
+    void setUp() throws JOSEException {
+        createCredentialOffer(createTestOffer(testOfferNoAttestationId, CredentialOfferStatusType.OFFERED, "university_example_sd_jwt", Instant.now(), Instant.now().plus(30, ChronoUnit.DAYS)));
+        createCredentialOffer(createTestOffer(testOfferAnyAttestationId, CredentialOfferStatusType.OFFERED, "university_example_any_key_attestation_required_sd_jwt", Instant.now(), Instant.now().plus(30, ChronoUnit.DAYS)));
+        createCredentialOffer(createTestOffer(testOfferHighAttestationId, CredentialOfferStatusType.OFFERED, "university_example_high_key_attestation_required_sd_jwt", Instant.now(), Instant.now().plus(30, ChronoUnit.DAYS)));
+        jwk = new ECKeyGenerator(Curve.P_256).keyUse(KeyUse.SIGNATURE).keyID("Test-Key").issueTime(new Date()).generate();
+    }
+
+    @AfterEach
+    void tearDown() {
+        credentialOfferStatusRepository.deleteAll();
+        credentialOfferRepository.deleteAll();
+        credentialManagementRepository.deleteAll();
+    }
+
+    /**
+     * We ask for any form of attestation. So we should accept any.
+     */
+    @ParameterizedTest
+    @EnumSource(value = AttackPotentialResistance.class)
+    void testAnyKeyAttestationFlow(AttackPotentialResistance resistance) throws Exception {
+        var fetchData = prepareAttested(mock, testOfferAnyAttestationId, resistance);
+        mockDidResolve(jwk.toPublicJWK());
+        var result = IssuanceTestUtils.requestCredential(mock, (String) fetchData.token(), fetchData.credentialRequestString())
+                .andReturn().getResponse().getContentAsString();
+        assertNotNull(result);
+    }
+
+    @Test
+    void testSuperfluousAttestation() throws Exception {
+        var fetchData = prepareAttested(mock, testOfferNoAttestationId, AttackPotentialResistance.ISO_18045_ENHANCED_BASIC);
+        mockDidResolve(jwk.toPublicJWK());
+        var result = IssuanceTestUtils.requestCredential(mock, (String) fetchData.token(), fetchData.credentialRequestString())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertNotNull(result);
+    }
+
+    @Test
+    void testHighAttestation() throws Exception {
+        var fetchData = prepareAttested(mock, testOfferHighAttestationId, AttackPotentialResistance.ISO_18045_HIGH);
+        mockDidResolve(jwk.toPublicJWK());
+
+        var result = IssuanceTestUtils.requestCredential(mock, (String) fetchData.token(), fetchData.credentialRequestString())
+                .andReturn().getResponse().getContentAsString();
+        assertNotNull(result);
+
+        verify(testEventListener, Mockito.times(1)).handleOfferStateChangeEvent(any(OfferStateChangeEvent.class));
+    }
+
+    /**
+     * Test Requesting the highest possible attestation. Any lower provided attestation MUST fail
+     */
+
+    @ParameterizedTest
+    @EnumSource(value = AttackPotentialResistance.class, mode = EnumSource.Mode.EXCLUDE, names = {"ISO_18045_HIGH"})
+    void testTooLowAttestation_thenFail(AttackPotentialResistance resistance) throws Exception {
+        var fetchData = prepareAttested(mock, testOfferHighAttestationId, resistance);
+        mockDidResolve(jwk.toPublicJWK());
+
+        IssuanceTestUtils.requestCredential(mock, (String) fetchData.token(), fetchData.credentialRequestString())
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error").value(CredentialRequestErrorDto.UNKNOWN_CREDENTIAL_IDENTIFIER.getErrorCode()));
+    }
+
+    @Test
+    void testUntrustedAttestationIssuer() throws Exception {
+        var untrustedIssuer = "did:example:untrusted";
+        var nonce = requestNonceDPopHeader(mock);
+        var fetchData = prepareAttestedVC(mock, testOfferHighAttestationId, AttackPotentialResistance.ISO_18045_HIGH, untrustedIssuer, jwk, applicationProperties.getTemplateReplacement().get("external-url"), nonce, "university_example_sd_jwt");
+        mockDidResolve(jwk.toPublicJWK());
+        IssuanceTestUtils.requestCredential(mock, (String) fetchData.token(), fetchData.credentialRequestString())
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error").value(CredentialRequestErrorDto.UNKNOWN_CREDENTIAL_IDENTIFIER.getErrorCode()));
+    }
+
+    @Test
+    void testMissingAttestation_thenFail() throws Exception {
+        var tokenResponse = TestInfrastructureUtils.fetchOAuthToken(mock, testOfferAnyAttestationId.toString());
+        var token = tokenResponse.get("access_token");
+
+        var nonce = requestNonce(mock);
+        String proof = TestServiceUtils.createHolderProof(
+                jwk,
+                applicationProperties.getTemplateReplacement().get("external-url"),
+                nonce,
+                ProofType.JWT.getClaimTyp()
+        );
+
+        // V2: credential_configuration_id + proofs.jwt
+        String credentialRequestString = String.format(
+                "{\"credential_configuration_id\":\"%s\",\"proofs\":{\"jwt\":[\"%s\"]}}",
+                "university_example_any_key_attestation_required_sd_jwt",
+                proof
+        );
+        var response = TestInfrastructureUtils.requestFailingCredential(mock, token, credentialRequestString);
+        Assertions.assertThat(response.get("error").getAsString()).hasToString(CredentialRequestErrorDto.INVALID_PROOF.getErrorCode());
+        Assertions.assertThat(response.get("error_description").getAsString()).contains("Attestation");
+
+        var errorEventCaptor = org.mockito.ArgumentCaptor.forClass(ErrorEvent.class);
+        verify(testEventListener).handleErrorEvent(errorEventCaptor.capture());
+        ErrorEvent capturedEvent = errorEventCaptor.getValue();
+
+        assertEquals(CallbackErrorEventTypeDto.KEY_BINDING_ERROR, capturedEvent.errorCode());
+        assertEquals("Attestation was not provided!", capturedEvent.errorMessage());
+    }
+
+    @Test
+    void testInvalidAttestationSignature_thenFail() throws Exception {
+        var fetchData = prepareAttested(mock, testOfferHighAttestationId, AttackPotentialResistance.ISO_18045_ENHANCED_BASIC);
+        mockDidResolve(new ECKeyGenerator(Curve.P_256).keyUse(KeyUse.SIGNATURE).keyID("Test-Key").issueTime(new Date()).generate().toPublicJWK());
+        var response = TestInfrastructureUtils.requestFailingCredential(mock, fetchData.token(), fetchData.credentialRequestString());
+        Assertions.assertThat(response.get("error").getAsString()).hasToString(CredentialRequestErrorDto.UNKNOWN_CREDENTIAL_IDENTIFIER.getErrorCode());
+    }
+
+    @Test
+    void checkDpopKeyAttestation_withSameKey_thenSuccess() throws Exception {
+        when(applicationProperties.isDpopEnforce()).thenReturn(true);
+        mockDidResolve(jwk.toPublicJWK());
+
+        String proof = createKeyAttestationJwt(jwk, jwk, AttackPotentialResistance.ISO_18045_HIGH, null);
+
+        fetchOAuthTokenDpop(mock, testOfferHighAttestationId.toString(), jwk, applicationProperties.getTemplateReplacement().get("external-url"), proof);
+    }
+
+    @Test
+    void checkDpopKeyAttestation_thenException() throws Exception {
+        when(applicationProperties.isDpopEnforce()).thenReturn(true);
+        mockDidResolve(jwk.toPublicJWK());
+
+        var unattestedKey = assertDoesNotThrow(() -> new ECKeyGenerator(Curve.P_256)
+                .keyID("Different-Key")
+                .keyUse(KeyUse.SIGNATURE)
+                .generate());
+
+        String proof = createKeyAttestationJwt(jwk, jwk, AttackPotentialResistance.ISO_18045_HIGH, null);
+        var response = fetchOAuthTokenDpop(mock, testOfferHighAttestationId.toString(), unattestedKey, applicationProperties.getTemplateReplacement().get("external-url"), proof);
+
+        assertEquals(INVALID_PROOF.getErrorCode(), response.get("error"));
+    }
+
+    @Test
+    void checkDpopKeyAttestation2_thenException() throws Exception {
+        when(applicationProperties.isDpopEnforce()).thenReturn(true);
+        mockDidResolve(jwk.toPublicJWK());
+
+        var unattestedKey = assertDoesNotThrow(() -> new ECKeyGenerator(Curve.P_256)
+                .keyID("Different-Key")
+                .keyUse(KeyUse.SIGNATURE)
+                .generate());
+
+        String proof = createKeyAttestationJwt(unattestedKey, unattestedKey, AttackPotentialResistance.ISO_18045_HIGH, null);
+        var response = fetchOAuthTokenDpop(mock, testOfferHighAttestationId.toString(), jwk, applicationProperties.getTemplateReplacement().get("external-url"), proof);
+
+        assertEquals(INVALID_PROOF.getErrorCode(), response.get("error"));
+    }
+
+    private void mockDidResolve(JWK key) {
+        Mockito.when(didKeyResolver.resolveKey(any())).thenReturn(key);
+    }
+
+    private TestInfrastructureUtils.CredentialFetchData prepareAttested(MockMvc mock, UUID preAuthCode, AttackPotentialResistance resistance) throws Exception {
+        var nonce = requestNonceDPopHeader(mock);
+
+        return prepareAttestedVC(mock, preAuthCode, resistance, null, jwk, applicationProperties.getTemplateReplacement().get("external-url"), nonce, "university_example_sd_jwt");
+    }
+
+    private void createCredentialOffer(CredentialOffer offer) {
+        var credentialManagement = credentialManagementRepository.save(CredentialManagement.builder()
+                .id(UUID.randomUUID())
+                .accessToken(UUID.randomUUID())
+                .credentialManagementStatus(CredentialStatusManagementType.INIT)
+                .accessTokenExpirationTimestamp(Instant.now().plusSeconds(120).getEpochSecond())
+                .renewalRequestCnt(0)
+                .renewalResponseCnt(0)
+                .build());
+
+
+        offer.setCredentialManagement(credentialManagement);
+        var storedOffer = credentialOfferRepository.save(offer);
+        credentialManagement.addCredentialOffer(storedOffer);
+        credentialManagementRepository.save(credentialManagement);
+    }
+}

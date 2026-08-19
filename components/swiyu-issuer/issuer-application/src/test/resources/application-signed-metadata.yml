@@ -1,0 +1,4 @@
+
+application:
+  # Feature Flag for signed metadata
+  signed-metadata-enabled: true

@@ -1,0 +1,229 @@
+package ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.holderbinding;
+
+import ch.admin.bj.swiyu.issuer.common.exception.CredentialRequestError;
+import ch.admin.bj.swiyu.issuer.common.exception.ExpiredNonceException;
+import ch.admin.bj.swiyu.issuer.common.exception.InvalidNonceException;
+import ch.admin.bj.swiyu.issuer.common.exception.Oid4vcException;
+import ch.admin.bj.swiyu.jwtutil.JwtUtil;
+import ch.admin.bj.swiyu.jwtutil.JwtUtilException;
+import lombok.extern.slf4j.Slf4j;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+
+import org.springframework.util.StringUtils;
+
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
+public class ProofJwt extends Proof implements AttestableProof {
+
+    /**
+     * Holder Binding Proof as JWT to be verified
+     */
+    private final String jwt;
+    /**
+     * Time window (now +/-) in which the proof jwt must have been issued at
+     */
+    private final int acceptableProofTimeWindowSeconds;
+    private final int nonceLifetimeSeconds;
+    private final IssuerSecret nonceSecret;
+    private String holderKeyJson;
+    private SignedJWT signedJWT;
+    /**
+     * The nonce used in the holder binding (if any)
+     */
+    private SelfContainedNonce nonce;
+
+    public ProofJwt(ProofType proofType, String jwt, int acceptableProofTimeWindowSeconds, int nonceLifetimeSeconds, IssuerSecret nonceSecret) {
+        super(proofType);
+        this.jwt = jwt;
+        this.acceptableProofTimeWindowSeconds = acceptableProofTimeWindowSeconds;
+        this.nonceLifetimeSeconds = nonceLifetimeSeconds;
+        this.nonceSecret = nonceSecret;
+    }
+
+    private static Oid4vcException proofException(String errorDescription, Map<String, Object> context) {
+        return new Oid4vcException(CredentialRequestError.INVALID_PROOF, errorDescription, context);
+    }
+
+    /**
+     * Validates the Proof JWT according to <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0-ID1.html#section-7.2.1.1">OID4VCI 7.2.1.1</a>
+     */
+    public boolean isValidHolderBinding(String issuerId,
+                                        List<String> supportedSigningAlgorithms,
+                                        Long tokenExpirationTimestamp) {
+
+        try {
+            signedJWT = SignedJWT.parse(this.jwt);
+
+            // check JOSE headers
+            JWSHeader header = signedJWT.getHeader();
+
+            // check if typ header is present and equals "openid4vci-proof+jwt"
+            if (header.getType() == null || !header.getType().toString().equals(ProofType.JWT.getClaimTyp())) {
+                throw proofException(
+                        String.format("Proof Type is not supported. Must be 'openid4vci-proof+jwt' but was %s", header.getType()),
+                        Map.of("typ", header.getType() != null ? header.getType().toString() : "null"));
+            }
+
+            // check if alg header is present and is supported
+            if (header.getAlgorithm() == null || !supportedSigningAlgorithms.contains(header.getAlgorithm().getName())) {
+                throw proofException(
+                        "Proof Signing Algorithm is not supported",
+                        Map.of(
+                                "alg", header.getAlgorithm() != null ? header.getAlgorithm().getName() : "null",
+                                "supportedAlgs", supportedSigningAlgorithms
+                        ));
+            }
+
+            validateJwtClaims(issuerId);
+
+            JWK holderKey = verifySignature(signedJWT);
+            validateNonce();
+
+            if (tokenExpirationTimestamp != null && Instant.now().isAfter(Instant.ofEpochSecond(tokenExpirationTimestamp))) {
+                throw proofException("Token is expired",
+                        Map.of("tokenExpired", true));
+            }
+
+            this.holderKeyJson = holderKey.toJSONString();
+
+        } catch (ParseException e) {
+            throw proofException(
+                    "Provided Proof JWT is not parseable; " + e.getMessage(),
+                    Map.of("payloadLength", jwt != null ? jwt.length() : "null"));
+        } catch (JOSEException e) {
+            throw proofException(
+                    "Key is not usable; " + e.getMessage(),
+                    Map.of("alg", signedJWT != null ? signedJWT.getHeader().getAlgorithm().getName() : "null"));
+        }
+
+        return true;
+    }
+
+    private JWK verifySignature(SignedJWT signedJWT) throws JOSEException {
+        JWSHeader header = signedJWT.getHeader();
+        try {
+            JWK holderBindingJWK = signedJWT.getHeader().getJWK();
+            JwtUtil.verifyJwt(jwt, holderBindingJWK);
+            return holderBindingJWK;
+        } catch (JwtUtilException e) {
+            log.debug("Failed to verify holder binding signature", e);
+            throw proofException("Holder binding proof could not be validated successfully.", 
+                Map.of("alg", header.getAlgorithm() != null ? header.getAlgorithm().getName(): null));
+        }
+    }
+
+    @Override
+    public SelfContainedNonce getNonce() {
+
+        if (signedJWT == null) {
+            throw new IllegalStateException("Must first call isValidHolderBinding");
+        }
+        if (nonce != null) {
+            return nonce;
+        }
+
+        try {
+            var nonceString = signedJWT.getJWTClaimsSet().getStringClaim("nonce");
+            nonce = new SelfContainedNonce(nonceString, nonceLifetimeSeconds, nonceSecret);
+            return nonce;
+        } catch (ParseException e) {
+            throw proofException(
+                    "Provided Proof JWT is not parseable; " + e.getMessage(),
+                    Map.of("claim", "nonce"));
+        }
+    }
+
+    @Override
+    public String getBinding() {
+        if (!StringUtils.hasLength(this.holderKeyJson)) {
+            throw new IllegalStateException("Must first call isValidHolderBinding");
+        }
+        return this.holderKeyJson;
+    }
+
+    @Override
+    public ProofType getProofType() {
+        return proofType;
+    }
+
+    /**
+     * @return the Attestation JWT if present. If not present returns null
+     */
+    @Override
+    public String getAttestationJwt() {
+        if (this.signedJWT == null) {
+            throw new IllegalStateException("Must first call isValidHolderBinding");
+        }
+        var attestation = signedJWT.getHeader().getCustomParam("key_attestation");
+        if (attestation == null) {
+            return null;
+        }
+        return attestation.toString();
+    }
+
+    /**
+     * Check if the JWT claims are as expected for proofs.
+     * The audience must (partially) match the issuerId
+     */
+    private void validateJwtClaims(String issuerId) throws ParseException {
+        // Check jwt body values:
+        JWTClaimsSet claimSet = signedJWT.getJWTClaimsSet();
+
+        
+
+        // aud: REQUIRED (string). The value of this claim MUST be the Credential Issuer Identifier.
+        if (claimSet.getAudience().isEmpty() || !claimSet.getAudience().contains(issuerId)) {
+            throw proofException("Audience claim is missing or incorrect",
+                    Map.of(
+                            "issuerId", issuerId,
+                            "audienceCount", claimSet.getAudience().size()
+                    ));
+        }
+
+        // iat: REQUIRED (integer or floating-point number). The value of this claim MUST be the time at which the key proof was issued
+        // 12.5 Proof Replay protection with issued at
+        if (claimSet.getIssueTime() == null) {
+            throw proofException("Issue Time claim is missing",
+                    Map.of("issuerId", issuerId));
+        }
+        var proofIssueTime = signedJWT.getJWTClaimsSet().getIssueTime().toInstant();
+        var now = Instant.now();
+        if (proofIssueTime.isBefore(now.minusSeconds(acceptableProofTimeWindowSeconds))
+                || proofIssueTime.isAfter(now.plusSeconds(acceptableProofTimeWindowSeconds))) {
+            var skewSeconds = Math.abs(proofIssueTime.getEpochSecond() - now.getEpochSecond());
+            throw proofException(String.format("Holder Binding proof was not issued at an acceptable time. Expected %d +/- %d seconds", now.getEpochSecond(), acceptableProofTimeWindowSeconds),
+                    Map.of(
+                            "issueTimeSkewSeconds", skewSeconds,
+                            "windowSeconds", acceptableProofTimeWindowSeconds
+                    ));
+        }
+    }
+
+    private void validateNonce() {
+        try {
+            getNonce();
+        } catch (InvalidNonceException e) {
+            throw proofException("Invalid nonce claim in proof JWT",
+                    Map.of(
+                            "noncePresent", true,
+                            "nonceType", "selfContained"
+                    ));
+        } catch (ExpiredNonceException e) {
+            throw proofException("Nonce is expired",
+                    Map.of(
+                            "noncePresent", true,
+                            "nonceType", "selfContained",
+                            "nonceLifetimeSeconds", nonceLifetimeSeconds
+                    ));
+        }
+    }
+}

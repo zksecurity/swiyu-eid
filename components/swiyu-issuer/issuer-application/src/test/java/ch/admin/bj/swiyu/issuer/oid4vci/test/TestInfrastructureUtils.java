@@ -1,0 +1,256 @@
+package ch.admin.bj.swiyu.issuer.oid4vci.test;
+
+import ch.admin.bj.swiyu.issuer.common.config.SdjwtProperties;
+import ch.admin.bj.swiyu.issuer.common.profile.SwissProfileVersions;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.holderbinding.AttackPotentialResistance;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.holderbinding.ProofType;
+import ch.admin.bj.swiyu.issuer.dto.credentialoffer.CreateCredentialOfferRequestDto;
+import ch.admin.bj.swiyu.issuer.dto.credentialoffer.CredentialOfferDto;
+import ch.admin.bj.swiyu.issuer.dto.credentialoffer.CredentialOfferMetadataDto;
+import ch.admin.bj.swiyu.issuer.dto.credentialoffer.CredentialWithDeeplinkResponseDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.NonceResponseDto;
+import ch.admin.bj.swiyu.issuer.service.test.TestServiceUtils;
+import com.authlete.sd.Disclosure;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.crypto.ECDSAVerifier;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import jakarta.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Assertions;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import tools.jackson.databind.ObjectMapper;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.text.ParseException;
+import java.util.*;
+
+import static ch.admin.bj.swiyu.issuer.service.dpop.DemonstratingProofOfPossessionService.DPOP_KEY_ATTESTATION_CLAIM;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+public class TestInfrastructureUtils {
+    public static Map<String, Object> fetchOAuthToken(MockMvc mock, String preAuthCode) throws Exception {
+        return fetchOAuthTokenDpop(mock, preAuthCode, null, null, null);
+    }
+
+    /**
+     * Fetches OAuth 2.0 token with optional DPoP
+     *
+     * @param mock              MockMvc to perform call with
+     * @param preAuthCode       existing pre-AuthCode to fetch OAuth token with
+     * @param holderPublicKey   (optional) used to build DPoP-Proof
+     * @param externalUrl       (required if providing holderPublicKey) used to set DPoP checked http URI
+     * @param keyAttestationJwt (optional) used to set attestation claim in DPoP header if holderPublicKey is provided
+     * @return OAuthToken response
+     * @throws Exception on request/signing/parsing errors
+     */
+    public static Map<String, Object> fetchOAuthTokenDpop(MockMvc mock, String preAuthCode, @Nullable JWK holderPublicKey, @Nullable String externalUrl, String keyAttestationJwt) throws Exception {
+        var requestBuilder = post("/oid4vci/api/token")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .param("grant_type", "urn:ietf:params:oauth:grant-type:pre-authorized_code")
+                .param("pre-authorized_code", preAuthCode);
+        if (holderPublicKey != null) {
+            requestBuilder.header("DPoP", createDPoP(mock, "POST", externalUrl + "/oid4vci/api/token", null, holderPublicKey, keyAttestationJwt));
+        }
+        var response = mock.perform(requestBuilder).andReturn();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tokenResponse = new ObjectMapper().readValue(response.getResponse().getContentAsString(), HashMap.class);
+        return tokenResponse;
+    }
+
+    /**
+     * @param mock                    MockMvc to perform call with
+     * @param httpMethod              Method the call the dpop will be used for will be using
+     * @param httpUri                 absolute URI to the location the call the dpop will be used for will be going to
+     * @param accessToken             access token which has been associated with the dpopKey used as Bearer token in the call
+     * @param dpopKey                 Key which is bound with the OAuth2.0 session
+     * @param dPoPKeyAttestationClaim Optional attestation JWT to include in the DPoP JWS header under the
+     *                                {@code DPOP_KEY_ATTESTATION_CLAIM} parameter. May be {@code null} when no attestation
+     *                                is required.
+     * @return Serialized DPoP JWT
+     */
+    public static String createDPoP(MockMvc mock, String httpMethod, String httpUri, String accessToken, JWK dpopKey, String dPoPKeyAttestationClaim) throws Exception {
+        // Fetch fresh nonce
+        var nonce = requestNonceDPopHeader(mock);
+        assertNotNull(nonce);
+        var claimSetBuilder = new JWTClaimsSet.Builder()
+                .jwtID(UUID.randomUUID().toString())
+                .issueTime(new Date())
+                .claim("htm", httpMethod)
+                .claim("htu", httpUri)
+                .claim("nonce", nonce);
+        if (StringUtils.isNotEmpty(accessToken)) {
+            claimSetBuilder.claim("ath", Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA-256").digest(accessToken.getBytes(StandardCharsets.UTF_8))));
+        }
+
+        JWSHeader.Builder headerBuilder = new JWSHeader.Builder(JWSAlgorithm.ES256)
+                .jwk(dpopKey.toPublicJWK())
+                .type(new JOSEObjectType("dpop+jwt"))
+                .customParam(SwissProfileVersions.PROFILE_VERSION_PARAM, SwissProfileVersions.ISSUANCE_PROFILE_VERSION);
+
+        if (dPoPKeyAttestationClaim != null) {
+            headerBuilder.customParam(DPOP_KEY_ATTESTATION_CLAIM, dPoPKeyAttestationClaim);
+        }
+        var signedJwt = new SignedJWT(
+                headerBuilder.build(),
+                claimSetBuilder.build());
+        signedJwt.sign(new ECDSASigner(dpopKey.toECKey()));
+        return signedJwt.serialize();
+    }
+
+    public static ResultActions requestCredential(MockMvc mock, String token, String credentialRequestString, String contentType) throws Exception {
+        return mock.perform(post("/oid4vci/api/credential")
+                .header("Authorization", String.format("BEARER %s", token))
+                .contentType(contentType)
+                .content(credentialRequestString)
+        );
+    }
+
+    private static MockHttpServletResponse requestNonceResponse(MockMvc mock) throws Exception {
+        return mock.perform(post("/oid4vci/api/nonce"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
+    }
+
+    public static String requestNonceDPopHeader(MockMvc mock) throws Exception {
+        return requestNonceResponse(mock)
+                .getHeader("DPoP-Nonce");
+    }
+
+    public static String requestNonce(MockMvc mock) throws Exception {
+        var objectMapper = new ObjectMapper();
+        var nonceResponse = mock.perform(post("/oid4vci/api/nonce")).andExpect(status().isOk()).andReturn();
+        var nonceDto = objectMapper.readValue(nonceResponse.getResponse().getContentAsString(), NonceResponseDto.class);
+        return nonceDto.nonce();
+    }
+
+    public static JsonObject requestFailingCredential(MockMvc mock, Object token, String credentialRequestString) throws Exception {
+        var response = requestCredential(mock, (String) token, credentialRequestString, "application/json")
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andReturn();
+
+        return JsonParser.parseString(response.getResponse().getContentAsString()).getAsJsonObject();
+    }
+
+    public static ResultActions createCredentialOffer(MockMvc mock, String offerRequestString) throws Exception {
+        return mock.perform(post("/management/api/credentials")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(offerRequestString));
+    }
+
+    public static CredentialWithDeeplinkResponseDto createInitialCredentialWithDeeplinkResponse(MockMvc mock, CreateCredentialOfferRequestDto offerRequest) throws Exception {
+
+        var objectMapper = new ObjectMapper();
+
+        var offerRequestString = objectMapper.writeValueAsString(offerRequest);
+
+        var response = mock.perform(post("/management/api/credentials")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(offerRequestString))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.management_id").isNotEmpty())
+                .andExpect(jsonPath("$.offer_deeplink").isNotEmpty())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andReturn();
+
+        return objectMapper.readValue(response.getResponse().getContentAsString(), CredentialWithDeeplinkResponseDto.class);
+    }
+
+    public static CredentialOfferDto extractCredentialOfferDtoFromCredentialWithDeeplinkResponseDto(CredentialWithDeeplinkResponseDto credentialWithDeeplinkResponseDto) {
+
+        var objectMapper = new ObjectMapper();
+        var decodedDeeplink = URLDecoder.decode(credentialWithDeeplinkResponseDto.getOfferDeeplink(), StandardCharsets.UTF_8);
+        var credentialOfferString = decodedDeeplink.replace("swiyu://?credential_offer=", "");
+
+        return objectMapper.readValue(credentialOfferString, CredentialOfferDto.class);
+    }
+
+    public static void verifyVC(SdjwtProperties sdjwtProperties, String vc, Map<String, String> credentialSubjectData) throws Exception {
+
+        var keyPair = ECKey.parseFromPEMEncodedObjects(sdjwtProperties.getPrivateKey());
+        var publicJWK = keyPair.toPublicJWK();
+        var sdJwtTokenParts = vc.split("~");
+        var jwt = sdJwtTokenParts[0];
+        var disclosures = List.of(sdJwtTokenParts).subList(1, sdJwtTokenParts.length);
+
+        // vc must end with "~" as it has no holder binding
+        assert (vc.endsWith("~"));
+
+        assertTrue(verifyToken(jwt, publicJWK.toJSONString()));
+
+        List<Disclosure> disclosureList = disclosures.stream().map(Disclosure::parse).toList();
+
+        assertEquals(credentialSubjectData.size(), disclosureList.size());
+
+        disclosureList.forEach(disclosure -> {
+            assertNotNull(disclosure.getClaimName());
+            assertEquals(credentialSubjectData.get(disclosure.getClaimName()), disclosure.getClaimValue());
+        });
+    }
+
+    public static boolean verifyToken(String token, String publicKeyJwk) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+
+            // Parse the public key JWK
+            JWK jwk = JWK.parse(publicKeyJwk);
+
+            // Create a JWSVerifier with the public key
+            JWSVerifier verifier = new ECDSAVerifier(jwk.toECKey());
+
+            // Verify the signature
+            return signedJWT.verify(verifier);
+        } catch (ParseException | JOSEException e) {
+            return false;
+        }
+    }
+
+    public static CredentialFetchData prepareAttestedVC(MockMvc mock, UUID preAuthCode,
+                                                        AttackPotentialResistance resistance, String attestationIssuerDid,
+                                                        ECKey jwk, String issuerId, String nonce, String credentialConfigId) throws Exception {
+        var tokenResponse = TestInfrastructureUtils.fetchOAuthToken(mock, preAuthCode.toString());
+        var token = tokenResponse.get("access_token");
+        Assertions.assertThat(token).isNotNull();
+        String proof = TestServiceUtils.createAttestedHolderProof(
+                jwk,
+                issuerId,
+                nonce,
+                ProofType.JWT.getClaimTyp(),
+                resistance,
+                attestationIssuerDid);
+        String credentialRequestString = String.format("{\"credential_configuration_id\": \"%s\", \"proofs\": {\"jwt\": [\"%s\"]}}",
+                credentialConfigId, proof);
+        return new CredentialFetchData(token, credentialRequestString);
+    }
+
+    public static CredentialOfferMetadataDto getDeferredCredentialMetadataDto() {
+        return new CredentialOfferMetadataDto(true, null, null);
+    }
+
+    public static ECKey createEcKey(String keyId) throws JOSEException {
+        return new ECKeyGenerator(Curve.P_256)
+                .keyUse(KeyUse.SIGNATURE)
+                .keyID(keyId)
+                .issueTime(new Date())
+                .generate();
+    }
+
+    public record CredentialFetchData(Object token, String credentialRequestString) {
+    }
+}

@@ -1,0 +1,243 @@
+package ch.admin.bj.swiyu.issuer.service.credential;
+
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.common.exception.Oid4vcException;
+import ch.admin.bj.swiyu.issuer.domain.openid.credentialrequest.holderbinding.*;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.KeyAttestationRequirement;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.SupportedProofType;
+import ch.admin.bj.swiyu.jwtvalidator.DidJwtValidator;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.*;
+
+class KeyAttestationServiceTest {
+
+    private KeyResolver keyResolver;
+    private ApplicationProperties applicationProperties;
+    private KeyAttestationService keyAttestationService;
+    private DidJwtValidator validator;
+
+    @BeforeEach
+    void setUp() {
+        keyResolver = mock(KeyResolver.class);
+        validator = mock(DidJwtValidator.class);
+        applicationProperties = mock(ApplicationProperties.class);
+        keyAttestationService = new KeyAttestationService(keyResolver, validator, applicationProperties);
+
+        when(applicationProperties.isSwissProfileVersioningEnforcement()).thenReturn(false);
+    }
+
+    @Test
+    void checkHolderKeyAttestation_noAttestationRequired_doesNothing() {
+        SupportedProofType supportedProofType = mock(SupportedProofType.class);
+        when(supportedProofType.getKeyAttestationRequirement()).thenReturn(null);
+        Proof proof = mock(Proof.class);
+
+        assertDoesNotThrow(() -> keyAttestationService.validateAndGetHolderKeyAttestation(supportedProofType, proof));
+    }
+
+    @Test
+    void checkHolderKeyAttestation_proofNotAttestable_throwsException() {
+        SupportedProofType supportedProofType = mock(SupportedProofType.class);
+        when(supportedProofType.getKeyAttestationRequirement()).thenReturn(mock(KeyAttestationRequirement.class));
+        Proof proof = mock(Proof.class);
+
+        Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                keyAttestationService.validateAndGetHolderKeyAttestation(supportedProofType, proof));
+
+        assertTrue(ex.getMessage().contains("Attestation was requested, but presented proof is not attestable!"));
+    }
+
+    @Test
+    void checkHolderKeyAttestation_attestationMissing_throwsException() {
+        SupportedProofType supportedProofType = mock(SupportedProofType.class);
+        when(supportedProofType.getKeyAttestationRequirement()).thenReturn(mock(KeyAttestationRequirement.class));
+        ProofJwt proof = mock(ProofJwt.class);
+
+        Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                keyAttestationService.validateAndGetHolderKeyAttestation(supportedProofType, proof));
+        assertTrue(ex.getMessage().contains("Attestation was not provided"));
+    }
+
+    @Test
+    void checkHolderKeyAttestation_mimi_throwsException() {
+        SupportedProofType supportedProofType = mock(SupportedProofType.class);
+        when(supportedProofType.getKeyAttestationRequirement()).thenReturn(mock(KeyAttestationRequirement.class));
+        ProofJwt proof = mock(ProofJwt.class);
+        when(proof.getAttestationJwt()).thenReturn("malformed-key-attestation-jwt");
+
+        Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                keyAttestationService.validateAndGetHolderKeyAttestation(supportedProofType, proof));
+        assertTrue(ex.getMessage().contains("Key attestation is malformed!"));
+    }
+
+    @Test
+    void throwIfInvalidAttestation_validAttestation_doesNotThrow() throws Exception {
+        KeyAttestationRequirement requirement = mock(KeyAttestationRequirement.class);
+        when(requirement.getKeyStorage()).thenReturn(List.of(AttackPotentialResistance.ISO_18045_HIGH));
+        String jwt = "jwt";
+        ProofJwt proofJwt = mock(ProofJwt.class);
+        AttestationJwt attestationJwt = mock(AttestationJwt.class);
+
+        ECKey proofKey = new ECKeyGenerator(Curve.P_256).keyUse(KeyUse.SIGNATURE).generate();
+        when(proofJwt.getAttestationJwt()).thenReturn(jwt);
+        when(proofJwt.getBinding()).thenReturn(proofKey.toPublicJWK().toJSONString());
+
+        try (MockedStatic<AttestationJwt> staticMock = mockStatic(AttestationJwt.class)) {
+            staticMock.when(() -> AttestationJwt.parseJwt(jwt, false)).thenReturn(attestationJwt);
+            when(applicationProperties.getTrustedAttestationProviders()).thenReturn(Collections.emptyList());
+            when(attestationJwt.isValidAttestation(keyResolver, List.of(AttackPotentialResistance.ISO_18045_HIGH), validator)).thenReturn(true);
+            when(attestationJwt.containsKey(any(ECKey.class))).thenReturn(true);
+            assertDoesNotThrow(() -> keyAttestationService.getAndValidateKeyAttestation(requirement, proofJwt));
+        }
+    }
+
+    @Test
+    void throwIfInvalidAttestation_untrustedProvider_throwsException() {
+        KeyAttestationRequirement requirement = mock(KeyAttestationRequirement.class);
+        when(requirement.getKeyStorage()).thenReturn(List.of(AttackPotentialResistance.ISO_18045_HIGH));
+        String jwt = "jwt";
+        ProofJwt proofJwt = mock(ProofJwt.class);
+        AttestationJwt attestationJwt = mock(AttestationJwt.class);
+        when(proofJwt.getAttestationJwt()).thenReturn(jwt);
+
+        try (MockedStatic<AttestationJwt> staticMock = mockStatic(AttestationJwt.class)) {
+            staticMock.when(() -> AttestationJwt.parseJwt(jwt, false)).thenReturn(attestationJwt);
+            when(applicationProperties.getTrustedAttestationProviders()).thenReturn(List.of("trusted"));
+            doThrow(new IllegalArgumentException("untrusted")).when(attestationJwt).throwIfNotTrustedAttestationProvider(anyList());
+
+            Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                    keyAttestationService.getAndValidateKeyAttestation(requirement, proofJwt));
+            assertTrue(ex.getMessage().contains("Attestation has been rejected"));
+        }
+    }
+
+    @Test
+    void throwIfInvalidAttestation_invalidAttestation_throwsException() throws Exception {
+        KeyAttestationRequirement requirement = mock(KeyAttestationRequirement.class);
+        when(requirement.getKeyStorage()).thenReturn(List.of(AttackPotentialResistance.ISO_18045_HIGH));
+        String jwt = "jwt";
+        ProofJwt proofJwt = mock(ProofJwt.class);
+        AttestationJwt attestationJwt = mock(AttestationJwt.class);
+        when(proofJwt.getAttestationJwt()).thenReturn(jwt);
+
+        try (MockedStatic<AttestationJwt> staticMock = mockStatic(AttestationJwt.class)) {
+            staticMock.when(() -> AttestationJwt.parseJwt(jwt, false)).thenReturn(attestationJwt);
+            when(applicationProperties.getTrustedAttestationProviders()).thenReturn(Collections.emptyList());
+            when(attestationJwt.isValidAttestation(keyResolver, List.of(AttackPotentialResistance.ISO_18045_HIGH), validator)).thenReturn(false);
+
+            Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                    keyAttestationService.getAndValidateKeyAttestation(requirement, proofJwt));
+            assertTrue(ex.getMessage().contains("Key attestation was invalid or not matching the attack resistance for the credential!"));
+        }
+    }
+
+    @Test
+    void throwIfInvalidAttestation_parseException_throwsException() {
+        KeyAttestationRequirement requirement = mock(KeyAttestationRequirement.class);
+        String jwt = "jwt";
+        ProofJwt proofJwt = mock(ProofJwt.class);
+        when(proofJwt.getAttestationJwt()).thenReturn(jwt);
+
+        try (MockedStatic<AttestationJwt> staticMock = mockStatic(AttestationJwt.class)) {
+            staticMock.when(() -> AttestationJwt.parseJwt(jwt, false)).thenThrow(new ParseException("ParseException", 0));
+
+            when(applicationProperties.getTrustedAttestationProviders()).thenReturn(Collections.emptyList());
+
+            Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                    keyAttestationService.getAndValidateKeyAttestation(requirement, proofJwt));
+            assertTrue(ex.getMessage().contains("Key attestation is malformed!"));
+        }
+    }
+
+    @Test
+    void throwIfInvalidAttestation_joseException_throwsException() throws JOSEException {
+        KeyAttestationRequirement requirement = mock(KeyAttestationRequirement.class);
+        String jwt = "jwt";
+        ProofJwt proofJwt = mock(ProofJwt.class);
+        when(proofJwt.getAttestationJwt()).thenReturn(jwt);
+        AttestationJwt attestationJwt = mock(AttestationJwt.class);
+        try (MockedStatic<AttestationJwt> staticMock = mockStatic(AttestationJwt.class)) {
+            staticMock.when(() -> AttestationJwt.parseJwt(jwt, false)).thenReturn(attestationJwt);
+            when(attestationJwt.isValidAttestation(any(), any(), any())).thenThrow(new JOSEException("JOSEException"));
+            when(applicationProperties.getTrustedAttestationProviders()).thenReturn(Collections.emptyList());
+
+            Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                    keyAttestationService.getAndValidateKeyAttestation(requirement, proofJwt));
+            assertTrue(ex.getMessage().contains("not supported"));
+        }
+    }
+
+    /**
+     * Security regression test: proof is signed with Key B but attestation was issued for Key A.
+     * The issuer must reject this request – the proof key must appear in attested_keys.
+     */
+    @Test
+    void throwIfInvalidAttestation_proofKeyNotInAttestedKeys_throwsException() throws Exception {
+        KeyAttestationRequirement requirement = mock(KeyAttestationRequirement.class);
+        when(requirement.getKeyStorage()).thenReturn(List.of(AttackPotentialResistance.ISO_18045_HIGH));
+        String jwt = "jwt";
+        ProofJwt proofJwt = mock(ProofJwt.class);
+        AttestationJwt attestationJwt = mock(AttestationJwt.class);
+
+        // Key B – the attacker-controlled proof signing key (not attested)
+        ECKey keyB = new ECKeyGenerator(Curve.P_256).keyUse(KeyUse.SIGNATURE).generate();
+        when(proofJwt.getAttestationJwt()).thenReturn(jwt);
+        when(proofJwt.getBinding()).thenReturn(keyB.toPublicJWK().toJSONString());
+
+        try (MockedStatic<AttestationJwt> staticMock = mockStatic(AttestationJwt.class)) {
+            staticMock.when(() -> AttestationJwt.parseJwt(jwt, false)).thenReturn(attestationJwt);
+            when(applicationProperties.getTrustedAttestationProviders()).thenReturn(Collections.emptyList());
+            when(attestationJwt.isValidAttestation(keyResolver, List.of(AttackPotentialResistance.ISO_18045_HIGH), validator)).thenReturn(true);
+            // containsKey returns false: Key B is NOT in the attestation for Key A
+            when(attestationJwt.containsKey(any(ECKey.class))).thenReturn(false);
+
+            Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                    keyAttestationService.getAndValidateKeyAttestation(requirement, proofJwt));
+            assertTrue(ex.getMessage().contains("Proof key does not match any key listed in the attestation's attested_keys"),
+                    "Expected key-mismatch error but got: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Security regression test: attestation is valid but the proof has no binding key.
+     * The issuer must reject the request.
+     */
+    @Test
+    void throwIfInvalidAttestation_nullProofBinding_throwsException() throws Exception {
+        KeyAttestationRequirement requirement = mock(KeyAttestationRequirement.class);
+        when(requirement.getKeyStorage()).thenReturn(List.of(AttackPotentialResistance.ISO_18045_HIGH));
+        String jwt = "jwt";
+        ProofJwt proofJwt = mock(ProofJwt.class);
+        AttestationJwt attestationJwt = mock(AttestationJwt.class);
+
+        when(proofJwt.getAttestationJwt()).thenReturn(jwt);
+        when(proofJwt.getBinding()).thenReturn(null);
+
+        try (MockedStatic<AttestationJwt> staticMock = mockStatic(AttestationJwt.class)) {
+            staticMock.when(() -> AttestationJwt.parseJwt(jwt, false)).thenReturn(attestationJwt);
+            when(applicationProperties.getTrustedAttestationProviders()).thenReturn(Collections.emptyList());
+            when(attestationJwt.isValidAttestation(keyResolver, List.of(AttackPotentialResistance.ISO_18045_HIGH), validator)).thenReturn(true);
+
+            Oid4vcException ex = assertThrows(Oid4vcException.class, () ->
+                    keyAttestationService.getAndValidateKeyAttestation(requirement, proofJwt));
+            assertTrue(ex.getMessage().contains("Proof has no binding key"),
+                    "Expected missing-binding error but got: " + ex.getMessage());
+        }
+    }
+}
