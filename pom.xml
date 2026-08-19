@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.7</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>ch.admin.bj.swiyu</groupId>
+    <artifactId>swiyu-verifier-parent</artifactId>
+    <version>4.2.0-SNAPSHOT</version>
+    <name>Swiyu verifier parent pom</name>
+    <description>Generic verifier for public beta</description>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>verifier-service</module>
+        <module>verifier-application</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <pgpverify-maven-plugin.version>1.19.1</pgpverify-maven-plugin.version>
+        <sonar.jacoco.itReportPath>${project.basedir}/verifier-application/target/jacoco-it.exec
+        </sonar.jacoco.itReportPath>
+        <sonar.jacoco.reportPath>${project.basedir}/verifier-application/target/jacoco.exec</sonar.jacoco.reportPath>
+        <sonar.exclusions>
+            **/org/**/*.java, **/com/**/*.java
+        </sonar.exclusions>
+        <!-- dependency versions -->
+        <archunit-junit5.verion>1.4.2</archunit-junit5.verion>
+        <javacrumbs.shedlock.version>7.7.0</javacrumbs.shedlock.version>
+        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
+        <openapi-generator-maven-plugin.version>7.24.0</openapi-generator-maven-plugin.version>
+        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
+        <logback.version>1.6.1</logback.version>
+        <json-path.version>2.10.0</json-path.version>
+        <spring-cloud-dependencies.version>2025.1.1</spring-cloud-dependencies.version>
+        <bcprov-jdk18on.version>1.85</bcprov-jdk18on.version>
+        <bcpkix-jdk18on.version>1.85</bcpkix-jdk18on.version>
+        <postgres.version>42.7.13</postgres.version>
+        <swagger-parser.version>2.1.45</swagger-parser.version>
+        <!-- Sonar -->
+        <sonar.cpd.exclusions>
+            **/*Dto.java,**/domain/*
+        </sonar.cpd.exclusions>
+        <sonar.coverage.exclusions>
+            **/*Dto.java,**/config/*,**/generated/*,**/*Exception.java,**/*Constants.java,**/*Registry.java,**/*Config.java,**/*Mock*,**/*Application.java
+        </sonar.coverage.exclusions>
+
+        <editorconfig-maven-plugin.version>0.2.0</editorconfig-maven-plugin.version>
+        <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
+        <kotlin-stdlib.version>2.4.10</kotlin-stdlib.version>
+        <jna.version>5.19.1</jna.version>
+        <sd-jwt.version>1.9</sd-jwt.version>
+        <jjwt-impl.version>0.12.6</jjwt-impl.version>
+        <jjwt-jackson.version>0.12.6</jjwt-jackson.version>
+        <skip.doc-generate>true</skip.doc-generate>
+        <generic-java-lib.version>2.0.0</generic-java-lib.version>
+        <pact.version>4.7.3</pact.version>
+        <openapi-generator-maven-plugin.version>7.24.0</openapi-generator-maven-plugin.version>
+        <!-- Fixes CVE-2026-13006 -->
+        <logback-core.version>1.6.1</logback-core.version>
+        <!-- Fixes SNYK-JAVA-ORGAPACHETOMCATEMBED-17732890 / 17733746 -->
+        <tomcat.version>11.0.23</tomcat.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Fixes CVE-2026-59889 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.22.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>3.1.5</version>
+            </dependency>
+            
+            <!-- Check again on Spring Boot update -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.20.0</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback-core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.admin.swiyu</groupId>
+                <artifactId>swiyu-jws-signature-service</artifactId>
+                <version>${generic-java-lib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.admin.swiyu</groupId>
+                <artifactId>swiyu-did-resolver-adapter</artifactId>
+                <version>${generic-java-lib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.admin.swiyu</groupId>
+                <artifactId>swiyu-jwe-util</artifactId>
+                <version>${generic-java-lib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.admin.swiyu</groupId>
+                <artifactId>swiyu-jwt-util</artifactId>
+                <version>${generic-java-lib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.admin.swiyu</groupId>
+                <artifactId>swiyu-token-status-list</artifactId>
+                <version>${generic-java-lib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.admin.swiyu</groupId>
+                <artifactId>swiyu-ts-verifier</artifactId>
+                <version>${generic-java-lib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>au.com.dius.pact.consumer</groupId>
+                <artifactId>junit5</artifactId>
+                <version>${pact.version}</version>
+                <scope>test</scope>
+            </dependency>
+          </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!-- PGP provenance verification for all third-party dependencies.-->
+            <plugin>
+                <groupId>org.simplify4u.plugins</groupId>
+                <artifactId>pgpverify-maven-plugin</artifactId>
+                <version>${pgpverify-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>pgp-verify-dependencies</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- Path to the curated trust map (artifact coords → PGP fingerprint).
+                         ${maven.multiModuleProjectDirectory} always resolves to the root
+                         of the multi-module project, regardless of which sub-module runs. -->
+                    <keysMapLocation>${maven.multiModuleProjectDirectory}/pgp/keys.list</keysMapLocation>
+                    <verifyPomFiles>true</verifyPomFiles>
+                    <!--  To skip verification locally mvn -Dpgpverify.skip=true -->
+                    <pgpKeyServer>hkps://keys.openpgp.org, hkps://keyserver.ubuntu.com</pgpKeyServer>
+                    <pgpKeyServerLoadBalance>true</pgpKeyServerLoadBalance>
+                    <failWeakSignature>true</failWeakSignature>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                    </execution>
+                    <!-- Generate module jacoco.xml reports in verify phase -->
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.28.0</version>
+                <configuration>
+                    <printFailingErrors>true</printFailingErrors>
+                    <linkXRef>false</linkXRef>
+                    <failOnViolation>true</failOnViolation>
+                    <failurePriority>2</failurePriority>
+                    <rulesets>
+                        <ruleset>.github/rulesets/java/pmd_omni_ruleset.xml</ruleset>
+                    </rulesets>
+                    <includeTests>false</includeTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

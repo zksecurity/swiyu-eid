@@ -1,0 +1,23 @@
+{
+  "client_id": "${client-id}",
+  "client_name#en": "English name (all regions)",
+  "client_name#fr": "French name (all regions)",
+  "client_name#de-DE": "German name (region Germany)",
+  "client_name#de-CH": "German name (region Switzerland)",
+  "client_name#de": "German name (fallback)",
+  "client_name": "Fallback name",
+  "logo_uri": "www.example.com/logo.png",
+  "logo_uri#fr": "www.example.com/logo_fr.png",
+  "vp_formats_supported": {
+    "dc+sd-jwt": {
+      "sd-jwt_alg_values": [
+        "ES256",
+        "Ed25519"
+      ],
+      "kb-jwt_alg_values": [
+        "ES256",
+        "Ed25519"
+      ]
+    }
+  }
+}

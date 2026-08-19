@@ -1,0 +1,162 @@
+package ch.admin.bj.swiyu.verifier.infrastructure.web;
+
+import ch.admin.bj.swiyu.verifier.dto.ApiErrorDto;
+import ch.admin.bj.swiyu.verifier.dto.VerificationErrorResponseDto;
+import ch.admin.bj.swiyu.verifier.common.exception.ProcessClosedException;
+import ch.admin.bj.swiyu.verifier.common.exception.VerificationException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.InvalidPropertyException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.io.IOException;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
+import static ch.admin.bj.swiyu.verifier.service.oid4vp.VerificationMapper.toVerificationErrorResponseDto;
+import static java.util.Objects.nonNull;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
+/**
+ * Default REST exception handler. Handles exceptions that are same for any controller.
+ */
+@RestControllerAdvice
+@AllArgsConstructor
+@Slf4j
+public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @NotNull
+    private static ResponseEntity<Object> createBadRequestResponse(Exception e) {
+        String responseMessage = nonNull(e.getMessage()) ? e.getMessage() : "Bad request";
+        log.debug("invalid request", e);
+
+        var error = ApiErrorDto.builder()
+                .status(BAD_REQUEST)
+                .errorDescription(responseMessage)
+                .build();
+
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+
+    private static ResponseEntity<Object> createInternalServerErrorResponse(String message) {
+        var error = ApiErrorDto.builder()
+                .status(INTERNAL_SERVER_ERROR)
+                .errorDescription(message)
+                .build();
+
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleException(Exception e, HttpServletRequest r) {
+        if (e instanceof HttpRequestMethodNotSupportedException) {
+            return createBadRequestResponse(e);
+        }
+        log.error("Unhandled exception occured for uri {}", r.getRequestURL(), e);
+
+        return createInternalServerErrorResponse("Internal Server Error. Please check again later");
+    }
+
+    /**
+     * Override default MethodArgumentNotValidException handling to provide a more detailed error message.
+     * Triggered when an object fails @Valid validation.
+     * Shows the exact fields and the reason for the validation failure.
+     */
+    @NotNull
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
+
+        var fieldErrors = ex.getBindingResult().getFieldErrors().stream().map(error -> String.format("%s: %s", error.getField(), error.getDefaultMessage())).sorted().collect(Collectors.joining(", "));
+
+        var globalErrors = ex.getBindingResult().getGlobalErrors().stream().map(error -> String.format("%s: %s", error.getObjectName(), error.getDefaultMessage())).sorted().collect(Collectors.joining(", "));
+
+        var combinedErrors = java.util.stream.Stream.of(fieldErrors, globalErrors)
+                .filter(s -> !s.isBlank())
+                .collect(Collectors.joining(", "));
+
+        log.info("Received bad request. Details: {}", combinedErrors);
+
+        var error = ApiErrorDto.builder()
+                .status(BAD_REQUEST)
+                .errorDescription(combinedErrors)
+                .build();
+
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class,
+            // Handle invalid property exceptions during controller method invocation
+            InvalidPropertyException.class,})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException e) {
+        return createBadRequestResponse(e);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<Object> handleBrokenPipeException(IOException ex) {
+        if (ex.getMessage() != null && ex.getMessage().contains("Broken pipe")) {
+            // This is most likely a wrapped client abort exception meaning the client has already disconnected
+            // Because there's no point in returning a response null is returned
+            log.debug("Client aborted connection", ex);
+            return null;
+        }
+        log.error("Unhandled IO exception occurred", ex);
+
+        return createInternalServerErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<Object> handleUnexpectedStreamClosing(MultipartException ex) {
+        if (ex.getMessage() != null && ex.getMessage().contains("Stream ended unexpectedly")) {
+            log.debug("Stream ended unexpectedly", ex);
+            return createBadRequestResponse(ex);
+        }
+        log.error("Unhandled MultipartException exception occurred", ex);
+
+        return createInternalServerErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException ex) {
+
+        var error = ApiErrorDto.builder()
+                .status(HttpStatus.NOT_FOUND)
+                .errorDescription(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+
+    @ExceptionHandler(ProcessClosedException.class)
+    public ResponseEntity<Object> handleProcessAlreadyClosedException(ProcessClosedException ex) {
+        var error = ApiErrorDto.builder()
+                .status(HttpStatus.GONE)
+                .errorDescription(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+
+    @ExceptionHandler(VerificationException.class)
+    ResponseEntity<VerificationErrorResponseDto> handleVerificationException(VerificationException e) {
+        var error = toVerificationErrorResponseDto(e);
+
+        log.warn("The received verification presentation could not be verified - caused by {}-{}:{}", error.error(), error.errorCode(), error.errorDescription(), e);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+}

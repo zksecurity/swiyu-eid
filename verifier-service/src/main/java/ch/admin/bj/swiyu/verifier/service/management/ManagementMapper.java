@@ -1,0 +1,213 @@
+package ch.admin.bj.swiyu.verifier.service.management;
+
+import ch.admin.bj.swiyu.verifier.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.verifier.common.exception.VerificationErrorResponseCode;
+import ch.admin.bj.swiyu.verifier.domain.management.*;
+import ch.admin.bj.swiyu.verifier.dto.VerificationClientErrorDto;
+import ch.admin.bj.swiyu.verifier.dto.VerificationErrorResponseCodeDto;
+import ch.admin.bj.swiyu.verifier.dto.VerificationPresentationResponseDto;
+import ch.admin.bj.swiyu.verifier.dto.management.*;
+import ch.admin.bj.swiyu.verifier.dto.metadata.JwkSetDto;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
+import lombok.experimental.UtilityClass;
+import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Objects.nonNull;
+
+
+@UtilityClass
+public class ManagementMapper {
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public static ManagementResponseDto toManagementResponseDto(final Management management, final ApplicationProperties props) {
+        if (management == null) {
+            throw new IllegalArgumentException("Management must not be null");
+        }
+
+        var override = management.getConfigurationOverride();
+        String externalUrl = override.externalUrlOrDefault(props.getExternalUrl());
+        String clientId = override.verifierDidOrDefaultWithPrefix(props);
+        var verificationUrl = String.format("%s/oid4vp/api/request-object/%s", externalUrl, management.getId());
+        return new ManagementResponseDto(
+                management.getId(),
+                management.getRequestNonce(),
+                toVerifcationStatusDto(management.getState()),
+                null,
+                toResponseDataDto(management.getWalletResponse()),
+                verificationUrl,
+                buildVerificationDeeplink(verificationUrl, clientId, props.getDeeplinkSchema())
+        );
+    }
+
+    public static TrustAnchor toTrustAnchor(final TrustAnchorDto trustAnchor) {
+        return new TrustAnchor(
+                trustAnchor.did(),
+                trustAnchor.trustRegistryUri()
+        );
+    }
+
+    public static List<TrustAnchor> toTrustAnchors(List<TrustAnchorDto> trustAnchorDtos) {
+        if (trustAnchorDtos == null) {
+            return List.of();
+        }
+        return trustAnchorDtos.stream().map(ManagementMapper::toTrustAnchor).toList();
+    }
+
+    private static String buildVerificationDeeplink(String requestUri, String clientId, String deeplinkSchema) {
+        return UriComponentsBuilder.newInstance()
+                .scheme(deeplinkSchema)
+                .host("")
+                .queryParam("client_id", "{p}")
+                .queryParam("request_uri", "{q}")
+                .build(clientId, requestUri)
+                .toString();
+    }
+
+    private static VerificationStatusDto toVerifcationStatusDto(VerificationStatus source) {
+        if (source == null) {
+            return null;
+        }
+        return switch (source) {
+            case PENDING -> VerificationStatusDto.PENDING;
+            case IN_PROGRESS -> VerificationStatusDto.PENDING; // For the API, we want to treat IN_PROGRESS as PENDING since it is still not completed from the client's perspective
+            case SUCCESS -> VerificationStatusDto.SUCCESS;
+            case FAILED -> VerificationStatusDto.FAILED;
+        };
+    }
+
+    private static ResponseDataDto toResponseDataDto(ResponseData source) {
+        if (source == null) {
+            return null;
+        }
+        var credentialSubjectDataString = source.credentialSubjectData();
+        return new ResponseDataDto(
+                toVerificationErrorResponseCodeDto(source.errorCode()),
+                source.errorDescription(),
+                nonNull(credentialSubjectDataString) ? jsonStringToMap(credentialSubjectDataString) : null);
+    }
+
+    private static Map<String, Object> jsonStringToMap(String jsonString) {
+        if (jsonString == null) {
+            return new HashMap<>();
+        }
+
+        try {
+            return OBJECT_MAPPER.readValue(jsonString, Map.class);
+        } catch (JacksonException e) {
+            throw new IllegalArgumentException("Invalid string cannot be converted to map");
+        }
+    }
+
+    private static VerificationErrorResponseCodeDto toVerificationErrorResponseCodeDto(VerificationErrorResponseCode source) {
+        if (source == null) {
+            return null;
+        }
+        return switch (source) {
+            case CREDENTIAL_INVALID -> VerificationErrorResponseCodeDto.CREDENTIAL_INVALID;
+            case JWT_EXPIRED -> VerificationErrorResponseCodeDto.JWT_EXPIRED;
+            case JWT_PREMATURE -> VerificationErrorResponseCodeDto.JWT_PREMATURE;
+            case INVALID_FORMAT -> VerificationErrorResponseCodeDto.INVALID_FORMAT;
+            case CREDENTIAL_EXPIRED -> VerificationErrorResponseCodeDto.CREDENTIAL_EXPIRED;
+            case MISSING_NONCE -> VerificationErrorResponseCodeDto.MISSING_NONCE;
+            case UNSUPPORTED_FORMAT -> VerificationErrorResponseCodeDto.UNSUPPORTED_FORMAT;
+            case CREDENTIAL_REVOKED -> VerificationErrorResponseCodeDto.CREDENTIAL_REVOKED;
+            case CREDENTIAL_SUSPENDED -> VerificationErrorResponseCodeDto.CREDENTIAL_SUSPENDED;
+            case HOLDER_BINDING_MISMATCH -> VerificationErrorResponseCodeDto.HOLDER_BINDING_MISMATCH;
+            case CREDENTIAL_MISSING_DATA -> VerificationErrorResponseCodeDto.CREDENTIAL_MISSING_DATA;
+            case UNRESOLVABLE_STATUS_LIST -> VerificationErrorResponseCodeDto.UNRESOLVABLE_STATUS_LIST;
+            case ISSUER_NOT_ACCEPTED -> VerificationErrorResponseCodeDto.ISSUER_NOT_ACCEPTED;
+            case PUBLIC_KEY_OF_ISSUER_UNRESOLVABLE ->
+                    VerificationErrorResponseCodeDto.PUBLIC_KEY_OF_ISSUER_UNRESOLVABLE;
+            case AUTHORIZATION_REQUEST_OBJECT_NOT_FOUND ->
+                    VerificationErrorResponseCodeDto.AUTHORIZATION_REQUEST_OBJECT_NOT_FOUND;
+            case AUTHORIZATION_REQUEST_MISSING_ERROR_PARAM ->
+                    VerificationErrorResponseCodeDto.AUTHORIZATION_REQUEST_MISSING_ERROR_PARAM;
+            case INVALID_PRESENTATION_DEFINITION -> VerificationErrorResponseCodeDto.INVALID_PRESENTATION_DEFINITION;
+            case MALFORMED_CREDENTIAL -> VerificationErrorResponseCodeDto.MALFORMED_CREDENTIAL;
+            case PRESENTATION_SUBMISSION_CONSTRAINT_VIOLATED ->
+                    VerificationErrorResponseCodeDto.PRESENTATION_SUBMISSION_CONSTRAINT_VIOLATED;
+            case INVALID_PRESENTATION_SUBMISSION -> VerificationErrorResponseCodeDto.INVALID_PRESENTATION_SUBMISSION;
+            case INVALID_SCOPE -> VerificationErrorResponseCodeDto.INVALID_SCOPE;
+            case INVALID_REQUEST -> VerificationErrorResponseCodeDto.INVALID_REQUEST;
+            case INVALID_CLIENT -> VerificationErrorResponseCodeDto.INVALID_CLIENT;
+            case VP_FORMATS_NOT_SUPPORTED -> VerificationErrorResponseCodeDto.VP_FORMATS_NOT_SUPPORTED;
+            case INVALID_PRESENTATION_DEFINITION_URI ->
+                    VerificationErrorResponseCodeDto.INVALID_PRESENTATION_DEFINITION_URI;
+            case INVALID_PRESENTATION_DEFINITION_REFERENCE ->
+                    VerificationErrorResponseCodeDto.INVALID_PRESENTATION_DEFINITION_REFERENCE;
+            case CLIENT_REJECTED -> VerificationErrorResponseCodeDto.CLIENT_REJECTED;
+            case INVALID_TOKEN_STATUS_LIST -> VerificationErrorResponseCodeDto.INVALID_TOKEN_STATUS_LIST;
+            case ACCESS_DENIED -> VerificationErrorResponseCodeDto.ACCESS_DENIED;
+        };
+    }
+
+    public VerificationErrorResponseCode toVerificationErrorResponseCode(VerificationClientErrorDto rejectionCode) {
+        if (rejectionCode == null) {
+            return null;
+        }
+
+        return switch (rejectionCode) {
+            case INVALID_SCOPE -> VerificationErrorResponseCode.INVALID_SCOPE;
+            case INVALID_REQUEST -> VerificationErrorResponseCode.INVALID_REQUEST;
+            case INVALID_CLIENT -> VerificationErrorResponseCode.INVALID_CLIENT;
+            case VP_FORMATS_NOT_SUPPORTED -> VerificationErrorResponseCode.VP_FORMATS_NOT_SUPPORTED;
+            case INVALID_PRESENTATION_DEFINITION_URI -> VerificationErrorResponseCode.INVALID_PRESENTATION_DEFINITION_URI;
+            case INVALID_PRESENTATION_DEFINITION_REFERENCE -> VerificationErrorResponseCode.INVALID_PRESENTATION_DEFINITION_REFERENCE;
+            case CLIENT_REJECTED -> VerificationErrorResponseCode.CLIENT_REJECTED;
+            case ACCESS_DENIED -> VerificationErrorResponseCode.ACCESS_DENIED;
+        };
+    }
+
+    public static ConfigurationOverride toSigningOverride(@Nullable ConfigurationOverrideDto overrideSigningDto) {
+        if (overrideSigningDto == null) {
+            return null;
+        }
+        return new ConfigurationOverride(
+                overrideSigningDto.externalUrl(),
+                overrideSigningDto.verifierDid(),
+                overrideSigningDto.verificationMethod(),
+                overrideSigningDto.keyId(),
+                overrideSigningDto.keyPin(),
+                overrideSigningDto.clientMetadata()
+        );
+    }
+
+    public static @NotNull ResponseModeType toResponseMode(ResponseModeTypeDto responseModeTypeDto) {
+        return switch (responseModeTypeDto) {
+            case DIRECT_POST -> ResponseModeType.DIRECT_POST;
+            case DIRECT_POST_JWT -> ResponseModeType.DIRECT_POST_JWT;
+        };
+    }
+
+    public static ResponseModeTypeDto toResponseModeDto(@NotNull ResponseModeType responseModeType) {
+        return switch (responseModeType) {
+            case DIRECT_POST -> ResponseModeTypeDto.DIRECT_POST;
+            case DIRECT_POST_JWT -> ResponseModeTypeDto.DIRECT_POST_JWT;
+        };
+    }
+
+    public static JwkSetDto toJWKSetDto(String jwks) {
+        try {
+            return OBJECT_MAPPER.readValue(jwks, JwkSetDto.class);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("Malformed Json Web Key Set saved", e);
+        }
+    }
+
+    /**
+     * Creates a {@link VerificationPresentationResponseDto} that wraps the given verification presentation {@link URI}.
+     * @param uri the verification presentation URI to wrap; may be {@code null}
+     * @return a {@link VerificationPresentationResponseDto} containing the provided {@code uri} *
+     **/
+    public static VerificationPresentationResponseDto uriToVerificationPresentation(URI uri) {
+        return new VerificationPresentationResponseDto(uri);
+    }
+}
