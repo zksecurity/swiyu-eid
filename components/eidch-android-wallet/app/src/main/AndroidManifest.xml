@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+            android:name="android.hardware.camera.any"
+            android:required="false" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+            android:name="android.hardware.nfc"
+            android:required="false"
+            tools:node="replace" />
+    <uses-permission android:name="android.permission.NFC" />
+
+    <uses-permission
+            android:name="android.permission.BLUETOOTH_SCAN"
+            android:usesPermissionFlags="neverForLocation" />
+    <uses-permission
+            android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission
+            android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+            android:allowBackup="false"
+            android:usesCleartextTraffic="false"
+            android:dataExtractionRules="@xml/data_extraction_rules"
+            android:fullBackupContent="@xml/backup_rules"
+            android:icon="@mipmap/ic_launcher"
+            android:label="${appLabel}"
+            android:supportsRtl="true"
+            android:theme="@style/Theme.Wallet"
+            android:name="ch.admin.foitt.wallet.app.WalletApplication"
+            android:localeConfig="@xml/locales_config"
+            android:networkSecurityConfig="@xml/network_security_config"
+            tools:targetApi="36"
+            android:enableOnBackInvokedCallback="false"
+            tools:replace="android:allowBackup">
+        <activity
+                android:name="ch.admin.foitt.wallet.app.MainActivity"
+                android:windowSoftInputMode="adjustResize"
+                android:exported="true"
+                android:theme="@style/Theme.Wallet.Starting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="${deepLinkCredentialOfferScheme}" />
+                <data android:scheme="${deepLinkCredentialOfferSchemeSwiyu}" />
+                <data android:scheme="${deepLinkPresentationRequestSchemeOID}" />
+                <data android:scheme="${deepLinkPresentationRequestSchemeSwiyu}" />
+            </intent-filter>
+        </activity>
+
+        <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
+        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
+        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
+        <service
+                android:name="ch.admin.foitt.wallet.platform.pushNotification.data.WalletFirebaseMessagingService"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service
+                android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+                android:enabled="false"
+                android:exported="false">
+            <meta-data
+                    android:name="autoStoreLocales"
+                    android:value="true" />
+        </service>
+    </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <data android:scheme="mailto" />
+        </intent>
+    </queries>
+</manifest>

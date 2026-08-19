@@ -1,0 +1,98 @@
+@file:Suppress("TooManyFunctions")
+
+package ch.admin.foitt.openid4vc.domain.model.presentationRequest
+
+import ch.admin.foitt.openid4vc.domain.model.GetKeyPairForKeyBindingError
+import ch.admin.foitt.openid4vc.domain.model.jwe.CreateJWEError
+import ch.admin.foitt.openid4vc.domain.model.jwe.JWEError
+import ch.admin.foitt.openid4vc.utils.JsonError
+import ch.admin.foitt.openid4vc.utils.JsonParsingError
+import timber.log.Timber
+
+interface PresentationRequestError {
+    data object NetworkError : FetchPresentationRequestError, SubmitAnyCredentialPresentationError, SubmitPresentationErrorError
+    data object SocketTimeoutError : SubmitAnyCredentialPresentationError
+    data class ValidationError(val error: String, val description: String?) : SubmitAnyCredentialPresentationError
+    data object VerificationError : SubmitAnyCredentialPresentationError
+    data object InvalidCredentialError : SubmitAnyCredentialPresentationError
+    data object InvalidKeyPairError : CreateVcSdJwtVerifiablePresentationError
+    data class Unexpected(val throwable: Throwable?) :
+        FetchPresentationRequestError,
+        SubmitAnyCredentialPresentationError,
+        CreateAnyVerifiablePresentationError,
+        CreateVcSdJwtVerifiablePresentationError,
+        CreateAnyDescriptorMapsError,
+        CreateVcSdJwtDescriptorMapError,
+        SubmitPresentationErrorError,
+        GetAuthorizationResponseConfigError
+}
+
+sealed interface FetchPresentationRequestError : PresentationRequestError
+sealed interface SubmitAnyCredentialPresentationError : PresentationRequestError
+internal sealed interface CreateAnyVerifiablePresentationError : PresentationRequestError
+internal sealed interface CreateVcSdJwtVerifiablePresentationError : PresentationRequestError
+internal sealed interface CreateAnyDescriptorMapsError : PresentationRequestError
+internal sealed interface CreateVcSdJwtDescriptorMapError : PresentationRequestError
+sealed interface SubmitPresentationErrorError : PresentationRequestError
+
+sealed interface GetAuthorizationResponseConfigError : PresentationRequestError
+
+internal fun CreateVcSdJwtVerifiablePresentationError.toCreateAnyVerifiablePresentationError(): CreateAnyVerifiablePresentationError =
+    when (this) {
+        is PresentationRequestError.InvalidKeyPairError -> PresentationRequestError.Unexpected(null)
+        is PresentationRequestError.Unexpected -> this
+    }
+
+internal fun GetKeyPairForKeyBindingError.toCreateVcSdJwtVerifiablePresentationError(): CreateVcSdJwtVerifiablePresentationError =
+    when (this) {
+        GetKeyPairForKeyBindingError.SoftwareKeyNotFound -> PresentationRequestError.InvalidKeyPairError
+        GetKeyPairForKeyBindingError.HardwareKeyNotFound -> PresentationRequestError.Unexpected(null)
+        is GetKeyPairForKeyBindingError.Unexpected -> PresentationRequestError.Unexpected(throwable)
+    }
+
+internal fun CreateAnyVerifiablePresentationError.toSubmitAnyCredentialPresentationError(): SubmitAnyCredentialPresentationError =
+    when (this) {
+        is PresentationRequestError.Unexpected -> this
+    }
+
+internal fun Throwable.toSubmitAnyCredentialPresentationError(message: String): SubmitAnyCredentialPresentationError {
+    Timber.e(t = this, message = message)
+    return PresentationRequestError.Unexpected(this)
+}
+
+internal fun Throwable.toCreateVcSdJwtVerifiablePresentationError(message: String): CreateVcSdJwtVerifiablePresentationError {
+    Timber.e(t = this, message = message)
+    return PresentationRequestError.Unexpected(this)
+}
+
+internal fun JsonParsingError.toCreateVcSdJwtVerifiablePresentationError(): CreateVcSdJwtVerifiablePresentationError = when (this) {
+    is JsonError.Unexpected -> PresentationRequestError.Unexpected(throwable)
+}
+
+internal fun JsonParsingError.toGetPresentationRequestConfigError(): GetAuthorizationResponseConfigError = when (this) {
+    is JsonError.Unexpected -> PresentationRequestError.Unexpected(throwable)
+}
+
+internal fun CreateJWEError.toGetPresentationRequestConfigError(): GetAuthorizationResponseConfigError = when (this) {
+    is JWEError.Unexpected -> PresentationRequestError.Unexpected(throwable)
+}
+
+internal fun CreateAnyVerifiablePresentationError.toGetAuthorizationResponseConfigError(): GetAuthorizationResponseConfigError =
+    when (this) {
+        is PresentationRequestError.Unexpected -> this
+    }
+
+internal fun GetAuthorizationResponseConfigError.toSubmitAnyCredentialPresentationError(): SubmitAnyCredentialPresentationError =
+    when (this) {
+        is PresentationRequestError.Unexpected -> this
+    }
+
+internal fun GetAuthorizationResponseConfigError.toSubmitPresentationError(): SubmitPresentationErrorError =
+    when (this) {
+        is PresentationRequestError.Unexpected -> this
+    }
+
+internal fun Throwable.toFetchPresentationRequestError(message: String): FetchPresentationRequestError {
+    Timber.e(t = this, message = message)
+    return PresentationRequestError.Unexpected(this)
+}

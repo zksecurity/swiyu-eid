@@ -1,0 +1,453 @@
+package ch.admin.foitt.wallet.feature.credentialOffer.presentation
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.admin.foitt.wallet.R
+import ch.admin.foitt.wallet.feature.credentialOffer.presentation.model.CredentialOfferUiState
+import ch.admin.foitt.wallet.platform.actorMetadata.domain.model.ActorType
+import ch.admin.foitt.wallet.platform.actorMetadata.presentation.InvitationHeader
+import ch.admin.foitt.wallet.platform.actorMetadata.presentation.model.ActorUiState
+import ch.admin.foitt.wallet.platform.badges.domain.model.BadgeType
+import ch.admin.foitt.wallet.platform.badges.presentation.BadgeBottomSheet
+import ch.admin.foitt.wallet.platform.composables.AdaptiveBottomButtonBar
+import ch.admin.foitt.wallet.platform.composables.Buttons
+import ch.admin.foitt.wallet.platform.composables.ConfirmationBottomSheet
+import ch.admin.foitt.wallet.platform.composables.LoadingOverlay
+import ch.admin.foitt.wallet.platform.composables.presentation.HeightReportingLayout
+import ch.admin.foitt.wallet.platform.composables.presentation.WindowWidthClass
+import ch.admin.foitt.wallet.platform.composables.presentation.horizontalSafeDrawing
+import ch.admin.foitt.wallet.platform.composables.presentation.layout.LazyColumn
+import ch.admin.foitt.wallet.platform.composables.presentation.layout.WalletLayouts
+import ch.admin.foitt.wallet.platform.composables.presentation.verticalSafeDrawing
+import ch.admin.foitt.wallet.platform.composables.presentation.windowWidthClass
+import ch.admin.foitt.wallet.platform.credential.presentation.MediumCredentialCard
+import ch.admin.foitt.wallet.platform.credential.presentation.credentialElements
+import ch.admin.foitt.wallet.platform.credential.presentation.mock.CredentialMocks
+import ch.admin.foitt.wallet.platform.credential.presentation.model.CredentialCardState
+import ch.admin.foitt.wallet.platform.nonCompliance.domain.model.ActorComplianceState
+import ch.admin.foitt.wallet.platform.preview.AllCompactScreensPreview
+import ch.admin.foitt.wallet.platform.preview.AllLargeScreensPreview
+import ch.admin.foitt.wallet.platform.trustRegistry.domain.model.TrustStatus
+import ch.admin.foitt.wallet.platform.trustRegistry.domain.model.VcSchemaTrustStatus
+import ch.admin.foitt.wallet.platform.utils.TestTags
+import ch.admin.foitt.wallet.theme.Sizes
+import ch.admin.foitt.wallet.theme.WalletTexts
+import ch.admin.foitt.wallet.theme.WalletTheme
+import kotlinx.coroutines.delay
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CredentialOfferScreen(
+    viewModel: CredentialOfferViewModel,
+) {
+    BackHandler {
+        viewModel.onDeclineClicked()
+    }
+
+    val message = stringResource(R.string.tk_credential_invitation_success_alt)
+    var announcementAxMessage by rememberSaveable { mutableStateOf<String?>(message) }
+
+    LaunchedEffect(Unit) {
+        delay(3000)
+        announcementAxMessage = null
+    }
+
+    val uiMode = LocalConfiguration.current.uiMode
+    LaunchedEffect(uiMode) {
+        viewModel.credentialOfferUiState.refreshData()
+    }
+
+    val badgeBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val badgeBottomSheet = viewModel.badgeBottomSheet.collectAsStateWithLifecycle().value
+    if (badgeBottomSheet != null) {
+        BadgeBottomSheet(
+            sheetState = badgeBottomSheetState,
+            badgeBottomSheetUiState = badgeBottomSheet,
+            onDismiss = viewModel::onDismissBadgeBottomSheet
+        )
+    }
+
+    val confirmationBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val showConfirmationBottomSheet = viewModel.showConfirmationBottomSheet.collectAsStateWithLifecycle().value
+    if (showConfirmationBottomSheet) {
+        ConfirmationBottomSheet(
+            sheetState = confirmationBottomSheetState,
+            title = R.string.tk_receive_credentialOffer_confirmIssuance_primary,
+            body = R.string.tk_receive_credentialOffer_confirmIssuance_secondary,
+            acceptButtonText = R.string.tk_receive_credentialOffer_confirmIssuance_button_primary,
+            declineButtonText = R.string.tk_receive_credentialOffer_confirmIssuance_button_secondary,
+            onAccept = viewModel::acceptCredential,
+            onDecline = viewModel::onDeclineBottomSheet,
+            onDismiss = viewModel::onDismissConfirmationBottomSheet,
+        )
+    }
+
+    CredentialOfferScreenContent(
+        isLoading = viewModel.isLoading.collectAsStateWithLifecycle().value,
+        credentialOfferUiState = viewModel.credentialOfferUiState.stateFlow.collectAsStateWithLifecycle().value,
+        announcementAxMessage = announcementAxMessage,
+        onBadge = viewModel::onBadge,
+        onAccept = viewModel::onAcceptClicked,
+        onDecline = viewModel::onDeclineClicked,
+        onWrongData = viewModel::onReportWrongDataClicked,
+    )
+}
+
+@Composable
+private fun CredentialOfferScreenContent(
+    isLoading: Boolean,
+    credentialOfferUiState: CredentialOfferUiState,
+    announcementAxMessage: String?,
+    onBadge: (BadgeType) -> Unit,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+    onWrongData: () -> Unit,
+) = Box(
+    modifier = Modifier
+        .fillMaxSize()
+        .background(WalletTheme.colorScheme.surfaceContainerLow)
+        .then(
+            if (announcementAxMessage != null) {
+                Modifier
+                    .semantics {
+                        liveRegion = LiveRegionMode.Assertive
+                        contentDescription = announcementAxMessage
+                    }
+            } else {
+                Modifier
+            }
+        )
+) {
+    when (currentWindowAdaptiveInfo().windowWidthClass()) {
+        WindowWidthClass.COMPACT -> CompactContent(
+            credentialOffer = credentialOfferUiState,
+            onBadge = onBadge,
+            onAccept = onAccept,
+            onDecline = onDecline,
+            onWrongData = onWrongData,
+        )
+
+        else -> LargeContent(
+            credentialOffer = credentialOfferUiState,
+            onBadge = onBadge,
+            onAccept = onAccept,
+            onDecline = onDecline,
+            onWrongData = onWrongData,
+        )
+    }
+    LoadingOverlay(showOverlay = isLoading)
+}
+
+@Composable
+private fun CompactContent(
+    credentialOffer: CredentialOfferUiState,
+    onBadge: (BadgeType) -> Unit,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+    onWrongData: () -> Unit,
+) {
+    var buttonsHeight by remember {
+        mutableStateOf(0.dp)
+    }
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        WalletLayouts.LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = rememberLazyListState(),
+            useTopInsets = false,
+            useBottomInsets = false,
+            contentPadding = PaddingValues(bottom = Sizes.s04 + buttonsHeight),
+        ) {
+            item {
+                InvitationHeader(
+                    actorUiState = credentialOffer.issuer,
+                    onBadge = onBadge,
+                )
+            }
+            item {
+                WalletTexts.BodyLarge(
+                    modifier = Modifier.padding(horizontal = Sizes.s06, vertical = Sizes.s03),
+                    text = stringResource(R.string.tk_receive_credentialOffer_headerSection_secondary),
+                )
+            }
+
+            item {
+                CredentialBoxCompact(
+                    credential = credentialOffer.credential,
+                    modifier = Modifier.padding(horizontal = Sizes.s04)
+                )
+                Spacer(modifier = Modifier.height(Sizes.s04))
+            }
+
+            credentialElements(
+                elements = credentialOffer.claims,
+                onWrongData = onWrongData,
+            )
+        }
+
+        StickyButtons(
+            onAccept = onAccept,
+            onDecline = onDecline,
+            onHeightMeasured = { buttonsHeight = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+        )
+    }
+}
+
+@Composable
+private fun CredentialBoxCompact(
+    credential: CredentialCardState,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                color = WalletTheme.colorScheme.background,
+                shape = RoundedCornerShape(Sizes.credentialCardCorner),
+            )
+            .padding(vertical = Sizes.s10, horizontal = Sizes.s04),
+    ) {
+        MediumCredentialCard(
+            modifier = Modifier
+                .padding(horizontal = Sizes.s10)
+                .testTag(TestTags.OFFER_CREDENTIAL.name),
+            credentialCardState = credential,
+        )
+    }
+}
+
+@Composable
+private fun LargeContent(
+    credentialOffer: CredentialOfferUiState,
+    onBadge: (BadgeType) -> Unit,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+    onWrongData: () -> Unit,
+) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        Row(modifier = Modifier.horizontalSafeDrawing()) {
+            Spacer(modifier = Modifier.width(Sizes.s04))
+            CredentialBoxLarge(
+                modifier = Modifier.width(this@BoxWithConstraints.maxWidth * 0.33f),
+                credential = credentialOffer.credential,
+            )
+            Spacer(modifier = Modifier.width(Sizes.s04))
+            DetailsWithHeader(
+                credentialOffer = credentialOffer,
+                onBadge = onBadge,
+                onAccept = onAccept,
+                onDecline = onDecline,
+                onWrongData = onWrongData,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CredentialBoxLarge(
+    modifier: Modifier,
+    credential: CredentialCardState,
+) {
+    Box(
+        modifier = modifier
+            .verticalSafeDrawing()
+            .padding(vertical = Sizes.s02),
+    ) {
+        Box(
+            modifier = Modifier
+                .background(
+                    color = WalletTheme.colorScheme.background,
+                    shape = RoundedCornerShape(Sizes.credentialCardCorner),
+                )
+                .padding(Sizes.s04),
+        ) {
+            MediumCredentialCard(
+                credentialCardState = credential,
+                isScrollingEnabled = true,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailsWithHeader(
+    credentialOffer: CredentialOfferUiState,
+    onBadge: (BadgeType) -> Unit,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+    onWrongData: () -> Unit,
+) {
+    var buttonsHeight by remember { mutableStateOf(0.dp) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        WalletLayouts.LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = rememberLazyListState(),
+            useTopInsets = false,
+            useBottomInsets = false,
+            contentPadding = PaddingValues(bottom = Sizes.s04 + buttonsHeight),
+        ) {
+            item {
+                InvitationHeader(
+                    actorUiState = credentialOffer.issuer,
+                    onBadge = onBadge,
+                )
+            }
+
+            item {
+                WalletTexts.BodyLarge(
+                    text = stringResource(R.string.tk_receive_credentialOffer_headerSection_secondary),
+                    modifier = Modifier.padding(horizontal = Sizes.s04)
+                )
+                Spacer(modifier = Modifier.height(Sizes.s04))
+            }
+
+            credentialElements(
+                elements = credentialOffer.claims,
+                onWrongData = onWrongData,
+            )
+        }
+
+        StickyButtons(
+            onAccept = onAccept,
+            onDecline = onDecline,
+            onHeightMeasured = { buttonsHeight = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun StickyButtons(
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+    onHeightMeasured: (Dp) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    HeightReportingLayout(
+        modifier = modifier,
+        onContentHeightMeasured = onHeightMeasured,
+    ) {
+        AdaptiveBottomButtonBar(
+            buttons = listOf(
+                {
+                    Buttons.FilledTertiary(
+                        modifier = Modifier
+                            .testTag(TestTags.ACCEPT_BUTTON.name),
+                        text = stringResource(id = R.string.tk_receive_credentialOffer_button_accept),
+                        startIcon = painterResource(id = R.drawable.wallet_ic_checkmark),
+                        onClick = onAccept,
+                    )
+                },
+                {
+                    Buttons.FilledPrimary(
+                        modifier = Modifier
+                            .testTag(TestTags.DECLINE_BUTTON.name),
+                        text = stringResource(id = R.string.tk_receive_credentialOffer_button_decline),
+                        startIcon = painterResource(id = R.drawable.wallet_ic_cross),
+                        onClick = onDecline,
+                    )
+                }
+            ),
+            stacked = false,
+        )
+    }
+}
+
+@AllCompactScreensPreview
+@Composable
+private fun CredentialOfferScreenPreview() {
+    WalletTheme {
+        CredentialOfferScreenContent(
+            isLoading = false,
+            credentialOfferUiState = CredentialOfferUiState(
+                issuer = ActorUiState(
+                    name = "Test Issuer",
+                    painter = painterResource(id = R.drawable.ic_swiss_cross_small),
+                    trustStatus = TrustStatus.TRUSTED,
+                    vcSchemaTrustStatus = VcSchemaTrustStatus.TRUSTED,
+                    actorType = ActorType.ISSUER,
+                    actorComplianceState = ActorComplianceState.REPORTED,
+                    nonComplianceReason = "report reason",
+                ),
+                credential = CredentialMocks.cardState01,
+                claims = CredentialMocks.clusterList,
+            ),
+            announcementAxMessage = null,
+            onBadge = {},
+            onAccept = {},
+            onDecline = {},
+            onWrongData = {},
+        )
+    }
+}
+
+@AllLargeScreensPreview
+@Composable
+private fun CredentialOfferLargeContentPreview() {
+    WalletTheme {
+        LargeContent(
+            credentialOffer = CredentialOfferUiState(
+                issuer = ActorUiState(
+                    name = "Test Issuer",
+                    painter = painterResource(id = R.drawable.ic_swiss_cross_small),
+                    trustStatus = TrustStatus.TRUSTED,
+                    vcSchemaTrustStatus = VcSchemaTrustStatus.TRUSTED,
+                    actorType = ActorType.ISSUER,
+                    actorComplianceState = ActorComplianceState.REPORTED,
+                    nonComplianceReason = "report reason",
+                ),
+                credential = CredentialMocks.cardState01,
+                claims = CredentialMocks.clusterList,
+            ),
+            onBadge = {},
+            onAccept = {},
+            onDecline = {},
+            onWrongData = {},
+        )
+    }
+}

@@ -1,0 +1,248 @@
+package ch.admin.foitt.wallet.platform.composables
+
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import ch.admin.foitt.wallet.R
+import ch.admin.foitt.wallet.platform.composables.presentation.requestFocus
+import ch.admin.foitt.wallet.platform.composables.presentation.spaceBarKeyClickable
+import ch.admin.foitt.wallet.platform.preview.WalletComponentPreview
+import ch.admin.foitt.wallet.platform.utils.TestTags
+import ch.admin.foitt.wallet.platform.utils.TraversalIndex
+import ch.admin.foitt.wallet.platform.utils.traversalIndex
+import ch.admin.foitt.wallet.theme.Sizes
+import ch.admin.foitt.wallet.theme.WalletShapes
+import ch.admin.foitt.wallet.theme.WalletTexts
+import ch.admin.foitt.wallet.theme.WalletTheme
+
+@Composable
+fun ScanInfoToast(
+    modifier: Modifier = Modifier,
+    shouldRequestFocus: Boolean = false,
+    text: Int
+) = Toast(
+    modifier = modifier,
+    useContentMaxWidth = false,
+    shouldRequestFocus = shouldRequestFocus,
+    isSnackBarDesign = false,
+    backgroundColor = WalletTheme.colorScheme.surface,
+    iconStart = null,
+    text = text,
+    textColor = WalletTheme.colorScheme.onSurfaceVariant,
+    liveRegionMode = LiveRegionMode.Polite,
+)
+
+@Composable
+fun PassphraseValidationErrorToastFixed(
+    modifier: Modifier = Modifier,
+    shouldRequestFocus: Boolean = false,
+    @StringRes text: Int = R.string.tk_global_warning_alt,
+    @StringRes iconEndContentDescription: Int? = R.string.tk_global_closewarning_alt,
+    onIconEnd: () -> Unit,
+) = Toast(
+    modifier = modifier,
+    shouldRequestFocus = shouldRequestFocus,
+    backgroundColor = WalletTheme.colorScheme.lightErrorFixed,
+    iconStart = R.drawable.wallet_ic_warning,
+    iconStartColor = WalletTheme.colorScheme.onLightErrorFixed,
+    text = text,
+    textColor = WalletTheme.colorScheme.onLightErrorFixed,
+    iconEnd = R.drawable.wallet_ic_cross,
+    iconEndColor = WalletTheme.colorScheme.onLightErrorFixed,
+    iconEndContentDescription = iconEndContentDescription,
+    onIconEnd = onIconEnd
+)
+
+@Composable
+fun PassphraseValidationErrorToast(
+    modifier: Modifier = Modifier,
+    @StringRes text: Int = R.string.tk_global_warning_alt,
+    @StringRes iconEndContentDescription: Int? = R.string.tk_global_closewarning_alt,
+    onIconEnd: () -> Unit,
+) = Toast(
+    modifier = modifier,
+    backgroundColor = WalletTheme.colorScheme.lightError,
+    iconStart = R.drawable.wallet_ic_warning,
+    iconStartColor = WalletTheme.colorScheme.onLightError,
+    text = text,
+    textColor = WalletTheme.colorScheme.onLightError,
+    iconEnd = R.drawable.wallet_ic_cross,
+    iconEndColor = WalletTheme.colorScheme.onLightError,
+    iconEndContentDescription = iconEndContentDescription,
+    onIconEnd = onIconEnd
+)
+
+@Suppress("CyclomaticComplexMethod")
+@Composable
+fun Toast(
+    modifier: Modifier = Modifier,
+    useContentMaxWidth: Boolean = true,
+    shouldRequestFocus: Boolean = false,
+    useLiveRegion: Boolean = true,
+    liveRegionMode: LiveRegionMode = LiveRegionMode.Assertive,
+    isSnackBarDesign: Boolean = false,
+    backgroundColor: Color = WalletTheme.colorScheme.surface,
+    @StringRes headline: Int? = null,
+    headlineColor: Color = WalletTheme.colorScheme.onSurface,
+    @StringRes text: Int? = null,
+    textColor: Color = WalletTheme.colorScheme.onSurfaceVariant,
+    @DrawableRes iconStart: Int? = null,
+    iconStartColor: Color = WalletTheme.colorScheme.onSurfaceVariant,
+    @DrawableRes iconEnd: Int? = null,
+    iconEndColor: Color = WalletTheme.colorScheme.onSurfaceVariant,
+    @StringRes iconEndContentDescription: Int? = null,
+    onIconEnd: () -> Unit = {},
+) {
+    val focusRequester = remember { FocusRequester() }
+    val displayText = text?.let { stringResource(id = it) } ?: ""
+    val headlineText = headline?.let { stringResource(id = it) }
+
+    Surface(
+        shadowElevation = Sizes.line02,
+        shape = if (isSnackBarDesign) WalletShapes.default.extraSmall else WalletShapes.default.large,
+        color = backgroundColor,
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier
+                .then(if (useContentMaxWidth) Modifier.fillMaxWidth() else Modifier)
+                .then(
+                    if (isSnackBarDesign) {
+                        Modifier.padding(start = Sizes.s04, top = Sizes.s01, bottom = Sizes.s01, end = Sizes.s01)
+                    } else {
+                        Modifier.padding(start = Sizes.s04, top = Sizes.s03, bottom = Sizes.s03, end = Sizes.s01)
+                    }
+                )
+                .testTag(TestTags.ERROR.name),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            iconStart?.let {
+                Icon(
+                    painter = painterResource(id = iconStart),
+                    contentDescription = null,
+                    tint = iconStartColor,
+                )
+                Spacer(modifier = Modifier.width(Sizes.s04))
+            }
+            Column(
+                modifier = Modifier
+                    .then(if (shouldRequestFocus) Modifier.requestFocus(focusRequester) else Modifier)
+                    .then(if (useContentMaxWidth) Modifier.weight(1f) else Modifier)
+                    .semantics {
+                        if (useLiveRegion) {
+                            liveRegion = liveRegionMode
+                        }
+                    }
+            ) {
+                headlineText?.let {
+                    WalletTexts.TitleSmall(
+                        text = headlineText,
+                        color = headlineColor,
+                    )
+                }
+
+                if (displayText.isNotEmpty()) {
+                    WalletTexts.LabelLarge(
+                        text = displayText,
+                        color = textColor,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(Sizes.s03))
+            iconEnd?.let {
+                IconButton(
+                    onClick = onIconEnd,
+                    modifier = Modifier.spaceBarKeyClickable(onIconEnd),
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .traversalIndex(TraversalIndex.LOW1),
+                        painter = painterResource(id = iconEnd),
+                        contentDescription = iconEndContentDescription?.let {
+                            stringResource(iconEndContentDescription)
+                        },
+                        tint = iconEndColor,
+                    )
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(shouldRequestFocus) {
+        if (shouldRequestFocus) {
+            focusRequester.requestFocus()
+        }
+    }
+}
+
+@WalletComponentPreview
+@Composable
+private fun ToastPreview() {
+    WalletTheme {
+        Toast(
+            headline = R.string.tk_global_warning_alt,
+            text = R.string.tk_onboarding_introductionStep_security_secondary,
+            iconStart = R.drawable.wallet_ic_qr,
+            iconEnd = R.drawable.wallet_ic_cross,
+            onIconEnd = { },
+            isSnackBarDesign = false
+        )
+    }
+}
+
+@WalletComponentPreview
+@Composable
+private fun SnackbarDesignPreview() {
+    WalletTheme {
+        Toast(
+            text = R.string.tk_home_notification_credential_declined,
+            onIconEnd = { },
+            isSnackBarDesign = true
+        )
+    }
+}
+
+@WalletComponentPreview
+@Composable
+private fun ErrorToastPreview() {
+    WalletTheme {
+        PassphraseValidationErrorToast(
+            text = R.string.tk_global_warning_alt,
+            onIconEnd = {},
+        )
+    }
+}
+
+@WalletComponentPreview
+@Composable
+private fun ScanInfoToastPreview() {
+    WalletTheme {
+        ScanInfoToast(
+            text = R.string.avbeam_error_empty_package
+        )
+    }
+}

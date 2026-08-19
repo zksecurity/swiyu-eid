@@ -1,0 +1,244 @@
+package ch.admin.foitt.wallet.platform.oca.domain.usecase.implementation
+
+import ch.admin.foitt.openid4vc.domain.model.claimsPathPointer.ClaimsPathPointer
+import ch.admin.foitt.openid4vc.domain.model.claimsPathPointer.ClaimsPathPointerComponent
+import ch.admin.foitt.openid4vc.domain.model.claimsPathPointer.toPointerString
+import ch.admin.foitt.wallet.platform.oca.domain.model.AttributeType
+import ch.admin.foitt.wallet.platform.oca.domain.model.CaptureBase1x0
+import ch.admin.foitt.wallet.platform.oca.domain.model.OcaBundle
+import ch.admin.foitt.wallet.platform.oca.domain.model.OcaError
+import ch.admin.foitt.wallet.platform.oca.domain.model.overlays.BrandingOverlay1x1
+import ch.admin.foitt.wallet.platform.oca.domain.model.overlays.DataSourceOverlay2x0
+import ch.admin.foitt.wallet.platform.oca.domain.model.overlays.LabelOverlay1x0
+import ch.admin.foitt.wallet.platform.oca.domain.usecase.OcaOverlayValidator
+import ch.admin.foitt.wallet.platform.oca.mock.OverlayMocks.ocaBundleWithEntryButWithoutEntryCodeOverlay
+import ch.admin.foitt.wallet.platform.oca.mock.OverlayMocks.ocaBundleWithEntryKeyNotInEntryCodes
+import ch.admin.foitt.wallet.platform.oca.mock.OverlayMocks.ocaBundleWithInvalidOverlayAttributeKey
+import ch.admin.foitt.wallet.platform.oca.mock.OverlayMocks.ocaBundleWithInvalidOverlayReferences
+import ch.admin.foitt.wallet.platform.oca.mock.OverlayMocks.ocaBundleWithValidEntryAndEntryCodeOverlays
+import ch.admin.foitt.wallet.platform.oca.mock.OverlayMocks.ocaBundleWithoutEntryButWithEntryCodeOverlay
+import ch.admin.foitt.wallet.platform.oca.mock.OverlayMocks.ocaBundleWithoutEntryButWithMultipleEntryCodeOverlays
+import ch.admin.foitt.wallet.platform.oca.mock.ocaMocks.elfaExample
+import ch.admin.foitt.wallet.platform.oca.util.createClaimsPathPointer
+import ch.admin.foitt.wallet.util.SafeJsonTestInstance
+import ch.admin.foitt.wallet.util.assertErrorType
+import ch.admin.foitt.wallet.util.assertOk
+import com.github.michaelbull.result.annotation.UnsafeResultValueAccess
+import io.mockk.MockKAnnotations
+import io.mockk.unmockkAll
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
+
+class OcaOverlayValidatorImplTest {
+
+    private val json = SafeJsonTestInstance.safeJson
+
+    private lateinit var ocaOverlayValidator: OcaOverlayValidator
+
+    @BeforeEach
+    fun setup() {
+        MockKAnnotations.init(this)
+
+        ocaOverlayValidator = OcaOverlayValidatorImpl()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockkAll()
+    }
+
+    @OptIn(UnsafeResultValueAccess::class)
+    @Test
+    fun `Valid overlays are validated successfully`(): Unit = runTest {
+        val elfaBundle = json.safeDecodeStringTo<OcaBundle>(elfaExample).value
+        ocaOverlayValidator(elfaBundle).assertOk()
+    }
+
+    @Test
+    fun `Overlays containing invalid references returns an error`(): Unit = runTest {
+        ocaOverlayValidator(ocaBundleWithInvalidOverlayReferences).assertErrorType(OcaError.InvalidOverlayCaptureBaseDigest::class)
+    }
+
+    @Test
+    fun `Overlays containing additional attribute keys does not return an error`(): Unit = runTest {
+        ocaOverlayValidator(ocaBundleWithInvalidOverlayAttributeKey).assertOk()
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = ["en", "xy", "en-US", "en-XY", "xy-XY"]
+    )
+    fun `Overlays containing valid language codes return Ok`(languageCode: String): Unit = runTest {
+        val bundle = getOcaWithLanguageCodeInOverlay(languageCode)
+        val result = ocaOverlayValidator(bundle).assertOk()
+        assertEquals(bundle.overlays, result)
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = ["", "x", "è", "en-", "EN", "en-xy", "abcd", "en-xyz", "en-ÜÄ"]
+    )
+    fun `Overlays containing invalid language codes returns an error`(languageCode: String): Unit = runTest {
+        val bundle = getOcaWithLanguageCodeInOverlay(languageCode)
+
+        ocaOverlayValidator(bundle).assertErrorType(OcaError.InvalidOverlayLanguageCode::class)
+    }
+
+    @TestFactory
+    fun `DataSourceOverlays v2x0 containing invalid ClaimsPathPointers returns an error`(): List<DynamicTest> {
+        val inputs = listOf(
+            listOf(),
+            listOf(ClaimsPathPointerComponent.String("")),
+            createClaimsPathPointer("a", -1),
+        )
+
+        return inputs.map { claimsPathPointer ->
+            DynamicTest.dynamicTest("Claims path pointer ${claimsPathPointer.toPointerString()} should return success") {
+                runTest {
+                    val bundle = getOcaWithDataSourceV2x0Overlay(claimsPathPointer = claimsPathPointer)
+
+                    ocaOverlayValidator(bundle).assertErrorType(OcaError.InvalidDataSourceOverlay::class)
+                }
+            }
+        }
+    }
+
+    @TestFactory
+    fun `DataSourceOverlays v2x0 containing valid ClaimsPathPointers returns success`(): List<DynamicTest> {
+        val inputs = listOf(
+            createClaimsPathPointer("a"),
+            createClaimsPathPointer("a", "b"),
+            createClaimsPathPointer("a", null),
+            createClaimsPathPointer("a", 1),
+            createClaimsPathPointer("a", null, "b"),
+            createClaimsPathPointer("a", 1, "b"),
+        )
+
+        return inputs.map { claimsPathPointer ->
+            DynamicTest.dynamicTest("Claims path pointer ${claimsPathPointer.toPointerString()} should return success") {
+                runTest {
+                    val bundle = getOcaWithDataSourceV2x0Overlay(claimsPathPointer = claimsPathPointer)
+
+                    ocaOverlayValidator(bundle).assertOk()
+                }
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("generateInvalidBrandingOverlayImageInputs")
+    fun `BrandingOverlays containing invalid uris returns an error`(input: Pair<String, String>) = runTest {
+        val bundle = getOcaWithBrandingOverlay(input.first, input.second)
+
+        ocaOverlayValidator(bundle).assertErrorType(OcaError.InvalidBrandingOverlay::class)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getValidEntryCodeOverlayInputs")
+    fun `Valid EntryCodeOverlays are validated successfully`(input: OcaBundle) = runTest {
+        ocaOverlayValidator(input).assertOk()
+    }
+
+    @ParameterizedTest
+    @MethodSource("getValidEntryOverlayInputs")
+    fun `Valid EntryOverlays and EntryCodeOverlays are validated successfully`(input: OcaBundle) = runTest {
+        ocaOverlayValidator(input).assertOk()
+    }
+
+    @ParameterizedTest
+    @MethodSource("getInvalidEntryOverlayInputs")
+    fun `Invalid Entry and EntryCode overlays return an error`(input: OcaBundle) = runTest {
+        ocaOverlayValidator(input).assertErrorType(OcaError.InvalidEntryOverlay::class)
+    }
+
+    private fun getOcaWithLanguageCodeInOverlay(languageCode: String) = OcaBundle(
+        captureBases = listOf(
+            CaptureBase1x0(
+                digest = "validDigest",
+                attributes = mapOf(
+                    "attributeKey" to AttributeType.Text,
+                )
+            ),
+        ),
+        overlays = listOf(
+            LabelOverlay1x0(
+                captureBaseDigest = "validDigest",
+                language = languageCode,
+                attributeLabels = mapOf(
+                    "attributeKey" to "label"
+                )
+            )
+        )
+    )
+
+    private fun getOcaWithDataSourceV2x0Overlay(claimsPathPointer: ClaimsPathPointer) = OcaBundle(
+        captureBases = listOf(
+            CaptureBase1x0(
+                digest = "validDigest",
+                attributes = mapOf(
+                    "attributeKey" to AttributeType.Text,
+                )
+            ),
+        ),
+        overlays = listOf(
+            DataSourceOverlay2x0(
+                captureBaseDigest = "validDigest",
+                format = "format",
+                attributeSources = mapOf("key" to claimsPathPointer)
+            )
+        )
+    )
+
+    private fun getOcaWithBrandingOverlay(logo: String?, backgroundImage: String?) = OcaBundle(
+        captureBases = listOf(
+            CaptureBase1x0(
+                digest = "validDigest",
+                attributes = mapOf(
+                    "attributeKey" to AttributeType.Text,
+                )
+            ),
+        ),
+        overlays = listOf(
+            BrandingOverlay1x1(
+                captureBaseDigest = "validDigest",
+                language = "en",
+                logo = logo,
+                backgroundImage = backgroundImage,
+            )
+        )
+    )
+
+    companion object {
+        @JvmStatic
+        fun generateInvalidBrandingOverlayImageInputs() = listOf(
+            Pair("invalid", "invalid"),
+            Pair("data:image/png;base64,", "invalid"),
+            Pair("invalid", "data:image/jpeg;base64,"),
+        )
+
+        @JvmStatic
+        fun getValidEntryCodeOverlayInputs() = listOf(
+            ocaBundleWithoutEntryButWithEntryCodeOverlay,
+            ocaBundleWithoutEntryButWithMultipleEntryCodeOverlays,
+        )
+
+        @JvmStatic
+        fun getValidEntryOverlayInputs() = listOf(
+            ocaBundleWithValidEntryAndEntryCodeOverlays,
+        )
+
+        @JvmStatic
+        fun getInvalidEntryOverlayInputs() = listOf(
+            ocaBundleWithEntryButWithoutEntryCodeOverlay,
+            ocaBundleWithEntryKeyNotInEntryCodes
+        )
+    }
+}
