@@ -1,0 +1,25 @@
+schema: swiyu-eid.local-changes.v1
+recorded_at: 2026-08-19
+
+ports:
+  verifier-zk-sidecar:
+    target: components/swiyu-verifier
+    upstream_base: 0d0ba1113437ce3a122b3f73c3259130b4b566b7
+    source_commit: 058916d65776489e495e359e5f1dcd538b7bccd4
+    scope: optional x_swiyu_zkp policy, loopback sidecar adapter, and tests
+
+  zkid-swiyu-profiles:
+    target: components/zkid
+    upstream_base: b395e09c225ff45b003f0087c28e2e208e22f944
+    source_commits:
+      - edd16d4331a44a3c29f5b5d4c9fddf21adde4ec8
+      - bac26de04cf9d6d64eea4241da22d538be493e6b
+      - 92865e0f2075843189978715e36773e1a8edad11
+      - 49eb1843037c83611c9a7656e9d756952d48d4ef
+      - 53e1bafa03335807d8a1428f00c6c276adad8151
+      - fdd9c91ec8f3da5c3bd31309e6aa0c3e2ecf0ffa
+      - a4cb6bca8f69c288a9f4e1fedfcb8e390086356d
+      - c1f56ca36534a493dbca518440ae97d30ae57a18
+      - 6e2464dcee8ee3129737694ddda2681e8fef09e3
+      - 36fc470230a0f6617e8f0475fcaf08cc0b39a959
+    scope: swiyu circuits, SDK and native proof paths, optimizations, tests, and benchmark evidence

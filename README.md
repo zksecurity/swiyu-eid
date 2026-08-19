@@ -1,37 +1,49 @@
-# swiyu e-ID ZK integration
+# swiyu-eid
 
-This monorepo is an integration workspace for running the public swiyu issuer,
-wallet, and verifier with opt-in zero-knowledge presentation profiles supplied
-by zkID.
+One repository for the swiyu issuer, Android wallet, verifier, and the zkID
+work used to add optional zero-knowledge presentation profiles.
 
-The initial import contains unmodified snapshots of the official upstream
-repositories. Project-specific protocol contracts, profiles, orchestration,
-cross-component tests, and benchmarks will be added separately so upstream
-code remains easy to identify and synchronize.
+## Source map
 
-## Structure
+| Area | Upstream basis | Added in this project |
+|---|---|---|
+| `components/swiyu-issuer` | Official swiyu issuer | No functional changes |
+| `components/eidch-android-wallet` | Official swiyu Android wallet | No ZK integration yet |
+| `components/swiyu-verifier` | Official swiyu verifier | Opt-in `x_swiyu_zkp` DCQL policy and loopback proof-verifier sidecar |
+| `components/zkid` | zkID v5.0.0 | swiyu circuits, TypeScript wallet/verifier APIs, native Spartan path, tests, and benchmarks |
+| `integration` | New | Short indexes for cross-component contracts, profiles, and integration status |
+| `benchmark` | New | Entry point for matched SD-JWT versus ZK results and reproducibility data |
+
+Exact upstream revisions are pinned in [`UPSTREAM.lock.yaml`](UPSTREAM.lock.yaml).
+The imported project-specific commit lineage is recorded in
+[`LOCAL_CHANGES.lock.yaml`](LOCAL_CHANGES.lock.yaml).
+
+## Added ZK work
+
+- Age and private-status proof, plus an optimized Prepare/Show variant.
+- Residence eligibility over a hidden municipality and residence-start date.
+- Credential-scoped nullifier for one accepted claim per credential and scope.
+- Matched no-ZK controls, pinned container runs, raw samples, artifact sizes,
+  memory measurements, and per-stage timing.
+
+The working proof code is under
+[`components/zkid/wallet-unit-poc`](components/zkid/wallet-unit-poc). The concise
+profile registry is in [`integration/profiles`](integration/profiles/README.md),
+and benchmark headlines are in [`benchmark`](benchmark/README.md).
+
+## Current integration boundary
+
+The Java verifier can route the original monolithic age profile to a local ZK
+sidecar while leaving ordinary SD-JWT verification unchanged. The optimized
+Prepare/Show age, residence, and nullifier profiles are implemented and
+benchmarked in the zkID component, but are not yet wired into the Android
+wallet or the Java verifier contract. The issuer remains unchanged and issues
+ordinary ES256 SD-JWT credentials.
+
+## Repository layout
 
 ```text
-components/
-  swiyu-issuer/          Official generic issuer
-  swiyu-verifier/        Official generic verifier
-  eidch-android-wallet/  Official Android wallet
-  zkid/                  zkID proof-system and circuit research
-integration/
-  contracts/             Cross-component wire contracts and fixtures
-  profiles/              Versioned ZK profile manifests
-  docker/                End-to-end development environment
-  scripts/               Build and orchestration entry points
-  tests/                 Cross-component and end-to-end tests
-benchmark/               Reproducible baseline and ZK measurements
+components/   Upstream projects plus component-local additions
+integration/  Cross-component profile, contract, and test indexes
+benchmark/    Reproducibility and result index
 ```
-
-`UPSTREAM.lock.yaml` records the exact upstream revisions imported into this
-repository. Each component retains its own upstream license and notices.
-
-## Initial scope
-
-No local ZK implementation has been ported in the initial scaffold. The first
-milestone is an unchanged swiyu issuance and presentation flow. ZK support will
-then be introduced as an opt-in branch without replacing ordinary SD-JWT
-behavior.
