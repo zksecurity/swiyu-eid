@@ -1,0 +1,107 @@
+package ch.admin.bj.swiyu.issuer.service.credential;
+
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.*;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.CredentialEnvelopeDto;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.issuance.CreateCredentialRequestDto;
+import ch.admin.bj.swiyu.issuer.service.OAuthService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+class CredentialIssuanceServiceTest {
+
+    @Mock
+    private OAuthService oAuthService;
+    @Mock
+    private CredentialEnvelopeService credentialEnvelopeService;
+    @Mock
+    private CredentialRenewalService credentialRenewalService;
+    @Mock
+    private CredentialStateMachine credentialStateMachine;
+    @Mock
+    private CredentialOfferRepository credentialOfferRepository;
+
+    private CredentialIssuanceService service;
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+        service = new CredentialIssuanceService(
+                oAuthService,
+                credentialEnvelopeService,
+                credentialRenewalService,
+                credentialStateMachine,
+                credentialOfferRepository);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
+    }
+
+    @Test
+    void createCredential_withOffer_inProgressDelegatesToEnvelopeService() {
+        var request = new CreateCredentialRequestDto("config-id", null, null);
+        var offer = createOffer(CredentialOfferStatusType.IN_PROGRESS);
+        var mgmt = createManagementWithOffers(offer);
+        var envelope = new CredentialEnvelopeDto(null, null, null);
+
+        when(oAuthService.getCredentialManagementByAccessToken("token"))
+                .thenReturn(mgmt);
+        when(credentialEnvelopeService.createCredentialEnvelopeDto(eq(offer), any(), isNull(), eq(mgmt)))
+                .thenReturn(envelope);
+
+        var result = service.createCredential(request, "token", null, "dpop");
+
+        assertSame(envelope, result);
+        verify(credentialEnvelopeService).createCredentialEnvelopeDto(eq(offer), any(), isNull(), eq(mgmt));
+        verify(credentialRenewalService, never()).handleRenewalFlow(any(), any(), any(), any());
+    }
+
+    @Test
+    void createCredential_withoutOffer_invokesRenewalFlow() {
+        var request = new CreateCredentialRequestDto("config-id", null, null);
+        var mgmt = createManagementWithOffers(
+                createOffer(CredentialOfferStatusType.ISSUED));
+        var envelope = new CredentialEnvelopeDto(null, null, null);
+
+        when(oAuthService.getCredentialManagementByAccessToken("token"))
+                .thenReturn(mgmt);
+        when(credentialRenewalService.handleRenewalFlow(any(), eq(mgmt), isNull(), eq("dpop")))
+                .thenReturn(envelope);
+
+        var result = service.createCredential(request, "token", null, "dpop");
+
+        assertSame(envelope, result);
+        verify(credentialEnvelopeService, never()).createCredentialEnvelopeDto(any(), any(), any(), any());
+        verify(credentialRenewalService).handleRenewalFlow(any(), eq(mgmt), isNull(), eq("dpop"));
+    }
+
+
+    private CredentialOffer createOffer(CredentialOfferStatusType status) {
+        return CredentialOffer.builder()
+                .credentialStatus(status)
+                .metadataCredentialSupportedId(List.of("config-id"))
+                .build();
+    }
+
+    private CredentialManagement createManagementWithOffers(CredentialOffer offer) {
+        var mgmt = CredentialManagement.builder()
+                .credentialManagementStatus(CredentialStatusManagementType.INIT)
+                .accessToken(UUID.randomUUID())
+                .build();
+        offer.setCredentialManagement(mgmt);
+        mgmt.addCredentialOffer(offer);
+        return mgmt;
+    }
+}

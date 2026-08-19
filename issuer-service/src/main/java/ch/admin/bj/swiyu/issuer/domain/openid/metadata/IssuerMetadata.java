@@ -1,0 +1,142 @@
+package ch.admin.bj.swiyu.issuer.domain.openid.metadata;
+
+import ch.admin.bj.swiyu.issuer.common.exception.BadRequestException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.springframework.validation.annotation.Validated;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * The issuer metadata represented here are the fields used for technical decisions in creating the VC.
+ */
+@Data
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Validated
+@Schema(name = "IssuerMetadata", type = "object", description = """
+        The OID4VCI Credential Issuer Metadata contains information on the Credential Issuer's technical capabilities,
+        supported Credentials, and (internationalized) display information.
+        """)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class IssuerMetadata {
+
+    @JsonProperty("credential_issuer")
+    @NotNull
+    @Schema(description = "The Credential Issuer's identifier")
+    private String credentialIssuer;
+
+    @JsonProperty("authorization_servers")
+    private List<String> authorizationServers;
+
+    @JsonProperty("credential_endpoint")
+    @NotNull
+    @Pattern(regexp = "^.+/credential$", message = "Credential endpoint for this issuer is /credential")
+    @Schema(description = """
+            Information for the holder where to get the credential.
+            """)
+    private String credentialEndpoint;
+
+    @JsonProperty("nonce_endpoint")
+    @Pattern(regexp = "^.+/nonce$", message = "nonce endpoint for this issuer is /nonce")
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = """
+            Nonce for proof of possessions. Required for VCs to be bound to a holder.
+            """)
+    private String nonceEndpoint;
+
+    @Nullable
+    @JsonProperty("deferred_credential_endpoint")
+    private String deferredCredentialEndpoint;
+
+
+    @JsonProperty("notification_endpoint")
+    @Size(min = 0, max = 0, message = "Notification Endpoint is not yet supported by the issuer")
+    @Schema(hidden = true, description = "The notification endpoint is explicitly forbidden by the Swiss Profile for privacy reasons and MUST NOT be advertised.")
+    private String notificationEndpoint;
+
+    @JsonProperty("credential_configurations_supported")
+    @NotNull
+    @Size(min = 1, message = "At least one credential configuration has to be be provided")
+    @Valid
+    private Map<String, CredentialConfiguration> credentialConfigurationSupported;
+
+    @JsonProperty("credential_request_encryption")
+    @Schema(description = "Object containing information about whether the Credential Issuer supports encryption of the Credential Request on top of TLS.")
+    @Valid
+    // Note: This value will be dynamically set during runtime with generated ephemeral keys. It should never be null
+    private IssuerCredentialRequestEncryption requestEncryption;
+
+    @JsonProperty("credential_response_encryption")
+    @Schema(description = "Object containing information about whether the Credential Issuer supports encryption of the Credential Response on top of TLS.")
+    @Valid
+    // Note: This value will be dynamically set during runtime with available capabilities. It should never be null.
+    private IssuerCredentialResponseEncryption responseEncryption;
+
+    @JsonProperty("batch_credential_issuance")
+    @Valid
+    @Nullable
+    private BatchCredentialIssuance batchCredentialIssuance;
+
+    @Nullable
+    @JsonProperty("display")
+    @Schema(description = "Array of objects, where each object contains display properties of a Credential Issuer for a certain language")
+    private List<MetadataIssuerDisplayInfo> display;
+
+    @JsonProperty("profile_version")
+    @Nullable
+    private String profileVersion;
+
+    /**
+     * Identity Trust Statement (idTS) JWT as defined by Trust Protocol 2.0.
+     * Included in the issuer metadata so that the wallet can verify the issuer's
+     * identity against the trust registry during the OpenID4VCI flow.
+     * {@code null} if no trust registry is configured or the statement is currently unavailable.
+     */
+    @Nullable
+    @JsonProperty("credential_issuer_identity_trust_statement")
+    @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, type = "string",
+            description = "Identity Trust Statement (idTS) JWT proving the issuer's identity within the Swiss Trust ecosystem.")
+    private String credentialIssuerIdentityTrustStatement;
+
+    public @NotNull CredentialConfiguration getCredentialConfigurationById(String credentialConfigurationSupportedId) {
+        CredentialConfiguration credentialConfiguration = credentialConfigurationSupported.get(credentialConfigurationSupportedId);
+
+        if (!credentialConfigurationSupported.containsKey(credentialConfigurationSupportedId)) {
+            throw new BadRequestException("Credential offer metadata %s is not supported - should be one of %s"
+                    .formatted(credentialConfigurationSupportedId,
+                            String.join(", ", credentialConfigurationSupported.keySet())));
+        }
+
+        return credentialConfiguration;
+    }
+
+    @JsonIgnore
+    public boolean isBatchIssuanceAllowed() {
+        return batchCredentialIssuance != null;
+    }
+
+    /**
+     * Shortcut for batchCredentialIssuance.batchSize
+     *
+     * @return the configured batchSize or 1, if no batch size has been configured
+     */
+    @JsonIgnore
+    public int getIssuanceBatchSize() {
+        return batchCredentialIssuance == null ? 1 : batchCredentialIssuance.batchSize();
+    }
+}

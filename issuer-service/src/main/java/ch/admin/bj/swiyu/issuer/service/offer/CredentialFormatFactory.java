@@ -1,0 +1,61 @@
+package ch.admin.bj.swiyu.issuer.service.offer;
+
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.common.config.SdjwtProperties;
+import ch.admin.bj.swiyu.issuer.common.exception.ConfigurationException;
+import ch.admin.bj.swiyu.issuer.common.exception.CredentialRequestError;
+import ch.admin.bj.swiyu.issuer.common.exception.Oid4vcException;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.CredentialOfferStatusRepository;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.StatusListRepository;
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.IssuerMetadata;
+import ch.admin.bj.swiyu.issuer.service.CredentialBuilder;
+import ch.admin.bj.swiyu.issuer.service.DataIntegrityService;
+import ch.admin.bj.swiyu.issuer.service.JwsSignatureFacade;
+import ch.admin.bj.swiyu.issuer.service.SdJwtCredential;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@Component
+@AllArgsConstructor
+public class CredentialFormatFactory {
+
+    private final ApplicationProperties applicationProperties;
+    private final IssuerMetadata issuerMetadata;
+    private final DataIntegrityService dataIntegrityService;
+    private final SdjwtProperties sdjwtProperties;
+    private final JwsSignatureFacade jwsSignatureFacade;
+    private final StatusListRepository statusListRepository;
+    private final CredentialOfferStatusRepository credentialOfferStatusRepository;
+
+    /**
+     * Get the credential format builder for the given configuration identifier.
+     * All values are allowed which are present in resources/example_issuer_metadata.json file
+     *
+     * @param configurationIdentifier unique identifier for credential profile
+     */
+    public CredentialBuilder getFormatBuilder(String configurationIdentifier) {
+        var configuration = issuerMetadata.getCredentialConfigurationSupported().get(configurationIdentifier);
+        if (configuration == null) {
+            throw new Oid4vcException(CredentialRequestError.UNKNOWN_CREDENTIAL_CONFIGURATION, "Unknown configuration identifier: " + configurationIdentifier);
+        }
+
+        return switch (configuration.getFormat()) {
+            case "vc+sd-jwt", "dc+sd-jwt" -> {
+                try {
+                    yield new SdJwtCredential(
+                            applicationProperties,
+                            issuerMetadata,
+                            dataIntegrityService,
+                            sdjwtProperties,
+                            jwsSignatureFacade,
+                            statusListRepository,
+                            credentialOfferStatusRepository);
+                } catch (Exception e) {
+                    throw new ConfigurationException("Signing Key Configuration could not be used for signature", e);
+                }
+            }
+            // When the format is not supported the issuer metadata configuraiton has an issue
+            default -> throw new ConfigurationException("Unknown format: " + configuration.getFormat());
+        };
+    }
+}

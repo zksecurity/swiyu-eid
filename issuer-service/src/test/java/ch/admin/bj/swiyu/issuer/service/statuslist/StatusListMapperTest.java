@@ -1,0 +1,41 @@
+package ch.admin.bj.swiyu.issuer.service.statuslist;
+
+import ch.admin.bj.swiyu.issuer.dto.statuslist.StatusListDto;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.StatusList;
+import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Random;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class StatusListMapperTest {
+
+    @Test
+    void testToStatusListDto() {
+        var maxLength = new Random().nextInt();
+        var nextFreeIndex = new Random().nextInt();
+        var remainingEntries = maxLength - nextFreeIndex;
+        var configMap = new HashMap<String, Object>();
+        var id = UUID.randomUUID();
+        var statusRegistryUrl = "uri";
+        configMap.put("key", "value");
+
+        StatusList statusList = StatusList.builder()
+                .id(id)
+                .uri(statusRegistryUrl)
+                .maxLength(maxLength)
+                .config(configMap)
+                .build();
+
+        StatusListDto statusListDto = StatusListMapper.toStatusListDto(statusList, remainingEntries);
+
+        assertEquals(id, statusListDto.getId());
+        assertEquals(statusRegistryUrl, statusListDto.getStatusRegistryUrl());
+        assertEquals(maxLength, statusListDto.getMaxListEntries());
+        assertEquals(remainingEntries, statusListDto.getRemainingListEntries());
+        assertEquals(configMap, statusListDto.getConfig());
+    }
+
+}

@@ -1,0 +1,25 @@
+package ch.admin.bj.swiyu.issuer.dto.oid4vci;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
+import lombok.Builder;
+
+import java.util.List;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(name = "OAuthAuthorizationServerMetadata")
+@Builder(toBuilder = true)
+public record OAuthAuthorizationServerMetadataDto(
+        @Schema(description = "The Issuer Identifier", requiredMode = Schema.RequiredMode.REQUIRED, type = "string")
+        String issuer,
+        @Schema(description = "URL of the OAuth 2.0 Token Endpoint", requiredMode = Schema.RequiredMode.REQUIRED, type = "string")
+        String token_endpoint,
+        @Nullable List<String> dpop_signing_alg_values_supported,
+        @Nullable String profile_version,
+        @JsonProperty("pre-authorized_grant_anonymous_access_supported")
+        @Nullable Boolean preauthorized_grant_anonymous_access_supported
+) {
+
+}

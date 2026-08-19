@@ -1,0 +1,74 @@
+package ch.admin.bj.swiyu.issuer.service.statuslist;
+
+import ch.admin.bj.swiyu.issuer.common.config.ApplicationProperties;
+import ch.admin.bj.swiyu.issuer.common.config.StatusListProperties;
+import ch.admin.bj.swiyu.issuer.common.exception.ConfigurationException;
+import ch.admin.bj.swiyu.issuer.common.profile.SwissProfileVersions;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.ConfigurationOverride;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.StatusList;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.TokenStatusListToken;
+import ch.admin.bj.swiyu.issuer.service.JwsSignatureFacade;
+import ch.admin.bj.swiyu.jwssignatureservice.factory.strategy.KeyStrategyException;
+import ch.admin.bj.swiyu.jwtutil.JwtUtil;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.Date;
+
+/**
+ * Builds and signs the "statuslist+jwt" (draft status list token) for a {@link StatusList}.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Build JOSE header + claims</li>
+ *   <li>Apply issuer / verification-method overrides</li>
+ *   <li>Sign with the configured key material</li>
+ * </ul>
+ */
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class StatusListSigningService {
+
+    private final ApplicationProperties applicationProperties;
+    private final StatusListProperties statusListProperties;
+    private final JwsSignatureFacade jwsSignatureFacade;
+
+    public SignedJWT buildSignedStatusListJwt(StatusList statusList, TokenStatusListToken token) {
+        try {
+            ConfigurationOverride override = statusList.getConfigurationOverride();
+            JWSSigner signer = jwsSignatureFacade.createSigner(statusListProperties, override.keyId(), override.keyPin());
+            
+            JWSHeader header = JwtUtil.prepareHeaderBuilder(signer)
+                    .keyID(override.verificationMethodOrDefault(statusListProperties.getVerificationMethod()))
+                    .type(new JOSEObjectType("statuslist+jwt"))
+                    .customParam(SwissProfileVersions.PROFILE_VERSION_PARAM, SwissProfileVersions.VC_PROFILE_VERSION)
+                    .build();
+        
+            JWTClaimsSet claimSet = new JWTClaimsSet.Builder()
+                    .claim("ttl", statusListProperties.getStatusListCacheTime().toSeconds())
+                    .expirationTime(Date.from(Instant.now().plusSeconds(statusListProperties.getStatusListExpirationTime().toSeconds())))
+                    .subject(statusList.getUri())
+                    .issuer(override.issuerDidOrDefault(applicationProperties.getIssuerId()))
+                    .issueTime(Date.from(Instant.now()))
+                    .claim("status_list", token.getStatusListClaims())
+                    .build();
+        
+            SignedJWT jwt = new SignedJWT(header, claimSet);
+            jwt.sign(signer);
+            return jwt;
+        } catch (JOSEException | KeyStrategyException e) {
+            log.error("Failed to sign status list JWT with the provided key.");
+            throw new ConfigurationException("Failed to sign status list JWT with the provided key.", e);
+        }
+    }
+}

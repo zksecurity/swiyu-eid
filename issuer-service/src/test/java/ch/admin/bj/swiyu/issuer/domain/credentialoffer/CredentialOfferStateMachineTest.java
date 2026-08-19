@@ -1,0 +1,66 @@
+package ch.admin.bj.swiyu.issuer.domain.credentialoffer;
+
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.statemachine.CredentialManagementAction;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.statemachine.CredentialOfferAction;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.statemachine.CredentialStateMachineConfig;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.statemachine.CredentialStateMachineFactory;
+import ch.admin.bj.swiyu.issuer.domain.credentialoffer.statemachine.EventProducerAction;
+import ch.admin.bj.swiyu.issuer.service.persistence.CredentialPersistenceService;
+import ch.admin.bj.swiyu.issuer.service.statuslist.StatusListPersistenceService;
+import ch.admin.bj.swiyu.issuer.service.webhook.EventProducerService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+
+class CredentialOfferStateMachineTest {
+    private CredentialStateMachine stateMachine;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        var eventProducerService = mock(EventProducerService.class);
+        EventProducerAction eventActions = new EventProducerAction(eventProducerService);
+        CredentialPersistenceService credentialPersistenceService = mock(CredentialPersistenceService.class);
+        StatusListPersistenceService statusListPersistanceService = mock(StatusListPersistenceService.class);
+        CredentialManagementAction managementActions = new CredentialManagementAction(credentialPersistenceService, statusListPersistanceService);
+        CredentialOfferAction offerActions = new CredentialOfferAction();
+        CredentialStateMachineFactory factory = new CredentialStateMachineFactory(eventActions, offerActions, managementActions);
+        this.stateMachine = new CredentialStateMachine(factory);
+    }
+
+    @Test
+    void testOfferedToExpired() {
+        var entitiy = new CredentialOffer();
+        entitiy.setId(UUID.randomUUID());
+        entitiy.setCredentialOfferStatus(CredentialOfferStatusType.REQUESTED);
+
+        var result = stateMachine.sendEventAndUpdateStatus(entitiy, CredentialStateMachineConfig.CredentialOfferEvent.EXPIRE);
+        assertTrue(result.changed());
+        assertEquals(CredentialOfferStatusType.EXPIRED, entitiy.getCredentialStatus());
+    }
+
+    @Test
+    void testInProgressToIssued() {
+        var entitiy = new CredentialOffer();
+        entitiy.setId(UUID.randomUUID());
+        entitiy.setCredentialOfferStatus(CredentialOfferStatusType.IN_PROGRESS);
+
+        var result = stateMachine.sendEventAndUpdateStatus(entitiy, CredentialStateMachineConfig.CredentialOfferEvent.ISSUE);
+        assertTrue(result.changed());
+        assertEquals(CredentialOfferStatusType.ISSUED, entitiy.getCredentialStatus());
+    }
+
+    @Test
+    void testInvalidTransition() {
+        var entitiy = new CredentialOffer();
+        entitiy.setId(UUID.randomUUID());
+        entitiy.setCredentialOfferStatus(CredentialOfferStatusType.EXPIRED);
+
+        // invalid state transitions throw exception
+        assertThrows(IllegalStateException.class, () -> stateMachine.sendEventAndUpdateStatus(entitiy, CredentialStateMachineConfig.CredentialOfferEvent.ISSUE));
+        assertEquals(CredentialOfferStatusType.EXPIRED, entitiy.getCredentialStatus());
+    }
+}

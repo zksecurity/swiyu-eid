@@ -1,0 +1,161 @@
+package ch.admin.bj.swiyu.issuer.infrastructure.web.signer;
+
+import ch.admin.bj.swiyu.issuer.domain.openid.metadata.IssuerMetadata;
+import ch.admin.bj.swiyu.issuer.dto.oid4vci.OAuthAuthorizationServerMetadataDto;
+import ch.admin.bj.swiyu.issuer.service.MetadataService;
+import ch.admin.bj.swiyu.issuer.service.dpop.DemonstratingProofOfPossessionService;
+import ch.admin.bj.swiyu.issuer.service.enc.JweService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Well known Controller
+ * <p>
+ * Implements the .well-known endpoints
+ * <a href="https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html">OID4VCI Spec</a>
+ * </p>
+ */
+@RestController
+@AllArgsConstructor
+@Slf4j
+@Tag(name = "Well-known endpoints API", description = "Exposes OpenID .well-known endpoints for issuer configuration " +
+        "and credential metadata as required by the OID4VCI specification. Provides endpoints for OpenID Connect " +
+        "issuer configuration, OAuth authorization server information, and issuer metadata describing supported " +
+        "verifiable credentials (IF-112)")
+@RequestMapping
+public class WellKnownController {
+
+    private static final MediaType CONTENT_TYPE_APPLICATION_JWT = MediaType.parseMediaType("application/jwt");
+    private final JweService jweService;
+    private final DemonstratingProofOfPossessionService demonstratingProofOfPossessionService;
+    private final MetadataService metadataService;
+
+    private static boolean expectsSignedResponse(String acceptHeader) {
+        if (StringUtils.isEmpty(acceptHeader)) {
+            return false;
+        }
+        List<MediaType> mediaTypes = MediaType.parseMediaTypes(acceptHeader);
+        return mediaTypes.stream().anyMatch(m -> m.equalsTypeAndSubtype(CONTENT_TYPE_APPLICATION_JWT) && m.getQualityValue() != 0);
+    }
+
+    /**
+     * Returns OAuth 2.0 / OpenID Connect Authorization Server metadata.
+     * <p>
+     * This endpoint is an OpenAPI description for the well-known URLs defined in RFC 8414 and
+     * OID4VCI. It exposes issuer, token, and authorization endpoints, supported grant types, DPoP and
+     * OID4VCI-specific extensions.
+     * </p>
+     *
+     * @return {@link OAuthAuthorizationServerMetadataDto} containing the unsigned Authorization Server
+     * configuration metadata, enriched with the signing algorithms supported for DPoP.
+     */
+    @GetMapping(value = {
+            "/oid4vci/.well-known/openid-configuration",
+            "/.well-known/openid-configuration",
+            "/.well-known/oauth-authorization-server",
+            "/oid4vci/.well-known/oauth-authorization-server",
+            "/.well-known/oauth-authorization-server/oid4vci",
+    }, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Retrieve OAuth 2.0 Authorization Server Metadata",
+            description = "Returns the configuration metadata of the Authorization Server in accordance with RFC 8414. " +
+                    "This includes URLs to endpoints (e.g., token endpoint), supported grant types, as well as " +
+                    "extensions for OpenID for Verifiable Credential Issuance (OID4VCI) and DPoP."
+    )
+    public OAuthAuthorizationServerMetadataDto getAuthorizationServerMetadata() {
+        return metadataService.getUnsignedOAuthAuthorizationServerMetadata();
+    }
+
+    /**
+     * Data concerning OpenID4VC Issuance
+     *
+     * @return Issuer Metadata as defined by OID4VCI
+     */
+    @GetMapping(value = {
+            "/oid4vci/.well-known/openid-credential-issuer",
+            "/.well-known/openid-credential-issuer",
+            "/.well-known/openid-credential-issuer/oid4vci"})
+    @Operation(summary = "Information about credentials which can be issued.",
+            responses = @ApiResponse(responseCode = "200", description = "Credential Issuer Metadata",
+                    content = {
+                            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = IssuerMetadata.class)),
+                            @Content(mediaType = "application/jwt",
+                                    schema = @Schema(type = "string", description = "Signed issuer metadata as JWT"))
+                    }))
+    public Object getIssuerMetadata(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) {
+        // Unwrap the object from the spring cache object.
+        if (expectsSignedResponse(acceptHeader)) {
+            return metadataService.getSignedIssuerMetadataWithTS();
+        }
+        return metadataService.getUnsignedIssuerMetadata();
+    }
+
+    @GetMapping(value = {
+            "/{tenantId}/.well-known/openid-credential-issuer",
+            "/oid4vci/{tenantId}/.well-known/openid-credential-issuer",
+            "/.well-known/openid-credential-issuer/{tenantId}",
+            "/.well-known/openid-credential-issuer/oid4vci/{tenantId}"})
+    @Operation(summary = "Information about credentials which can be issued.")
+    public Object getIssuerMetadataByTenantId(
+            @PathVariable UUID tenantId,
+            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) {
+
+        if (expectsSignedResponse(acceptHeader)) {
+            return metadataService.getSignedIssuerMetadataWithTS(tenantId);
+        }
+
+        return metadataService.getUnsignedIssuerMetadataWithTS(tenantId);
+    }
+
+    /**
+     * Returns tenant-specific OAuth 2.0 / OpenID Connect Authorization Server metadata.
+     * <p>
+     * This endpoint serves the well-known configuration documents defined by RFC 8414 and OID4VCI
+     * for a given tenant. Depending on the {@code Accept} header, it returns either a signed JWT
+     * representation of the Authorization Server metadata or an unsigned JSON document.
+     * </p>
+     *
+     * @param tenantId     unique identifier of the tenant whose Authorization Server configuration
+     *                     should be returned.
+     * @param acceptHeader value of the {@code Accept} HTTP header used to determine whether a
+     *                     signed (JWT) or unsigned JSON response is expected.
+     * @return signed or unsigned tenant-specific Authorization Server metadata, matching the
+     * requested content type.
+     */
+    @GetMapping(value = {
+            "/{tenantId}/.well-known/openid-configuration",
+            "/oid4vci/{tenantId}/.well-known/openid-configuration",
+            "/oid4vci/{tenantId}/.well-known/oauth-authorization-server",
+            "/{tenantId}/.well-known/oauth-authorization-server",
+            "/{tenantId}/.well-known/oauth-authorization-server/oid4vci",
+            "/.well-known/oauth-authorization-server/{tenantId}",
+            "/.well-known/oauth-authorization-server/{tenantId}/oid4vci"})
+    @Operation(
+            summary = "Retrieve tenant-specific OAuth 2.0 Authorization Server Metadata",
+            description = "Returns the Authorization Server configuration metadata for the given tenant in accordance with RFC 8414. " +
+                    "Depending on the 'Accept' header, the response is provided either as an unsigned JSON document or as a signed JWT. " +
+                    "The metadata includes issuer information, endpoint URLs (e.g., token endpoint), supported grant types and extensions " +
+                    "required for OpenID for Verifiable Credential Issuance (OID4VCI) and DPoP.")
+    public Object getAuthorizationServerMetadataByTenantId(
+            @PathVariable UUID tenantId,
+            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) {
+
+        if (expectsSignedResponse(acceptHeader)) {
+            return metadataService.getSignedOAuthAuthorizationServerMetadata(tenantId);
+        }
+
+        return metadataService.getUnsignedOAuthAuthorizationServerMetadata(tenantId);
+    }
+}

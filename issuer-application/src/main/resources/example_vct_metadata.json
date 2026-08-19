@@ -1,0 +1,21 @@
+{
+  "profile_version": "swiss-profile-vc:1.0.0",
+  "vct": "${external-url}/oid4vci/vct/my-vct-v01",
+  "name": "Example Education Credential - Preliminary Version",
+  "description": "This is our development version of the education credential. Don't panic.",
+  "schema_uri": "${external-url}/oid4vci/json-schema/my-schema-v01",
+  "schema_uri#integrity": "sha256-SVHLfKfcZcBrw+d9EL/1EXxvGCdkQ7tMGvZmd0ysMck=",
+  "display": [
+    {
+      "lang": "en-US",
+      "name": "Example OCA",
+      "rendering": {
+        "oca": {
+          "uri": "${external-url}/oid4vci/oca/my-oca-v01",
+          "uri#integrity": "sha256-6PsO+mqZNvEKR/miWf/K/aAQ/1GQXib+bsYs9cH7C5I="
+        }
+      }
+    }
+  ],
+  "profile_version": "swiss-profile-vc:1.0.0"
+}

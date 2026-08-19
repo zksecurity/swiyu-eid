@@ -1,0 +1,15 @@
+package ch.admin.bj.swiyu.issuer.common.lock;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * A list of global locks in the application.
+ */
+@Getter
+@RequiredArgsConstructor
+public enum GlobalLocksType {
+    STATUS_REGISTRY_TOKEN_MANAGER_TOKEN_REFRESH("STATUS_REGISTRY_TOKEN_MANAGER_TOKEN_REFRESH");
+
+    private final String lockId;
+}

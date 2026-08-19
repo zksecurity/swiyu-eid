@@ -1,0 +1,147 @@
+package ch.admin.bj.swiyu.issuer.domain.openid.metadata;
+
+import ch.admin.bj.swiyu.issuer.common.exception.Oid4vcException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.springframework.validation.annotation.Validated;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static ch.admin.bj.swiyu.issuer.common.exception.CredentialRequestError.INVALID_ENCRYPTION_PARAMETERS;
+
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+@SuperBuilder(toBuilder = true)
+@Validated
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@NoArgsConstructor
+@AllArgsConstructor
+public class CredentialConfiguration {
+    // TODO EIDOMNI-284: allow only dc+sd-jwt and start throwing errors for vc+sd-jwt (after issuers had some time to migrate)
+    @NotNull
+    @Pattern(regexp = "^[dv]c\\+sd-jwt$", message = "Only vc+sd-jwt or dc+sd-jwt is supported")
+    private String format;
+
+    /**
+     * SD-JWT specific field <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0-ID1.html#appendix-A.3.2">see specs</a>
+     * Optional
+     */
+    @NotNull
+    @Schema(description = """
+            String designating the type of the Credential, as defined in sd-jwt-vc
+            """)
+    private String vct;
+
+    @JsonProperty("vct_metadata_uri")
+    @Schema(description = """
+            Allowing for an indirection if using urn:vct resolver
+            """)
+    @Nullable
+    private String vctMetadataUri;
+    @JsonProperty("vct_metadata_uri#integrity")
+    @Schema(description = """
+            Allowing for validating content received from vct_metadata_uri as defined in W3C SRI (Subresource Integrity)
+            """)
+    @Nullable
+    private String vctMetadataUriIntegrity;
+
+    @Nullable
+    @JsonProperty("vct_version")
+    @Schema(description = """
+            The vct_version indicates the version of the vct. It is recommended to use semver-notation
+            """)
+    private String vctVersion;
+
+    @Nullable
+    @JsonProperty("vct_subtype")
+    @Schema(description = """
+            An optional value that can describe an adaption of the vct.
+            This value can then be used by verifiers who require the adoption of the vct standard.
+            """)
+    private String vctSubtype;
+
+    @Nullable
+    @JsonProperty("vct_subtype_version")
+    @Schema(description = """
+            The vct_subtype_version indicates the version of the vct_subtype. It is recommended to use semver-notation
+            """)
+    private String vctSubtypeVersion;
+
+    /**
+     * A non-empty array of case sensitive strings that identify the representation of the cryptographic key material that the issued Credential is bound to.
+     * If missing, credential will be issued as unbound VC.
+     */
+    @JsonProperty("cryptographic_binding_methods_supported")
+    @Schema(description = """
+                 A non-empty array of case sensitive strings that identify the representation of the cryptographic key material that the issued Credential is bound.
+                 If missing, credential will be issued as unbound VC.
+            """)
+    @Valid
+    private List<@Pattern(regexp = "^jwk$", message = "Only jwk is supported") String> cryptographicBindingMethodsSupported;
+
+    /**
+     * Case-sensitive strings that identify the algorithms that the Issuer uses to sign the issued Credential
+     */
+    @JsonProperty("credential_signing_alg_values_supported")
+    @Valid
+    private List<@Pattern(regexp = "^ES256|Ed25519$") String> credentialSigningAlgorithmsSupported;
+
+    /**
+     * Define what kind of proof the holder is allowed to provide for the credential
+     */
+    @JsonProperty("proof_types_supported")
+    @Size(max = 1)
+    @Valid
+    private Map<@Pattern(regexp = "^jwt$", message = "Only jwt holder binding proofs are supported") String, SupportedProofType> proofTypesSupported;
+
+    @Nullable
+    @JsonProperty("display")
+    @Deprecated(since = "OID4VCI 1.0")
+    private List<MetadataCredentialDisplayInfo> display;
+
+    @Nullable
+    @JsonProperty("credential_metadata")
+    private CredentialConfigurationMetadata credentialMetadata;
+
+    /**
+     * Protected Issuance Authorization Trust Statement (piaTS) JWT as defined by Trust Protocol 2.0.
+     * Injected at runtime for credential configurations that require key attestation (Protected VCs).
+     * {@code null} for non-protected configurations or when no trust registry is configured.
+     */
+    @Nullable
+    @JsonProperty("protected_issuance_authorization_trust_statement")
+    @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, type = "string",
+            description = "Protected Issuance Authorization Trust Statement (piaTS) JWT proving issuance authorization for protected VC formats.")
+    private String protectedIssuanceAuthorizationTrustStatement;
+
+
+    @PostConstruct
+    public void postConstruct() {
+        if (!proofTypesSupported.isEmpty() && cryptographicBindingMethodsSupported.isEmpty()) {
+            throw new Oid4vcException(INVALID_ENCRYPTION_PARAMETERS,
+                    "If proof types are supported, cryptographic binding methods must be specified as well",
+                    Map.of(
+                            "cryptographicBindingMethodsSupported", cryptographicBindingMethodsSupported
+                    ));
+        }
+    }
+
+    public Map<String, SupportedProofType> getProofTypesSupported() {
+        return Objects.requireNonNullElseGet(proofTypesSupported, HashMap::new);
+    }
+}
