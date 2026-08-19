@@ -1,0 +1,64 @@
+name: circom-tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            build-essential \
+            libgmp-dev \
+            libsodium-dev \
+            nasm \
+            nlohmann-json3-dev
+
+      - name: Download Circom Binary v2.2.3
+        run: |
+          wget -qO /home/runner/work/circom https://github.com/iden3/circom/releases/download/v2.2.3/circom-linux-amd64
+          chmod +x /home/runner/work/circom
+          sudo mv /home/runner/work/circom /bin/circom
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Print Circom version
+        run: circom --version
+
+      - name: Install dependencies
+        run: cd wallet-unit-poc/circom && yarn
+
+      - name: Compile JWT circuit (1k size for CI)
+        run: cd wallet-unit-poc/circom && yarn compile:jwt:1k
+
+      - name: Compile Show circuit
+        run: cd wallet-unit-poc/circom && yarn compile:show
+
+      - name: Run ecdsa-spartan2 end-to-end flow
+        run: |
+          cd wallet-unit-poc/ecdsa-spartan2
+          cargo run --release -- prepare setup --size 1k --input ../circom/inputs/jwt/1k/default.json
+          cargo run --release -- show setup --size 1k --input ../circom/inputs/show/1k/default.json
+          cargo run --release -- generate_shared_blinds --size 1k
+          cargo run --release -- prepare prove --size 1k --input ../circom/inputs/jwt/1k/default.json
+          RUST_LOG=info cargo run --release -- prepare reblind --size 1k
+          RUST_LOG=info cargo run --release -- show prove --size 1k --input ../circom/inputs/show/1k/default.json
+          RUST_LOG=info cargo run --release -- show reblind --size 1k
+          cargo run --release -- prepare verify --size 1k
+          cargo run --release -- show verify --size 1k
+
+      - name: Run tests
+        run: cd wallet-unit-poc/circom && yarn test

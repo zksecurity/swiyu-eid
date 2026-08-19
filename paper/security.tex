@@ -1,0 +1,32 @@
+% OUTLINE IN MAIN:
+
+% Give a detailed answer and analysis for:
+% \begin{itemize}
+%     \item Is the scheme a dishonest majority setting or something else? What happens when the setting is broken?
+%     \jbel{\begin{itemize}
+%         \item ZK is addressing malicious verifier -- semihonest 
+%         \item soundness -- address malicious prover
+%         \item trust assumption - verifier is trusted/honest, issuer is trusted/honest
+%         \item deniable presentation? -- ask YT
+%     \end{itemize}}
+        
+%     \item If the Issuer needs to update frequently, what if they are disconnected for a while? 
+%     \item Place the scheme into a poor network connection, does it still work well and not be vulnerable?
+%     \jbel{depends on solution to revocation flow, and also what applications of ID presentation look like (e.g. are the prover and verifier talking through internet channels?)}
+% 	\item If it fails during the process, what will happen?
+% 	\item If it is not quantum resistant, how do we upgrade it to quantum resistant? -- it is quantum resistant
+% \end{itemize}
+
+
+\paragraph{Adversarial Model}
+We assume a malicious Prover and semi-honest Verifiers. If the Prover produces a valid proof that they own a credential with some property, the Verifier grants access to any service for which that property suffices. Malicious Verifiers are out of scope, and verifier authentication is not modeled. During issuance, the Issuer is trusted by both parties not to issue false credentials or to leak the personal information required for issuance.
+
+\paragraph{Soundness and Zero-Knowledge}
+Soundness requires that any probabilistic polynomial-time (PPT) Prover without a valid credential convinces the Verifier only with negligible probability in the security parameter~$\lambda$. This guarantee follows directly from the soundness of the underlying proof system. 
+Zero knowledge holds against semi-honest PPT Verifiers: there exists a simulator that, given only the public outputs and any explicitly disclosed attributes, generates a transcript computationally indistinguishable from a real execution. Hence, hidden attributes remain confidential. These guarantees apply independently to each presentation.
+
+\paragraph{Collusion and Unlinkability}
+Verifiers may collude. Specifically, $V_1,\dots,V_N$ that receive transcripts $\pi_1,\dots,\pi_N$ from a Prover $P$ may compute joint functions $f(\pi_1,\dots,\pi_N)$. The desired property is \emph{unlinkability}: given $\pi_1,\dots,\pi_N$, colluding Verifiers should not be able to determine whether two transcripts originate from the same $P$. Achieving this requires per-presentation re-randomization; otherwise, fixed transcripts would be linkable across sessions and presentations, and metadata (e.g., timing) could aid de-anonymization. Our construction re-randomizes proofs between presentations and admits simulation of each transcript without the witness. A joint view of colluding Verifiers can be simulated by independently simulating each transcript.
+
+\paragraph{Issuer Visibility and Operational Considerations}
+In the baseline presentation, Verifiers do not collude with Issuers even though the Issuer public key is visible. To mitigate Issuer tracking under potential collusion, a trusted Merkle tree of Issuer public keys can be maintained: the Prover proves knowledge of a valid Issuer signature under some key in the tree, and the public input is the Merkle root rather than a specific Issuer key. Presentation does not require Issuer interaction beyond initial issuance. Live network access is typically required to check credentials against the current state. When the Issuer public key is a public input, the Verifier checks an online registry of trusted Issuer keys; with Merkle inclusion, the Verifier checks that the public Merkle root matches the trusted online root. Deferred (offline) verification is possible but shifts risk to the Verifier; acceptable delay and risk are application-specific (e.g., periodic registry snapshots and temporary validation against the last snapshot).
