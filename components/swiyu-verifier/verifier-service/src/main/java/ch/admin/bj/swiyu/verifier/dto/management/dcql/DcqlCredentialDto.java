@@ -89,5 +89,26 @@ public record DcqlCredentialDto(
         @Null(message = "The trusted_authorities field is not yet supported")
         @Schema(description = "[NOT IMPLEMENTED] An optional non-empty array of Trusted Authorities Query objects. Some aspects of trusted authorities processing are not implemented in this release.")
         @JsonProperty("trusted_authorities")
-        List<DcqlTrustedAuthoritiesDto> trustedAuthorities // OPTIONAL (not yet supported)
-) { }
+        List<DcqlTrustedAuthoritiesDto> trustedAuthorities, // OPTIONAL (not yet supported)
+
+        @Schema(description = "Experimental opt-in policy for a swiyu zero-knowledge presentation. " +
+                "Ordinary credential queries omit this property and retain the SD-JWT path.")
+        @JsonProperty("x_swiyu_zkp")
+        @Valid
+        ZkPresentationPolicyDto xSwiyuZkp
+) {
+    /** Compatibility constructor for existing callers that do not request ZK. */
+    public DcqlCredentialDto(
+            String id,
+            String format,
+            Boolean multiple,
+            DcqlCredentialMetaDto meta,
+            List<DcqlClaimDto> claims,
+            List<List<String>> claimSets,
+            Boolean requireCryptographicHolderBinding,
+            List<DcqlTrustedAuthoritiesDto> trustedAuthorities
+    ) {
+        this(id, format, multiple, meta, claims, claimSets,
+                requireCryptographicHolderBinding, trustedAuthorities, null);
+    }
+}

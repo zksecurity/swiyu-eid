@@ -70,7 +70,8 @@ public class DcqlMapper {
                 CollectionUtils.isEmpty(claims) ? null : claims.stream().map(DcqlMapper::toDcqlClaimDto).toList(),
                 null,
                 credential.getRequireCryptographicHolderBinding(),
-                null);
+                null,
+                toZkPresentationPolicyDto(credential.getZkPresentationPolicy()));
     }
 
     private static DcqlClaimDto toDcqlClaimDto(DcqlClaim dcqlClaim) {
@@ -104,7 +105,34 @@ public class DcqlMapper {
                         : null)
                 .requireCryptographicHolderBinding(dto.requireCryptographicHolderBinding())
                 .multiple(dto.multiple())
+                .zkPresentationPolicy(toZkPresentationPolicy(dto.xSwiyuZkp()))
                 .build();
+    }
+
+    private static ZkPresentationPolicyDto toZkPresentationPolicyDto(@Nullable ZkPresentationPolicy policy) {
+        if (policy == null) {
+            return null;
+        }
+        return new ZkPresentationPolicyDto(
+                policy.profile(),
+                policy.circuitId(),
+                policy.cutoffDate(),
+                policy.statusListSnapshot(),
+                policy.currentTime()
+        );
+    }
+
+    private static ZkPresentationPolicy toZkPresentationPolicy(@Nullable ZkPresentationPolicyDto policy) {
+        if (policy == null) {
+            return null;
+        }
+        return new ZkPresentationPolicy(
+                policy.profile(),
+                policy.circuitId(),
+                policy.cutoffDate(),
+                policy.statusListSnapshot(),
+                policy.currentTime()
+        );
     }
 
     /**

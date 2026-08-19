@@ -536,10 +536,48 @@ components:
             \ in Appendix B.1. See <a href=\"https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#section-6.1\"\
             >Section 6.1</a> and <a href=\"https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-w3c-verifiable-credentials\"\
             >Appendix B.1</a>."
+        x_swiyu_zkp:
+          $ref: "#/components/schemas/ZkPresentationPolicyDto"
+          description: Experimental opt-in policy for a swiyu zero-knowledge presentation.
+            Ordinary credential queries omit this property and retain the SD-JWT path.
       required:
       - format
       - id
       - meta
+    ZkPresentationPolicyDto:
+      type: object
+      description: Verifier-selected public policy for the fixed swiyu ZK presentation.
+      properties:
+        profile:
+          type: string
+          enum:
+          - swiyu-age18-status-2k-v0
+        circuit_id:
+          type: string
+          enum:
+          - swiyu_age18_status_2k
+        cutoff_date:
+          type: string
+          format: date
+          pattern: "^(19\\d{2}|20\\d{2}|21\\d{2})-\\d{2}-\\d{2}$"
+          description: Verifier-selected date whose year must be 1900 through 2199.
+        status_list_snapshot:
+          type: string
+          minLength: 1
+          maxLength: 256
+          pattern: "^[A-Za-z0-9._~:-]+$"
+          description: Opaque identifier of an authoritative locally provisioned snapshot.
+        current_time:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Unix seconds frozen when the signed request is created.
+      required:
+      - profile
+      - circuit_id
+      - cutoff_date
+      - status_list_snapshot
+      - current_time
     DcqlCredentialMetaDto:
       type: object
       description: Represents metadata parameters within a Credential Query according
