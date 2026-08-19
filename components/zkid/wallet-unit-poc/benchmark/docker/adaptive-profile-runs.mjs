@@ -83,7 +83,7 @@ function packedStatusStages(witness) {
 // Profile adapters emit slightly different fixture wrappers, but all of them
 // must identify exactly one fresh-process Prepare and Show witness sample.
 // Keeping this normalization structural prevents a new profile from silently
-// falling through to the professional-licence branch.
+// falling through to an unrelated fixture shape.
 function witnessStages(name, witness) {
   if (finitePair(witness.witnessGenerationMs)) {
     return {

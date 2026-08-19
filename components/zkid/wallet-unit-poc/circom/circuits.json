@@ -147,26 +147,6 @@
       "expectedStatusSnapshotHashLo"
     ]
   },
-  "swiyu_professional_license_prepare_compact": {
-    "file": "main/swiyu_professional_license_prepare_compact",
-    "template": "SwiyuAge18Status",
-    "params": [896, 256, 600, 17, 0, 0, 0],
-    "pubs": ["issuerPubKeyX", "issuerPubKeyY"]
-  },
-  "swiyu_professional_license_show_split": {
-    "file": "main/swiyu_professional_license_show_split",
-    "template": "SwiyuProfessionalLicenseShowSplit",
-    "params": [17],
-    "pubs": [
-      "challengeHash",
-      "currentTime",
-      "requiredValidUntil",
-      "expectedMetadataHashHi",
-      "expectedMetadataHashLo",
-      "expectedStatusSnapshotHashHi",
-      "expectedStatusSnapshotHashLo"
-    ]
-  },
   "swiyu_residence_prepare_compact": {
     "file": "main/swiyu_residence_prepare_compact",
     "template": "SwiyuResidencePrepareBase",

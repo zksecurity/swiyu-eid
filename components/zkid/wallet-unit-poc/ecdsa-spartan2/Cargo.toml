@@ -28,8 +28,8 @@ name = "swiyu-canton-benchmark"
 path = "src/bin/swiyu-canton-benchmark.rs"
 
 [[bin]]
-name = "swiyu-professional-license-benchmark"
-path = "src/bin/swiyu-professional-license-benchmark.rs"
+name = "swiyu-profile-benchmark"
+path = "src/bin/swiyu-profile-benchmark.rs"
 
 [features]
 default = ["native-witness"]

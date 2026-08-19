@@ -18,11 +18,6 @@ import {
   swiyuCantonShowPublicValues,
 } from "../src/swiyu-zkp/canton-split.js";
 import {
-  SwiyuProfessionalLicenseVerifier,
-  SwiyuProfessionalLicenseWallet,
-  swiyuProfessionalLicenseShowPublicValues,
-} from "../src/swiyu-zkp/professional-license-split.js";
-import {
   SwiyuResidenceEligibilityVerifier,
   SwiyuResidenceEligibilityWallet,
   swiyuResidenceShowPublicValues,
@@ -70,7 +65,7 @@ const SYNTHETIC_PROOF_PAIR_BYTES = Number(arg("--proof-pair-bytes") ?? "292190")
 const PREPARE_PROOF_BYTES = Number(arg("--prepare-proof-bytes") ?? String(Math.floor(SYNTHETIC_PROOF_PAIR_BYTES * 180055 / 292190)));
 const SHOW_PROOF_BYTES = Number(arg("--show-proof-bytes") ?? String(SYNTHETIC_PROOF_PAIR_BYTES - PREPARE_PROOF_BYTES));
 const PROFILE = parseProfile(arg("--profile") ?? "age");
-type HostProfile = "age" | "canton" | "professional-license" | "residence" | "scoped-nullifier";
+type HostProfile = "age" | "canton" | "residence" | "scoped-nullifier";
 
 if (PREPARE_PROOF_BYTES + SHOW_PROOF_BYTES !== SYNTHETIC_PROOF_PAIR_BYTES) {
   throw new Error("prepare and show proof byte counts must sum to --proof-pair-bytes");
@@ -263,15 +258,12 @@ async function workerAge(run: number) {
 async function workerSplit(run: number, profile: Exclude<HostProfile, "age">) {
   const vct = profile === "canton"
     ? "https://example.ch/vct/person"
-    : profile === "professional-license"
-      ? "urn:ch:professional-license:v1"
-      : profile === "residence"
-        ? SWIYU_BENCHMARK_RESIDENCE.vct
-        : "https://example.ch/vct/person";
+    : profile === "residence"
+      ? SWIYU_BENCHMARK_RESIDENCE.vct
+      : "https://example.ch/vct/person";
   const fixture = buildCredentialFixture({
     swiyuIssuerShape: true,
     vct,
-    ...(profile === "professional-license" ? { issuer: "did:example:licen" } : {}),
   });
   const { snapshot } = makeStatus();
   const baseChallenge = makeChallenge();
@@ -297,13 +289,6 @@ async function workerSplit(run: number, profile: Exclude<HostProfile, "age">) {
     authoritativeStatusUri: snapshot.uri,
     statusSnapshotRoot: snapshot.root,
     allowedCantons: ["ZH", "BE"] as const,
-  } : profile === "professional-license" ? {
-    challengeHash,
-    currentTime: 1_750_000_000n,
-    requiredValidUntil: 1_760_000_000n,
-    acceptedLookup: parsed.lookup,
-    authoritativeStatusUri: snapshot.uri,
-    statusSnapshotRoot: snapshot.root,
   } : profile === "residence" ? {
     baseChallengeHash: challengeHash,
     currentTime: baseChallenge.currentTime,
@@ -321,24 +306,20 @@ async function workerSplit(run: number, profile: Exclude<HostProfile, "age">) {
   };
   const wallet = profile === "canton"
     ? new SwiyuCantonEligibilityWallet(splitWallet)
-    : profile === "professional-license"
-      ? new SwiyuProfessionalLicenseWallet(splitWallet)
-      : profile === "residence"
-        ? new SwiyuResidenceEligibilityWallet(splitWallet)
-        : new SwiyuNullifierAge18Wallet(splitWallet);
+    : profile === "residence"
+      ? new SwiyuResidenceEligibilityWallet(splitWallet)
+      : new SwiyuNullifierAge18Wallet(splitWallet);
   const nullifierRegistry = profile === "scoped-nullifier"
     ? new InMemorySwiyuNullifierRegistry()
     : undefined;
   const verifier = profile === "canton"
     ? new SwiyuCantonEligibilityVerifier(splitVerifier)
-    : profile === "professional-license"
-      ? new SwiyuProfessionalLicenseVerifier(splitVerifier)
-      : profile === "residence"
-        ? new SwiyuResidenceEligibilityVerifier(splitVerifier)
-        : new SwiyuNullifierAge18Verifier(
-          splitVerifier,
-          nullifierRegistry!,
-        );
+    : profile === "residence"
+      ? new SwiyuResidenceEligibilityVerifier(splitVerifier)
+      : new SwiyuNullifierAge18Verifier(
+        splitVerifier,
+        nullifierRegistry!,
+      );
   const publicNullifier = new Uint8Array(32).fill(0x45);
   let prepared: any;
   let envelope: any;
@@ -359,11 +340,9 @@ async function workerSplit(run: number, profile: Exclude<HostProfile, "age">) {
   const showOperation = async () => {
     const showValues = profile === "canton"
       ? swiyuCantonShowPublicValues(policy as any)
-      : profile === "professional-license"
-        ? swiyuProfessionalLicenseShowPublicValues(policy as any)
-        : profile === "residence"
-          ? swiyuResidenceShowPublicValues(policy as any)
-          : swiyuNullifierAge18ShowPublicValues(policy as any, publicNullifier);
+      : profile === "residence"
+        ? swiyuResidenceShowPublicValues(policy as any)
+        : swiyuNullifierAge18ShowPublicValues(policy as any, publicNullifier);
     envelope = await wallet.show({
       prepared,
       policy,
@@ -559,10 +538,6 @@ function assertSplitEnvelopeIdentity(envelope: any, profile: Exclude<HostProfile
     profile: "swiyu.canton-eligibility.prepare-show.v1",
     prepare: "swiyu_canton_prepare_compact",
     show: "swiyu_canton_show_split",
-  } : profile === "professional-license" ? {
-    profile: "swiyu.professional-license-valid-through.v1",
-    prepare: "swiyu_professional_license_prepare_compact",
-    show: "swiyu_professional_license_show_split",
   } : profile === "residence" ? {
     profile: "swiyu.residence-eligibility.combined-disclosure.v1",
     prepare: "swiyu_residence_combined_prepare_compact",
@@ -750,7 +725,6 @@ function parseProfile(value: string): HostProfile {
   if (
     value === "age"
     || value === "canton"
-    || value === "professional-license"
     || value === "residence"
     || value === "scoped-nullifier"
   ) return value;

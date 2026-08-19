@@ -1,4 +1,4 @@
-//! Repeated exact benchmark for the professional-licence valid-through proof.
+//! Repeated exact benchmark for any linked swiyu Prepare/Show profile.
 
 use bellpepper_core::{num::AllocatedNum, ConstraintSystem, SynthesisError};
 use circom_scotia::reader::load_r1cs;
@@ -201,24 +201,24 @@ fn run() -> Result<(), String> {
     let circom = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../circom");
     let profile = env_or(
         "SWIYU_BENCH_PROFILE",
-        "swiyu.professional-license-valid-through.v1",
+        "swiyu.age-over-18.packed-status-chunk.v2",
     );
     let business_statement = env_or(
         "SWIYU_BENCH_STATEMENT",
-        "The holder controls an accepted professional-licence VCT credential that is currently VALID/non-revoked and whose JWT expiry is strictly after the verifier-selected project end; licence semantics rely on the accepted VCT schema.",
+        "The holder controls an issuer-authenticated credential satisfying the selected private predicate and current status policy.",
     );
-    let accepted_vct = env_or("SWIYU_BENCH_VCT", "urn:ch:professional-license:v1");
+    let accepted_vct = env_or("SWIYU_BENCH_VCT", "https://example.ch/vct/person");
     let fixture_name = env_or(
         "SWIYU_BENCH_FIXTURE_DIR",
-        "swiyu_professional_license_benchmark",
+        "swiyu_split_benchmark",
     );
     let prepare_name = env_or(
         "SWIYU_BENCH_PREPARE_CIRCUIT",
-        "swiyu_professional_license_prepare_compact",
+        "swiyu_age18_prepare_compact",
     );
     let show_name = env_or(
         "SWIYU_BENCH_SHOW_CIRCUIT",
-        "swiyu_professional_license_show_split",
+        "swiyu_age18_show_packed_chunk_v2",
     );
     let prepare_public_inputs = env_usize("SWIYU_BENCH_PREPARE_PUBLIC_INPUTS", 2)?;
     let show_public_inputs = env_usize("SWIYU_BENCH_SHOW_PUBLIC_INPUTS", 7)?;
@@ -239,15 +239,15 @@ fn run() -> Result<(), String> {
     );
     let prepare_wtns = fixture_dir.join(env_or(
         "SWIYU_BENCH_PREPARE_WITNESS",
-        "prepare-professional-license.wtns",
+        "prepare.wtns",
     ));
     let show_wtns = fixture_dir.join(env_or(
         "SWIYU_BENCH_SHOW_WITNESS",
-        "show-professional-license.wtns",
+        "show-packed-v2.wtns",
     ));
     let unlinked_show_wtns = fixture_dir.join(env_or(
         "SWIYU_BENCH_UNLINKED_SHOW_WITNESS",
-        "show-professional-license-unlinked.wtns",
+        "show-unlinked-packed-v2.wtns",
     ));
     let prepare_witness = parse_witness(&read(&prepare_wtns)?)
         .map_err(|error| format!("parse Prepare witness: {error:?}"))?;

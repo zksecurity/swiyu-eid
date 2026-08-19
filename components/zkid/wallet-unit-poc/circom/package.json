@@ -26,8 +26,6 @@
     "compile:swiyu:show-packed-v2": "bash scripts/compile.sh swiyu_age18_show_packed_chunk_v2",
     "compile:swiyu:canton-prepare": "bash scripts/compile.sh swiyu_canton_prepare_compact",
     "compile:swiyu:canton-show": "bash scripts/compile.sh swiyu_canton_show_split",
-    "compile:swiyu:professional-license-show": "bash scripts/compile.sh swiyu_professional_license_show_split",
-    "compile:swiyu:professional-license-prepare": "bash scripts/compile.sh swiyu_professional_license_prepare_compact",
     "compile:swiyu:residence-prepare": "bash scripts/compile.sh swiyu_residence_prepare_compact",
     "compile:swiyu:residence-combined-prepare": "bash scripts/compile.sh swiyu_residence_combined_prepare_compact",
     "compile:swiyu:residence-show": "bash scripts/compile.sh swiyu_residence_show_split",

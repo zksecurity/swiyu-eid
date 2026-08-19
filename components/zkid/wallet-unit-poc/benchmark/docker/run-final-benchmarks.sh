@@ -18,7 +18,7 @@ if [[ "$(sha256sum "$RESIDENCE_DIRECTORY" | awk '{print $1}')" != "$RESIDENCE_DI
 fi
 
 mkdir -p "$RAW/controls" "$RAW/control-workers" "$RAW/production-control" \
-  "$RAW/sdk-host" "$RAW/nullifier-state" "$RAW/age" "$RAW/residence" \
+  "$RAW/sdk-host" "$RAW/nullifier-state" "$RAW/age" "$RAW/canton" "$RAW/residence" \
   "$RAW/scoped-nullifier"
 node "$BENCH/collect-metadata.mjs" "$RESULTS/metadata.json" start
 finish_metadata() {
@@ -55,6 +55,16 @@ run_witness() {
           tests/swiyu-zkp/split-benchmark-witness.test.ts --reporter=dot
       cp "$CIRCOM/build/swiyu_split_benchmark/fixture.json" \
         "$RAW/age/witness-$run.json"
+      ;;
+    canton)
+      record --id "canton-witness-$run" --cwd "$SDK" \
+        --stdout "$RAW/canton/witness-$run.log" \
+        --env SWIYU_CANTON_BENCHMARK=1 \
+        --env SWIYU_FIXED_BENCHMARK_RUNS=1 -- \
+        "$SDK/node_modules/.bin/vitest" run \
+          tests/swiyu-zkp/canton-benchmark-witness.test.ts --reporter=dot
+      cp "$CIRCOM/build/swiyu_canton_benchmark/witness-runs.json" \
+        "$RAW/canton/witness-$run.json"
       ;;
     residence)
       record --id "residence-show-control-witness-$run" --cwd "$SDK" \
@@ -112,7 +122,25 @@ run_native() {
         --env SWIYU_BENCH_PREPARE_WITNESS=prepare.wtns \
         --env SWIYU_BENCH_SHOW_WITNESS=show-packed-v2.wtns \
         --env SWIYU_BENCH_UNLINKED_SHOW_WITNESS=show-unlinked-packed-v2.wtns -- \
-        "$NATIVE/target/release/swiyu-professional-license-benchmark"
+        "$NATIVE/target/release/swiyu-profile-benchmark"
+      ;;
+    canton)
+      record --id "canton-native-$run" --cwd "$NATIVE" \
+        --stdout "$RAW/canton/native-$run.json" \
+        --env BENCHMARK_RUNS=1 \
+        --env SWIYU_BENCH_PROFILE=swiyu.canton-eligibility.prepare-show.v1 \
+        --env SWIYU_BENCH_STATEMENT="issuer-authenticated resident_canton belongs to a verifier-selected public allow-list" \
+        --env SWIYU_BENCH_VCT=https://example.ch/vct/person \
+        --env SWIYU_BENCH_FIXTURE_DIR=swiyu_canton_benchmark \
+        --env SWIYU_BENCH_PREPARE_CIRCUIT=swiyu_canton_prepare_compact \
+        --env SWIYU_BENCH_SHOW_CIRCUIT=swiyu_canton_show_split \
+        --env SWIYU_BENCH_PREPARE_PUBLIC_INPUTS=2 \
+        --env SWIYU_BENCH_SHOW_PUBLIC_INPUTS=11 \
+        --env SWIYU_BENCH_SHARED_OUTPUTS=11 \
+        --env SWIYU_BENCH_PREPARE_WITNESS=prepare.wtns \
+        --env SWIYU_BENCH_SHOW_WITNESS=show.wtns \
+        --env SWIYU_BENCH_UNLINKED_SHOW_WITNESS=show-unlinked.wtns -- \
+        "$NATIVE/target/release/swiyu-profile-benchmark"
       ;;
     residence)
       record --id "residence-native-$run" --cwd "$NATIVE" \
@@ -130,7 +158,7 @@ run_native() {
         --env SWIYU_BENCH_PREPARE_WITNESS=prepare.wtns \
         --env SWIYU_BENCH_SHOW_WITNESS=show.wtns \
         --env SWIYU_BENCH_UNLINKED_SHOW_WITNESS=show-unlinked.wtns -- \
-        "$NATIVE/target/release/swiyu-professional-license-benchmark"
+        "$NATIVE/target/release/swiyu-profile-benchmark"
       ;;
     scoped-nullifier)
       record --id "scoped-nullifier-native-$run" --cwd "$NATIVE" \
@@ -148,7 +176,7 @@ run_native() {
         --env SWIYU_BENCH_PREPARE_WITNESS=prepare.wtns \
         --env SWIYU_BENCH_SHOW_WITNESS=show-packed-v2.wtns \
         --env SWIYU_BENCH_UNLINKED_SHOW_WITNESS=show-unlinked-packed-v2.wtns -- \
-        "$NATIVE/target/release/swiyu-professional-license-benchmark"
+        "$NATIVE/target/release/swiyu-profile-benchmark"
       ;;
     *) return 2 ;;
   esac
@@ -157,6 +185,7 @@ run_native() {
 control_for_profile() {
   case "$1" in
     age) echo age-over-18 ;;
+    canton) echo resident-canton ;;
     residence) echo authoritative-residence-exact ;;
     scoped-nullifier) echo scoped-nullifier ;;
     *) return 2 ;;
@@ -187,8 +216,8 @@ assemble_control() {
 # precondition that profile's setup/prove timings.
 for run in 1 2; do
   case "$run" in
-    1) order=(age residence scoped-nullifier) ;;
-    2) order=(residence scoped-nullifier age) ;;
+    1) order=(age canton residence scoped-nullifier) ;;
+    2) order=(canton residence scoped-nullifier age) ;;
   esac
   thermal_cooldown "before-control-round-$run"
   witness_profiles=()
@@ -209,12 +238,12 @@ for run in 1 2; do
   done
 done
 
-for profile in age residence scoped-nullifier; do
+for profile in age canton residence scoped-nullifier; do
   record --id "adaptive-zk-$profile" --cwd "$ROOT" \
     --stdout "$RAW/$profile/repetition-rule.json" -- \
     node "$BENCH/adaptive-profile-runs.mjs" "$profile" "$RAW/$profile"
 done
-for control in age-over-18 authoritative-residence-exact \
+for control in age-over-18 resident-canton authoritative-residence-exact \
   authoritative-residence-derived scoped-nullifier; do
   record --id "adaptive-control-$control" --cwd "$ROOT" \
     --stdout "$RAW/control-workers/$control/repetition-rule.json" -- \
@@ -223,9 +252,11 @@ for control in age-over-18 authoritative-residence-exact \
 done
 
 AGE_RUNS="$(jq -r .requiredRuns "$RAW/age/repetition-rule.json")"
+CANTON_RUNS="$(jq -r .requiredRuns "$RAW/canton/repetition-rule.json")"
 RESIDENCE_RUNS="$(jq -r .requiredRuns "$RAW/residence/repetition-rule.json")"
 SCOPED_NULLIFIER_RUNS="$(jq -r .requiredRuns "$RAW/scoped-nullifier/repetition-rule.json")"
 AGE_CONTROL_RUNS="$(jq -r .requiredRuns "$RAW/control-workers/age-over-18/repetition-rule.json")"
+CANTON_CONTROL_RUNS="$(jq -r .requiredRuns "$RAW/control-workers/resident-canton/repetition-rule.json")"
 RESIDENCE_CONTROL_RUNS="$(jq -r .requiredRuns "$RAW/control-workers/authoritative-residence-exact/repetition-rule.json")"
 RESIDENCE_DERIVED_CONTROL_RUNS="$(jq -r .requiredRuns "$RAW/control-workers/authoritative-residence-derived/repetition-rule.json")"
 SCOPED_NULLIFIER_CONTROL_RUNS="$(jq -r .requiredRuns "$RAW/control-workers/scoped-nullifier/repetition-rule.json")"
@@ -234,14 +265,14 @@ for ((run = 3; run <= 7; run++)); do
   # Cyclic and reversed rotations balance first/middle/last positions over the
   # maximum seven-round campaign.
   case "$run" in
-    3) order=(scoped-nullifier age residence) ;;
-    4) order=(age scoped-nullifier residence) ;;
-    5) order=(scoped-nullifier residence age) ;;
-    6) order=(residence age scoped-nullifier) ;;
-    7) order=(age residence scoped-nullifier) ;;
+    3) order=(residence scoped-nullifier age canton) ;;
+    4) order=(scoped-nullifier age canton residence) ;;
+    5) order=(age residence canton scoped-nullifier) ;;
+    6) order=(canton scoped-nullifier residence age) ;;
+    7) order=(residence age scoped-nullifier canton) ;;
   esac
-  if ((run > AGE_RUNS && run > RESIDENCE_RUNS && run > SCOPED_NULLIFIER_RUNS &&
-       run > AGE_CONTROL_RUNS && run > RESIDENCE_CONTROL_RUNS &&
+  if ((run > AGE_RUNS && run > CANTON_RUNS && run > RESIDENCE_RUNS && run > SCOPED_NULLIFIER_RUNS &&
+       run > AGE_CONTROL_RUNS && run > CANTON_CONTROL_RUNS && run > RESIDENCE_CONTROL_RUNS &&
        run > RESIDENCE_DERIVED_CONTROL_RUNS && run > SCOPED_NULLIFIER_CONTROL_RUNS)); then
     continue
   fi
@@ -253,6 +284,10 @@ for ((run = 3; run <= 7; run++)); do
       age)
         zk_required="$AGE_RUNS"
         control_required="$AGE_CONTROL_RUNS"
+        ;;
+      canton)
+        zk_required="$CANTON_RUNS"
+        control_required="$CANTON_CONTROL_RUNS"
         ;;
       residence)
         zk_required="$RESIDENCE_RUNS"
@@ -273,6 +308,7 @@ for ((run = 3; run <= 7; run++)); do
   for profile in "${order[@]}"; do
     case "$profile" in
       age) zk_required="$AGE_RUNS" ;;
+      canton) zk_required="$CANTON_RUNS" ;;
       residence) zk_required="$RESIDENCE_RUNS" ;;
       scoped-nullifier) zk_required="$SCOPED_NULLIFIER_RUNS" ;;
     esac
@@ -290,6 +326,7 @@ for ((run = 3; run <= 7; run++)); do
 done
 
 assemble_control age-over-18
+assemble_control resident-canton
 assemble_control authoritative-residence-exact
 assemble_control authoritative-residence-derived
 assemble_control scoped-nullifier
@@ -307,13 +344,17 @@ record --id "control-scoped-nullifier-state" --cwd "$SDK" \
   node --no-warnings scripts/benchmark-swiyu-nullifier-state.mjs \
     --adaptive --iterations 1000
 
-# Measure the common SDK path separately for the three retained profiles so
+# Measure the common SDK path separately for the four retained profiles so
 # proof-envelope framing uses that profile's exact native proof-pair size.
-for profile in age residence scoped-nullifier; do
+for profile in age canton residence scoped-nullifier; do
   case "$profile" in
     age)
       prepare_proof_bytes="$(jq '.exact_sizes.prepare.proof_bytes' "$RAW/age/native-1.json")"
       show_proof_bytes="$(jq '.exact_sizes.show.proof_bytes' "$RAW/age/native-1.json")"
+      ;;
+    canton)
+      prepare_proof_bytes="$(jq '.exact_sizes.prepare.proof_bytes' "$RAW/canton/native-1.json")"
+      show_proof_bytes="$(jq '.exact_sizes.show.proof_bytes' "$RAW/canton/native-1.json")"
       ;;
     residence)
       prepare_proof_bytes="$(jq '.exact_sizes.prepare.proof_bytes' "$RAW/residence/native-1.json")"

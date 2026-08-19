@@ -23,35 +23,6 @@ export {
   validateAuthoritativeStatusSnapshot,
 } from "./commitments.js";
 export { verifySwiyuDenseStatusWitness } from "./status.js";
-export {
-  SWIYU_PROFESSIONAL_LICENSE_VCT,
-  buildProfessionalLicensePublicContext,
-  buildProfessionalLicenseShowInputs,
-} from "./professional-license.js";
-export type {
-  ProfessionalLicensePolicyRequest,
-  ProfessionalLicensePublicContext,
-  ProfessionalLicensePreparedValues,
-  ProfessionalLicenseOnlineWitness,
-  ProfessionalLicenseShowInputs,
-} from "./professional-license.js";
-export {
-  SWIYU_PROFESSIONAL_LICENSE_PROFILE,
-  SWIYU_PROFESSIONAL_LICENSE_PREPARE_CIRCUIT,
-  SWIYU_PROFESSIONAL_LICENSE_SHOW_CIRCUIT,
-  SWIYU_PROFESSIONAL_LICENSE_SPLIT_DESCRIPTOR,
-  buildSwiyuProfessionalLicenseChallenge,
-  swiyuProfessionalLicensePreparePublicValues,
-  swiyuProfessionalLicenseShowPublicValues,
-  SwiyuProfessionalLicenseWallet,
-  SwiyuProfessionalLicenseVerifier,
-} from "./professional-license-split.js";
-export type {
-  SwiyuProfessionalLicenseChallenge,
-  SwiyuProfessionalLicensePreparedCredential,
-  SwiyuProfessionalLicenseProofEnvelope,
-  SwiyuProfessionalLicenseVerifierPolicy,
-} from "./professional-license-split.js";
 export { resolveSwiyuStatusListJwt } from "./status-list-resolver.js";
 export type {
   SwiyuStatusListJwtResolutionRequest,

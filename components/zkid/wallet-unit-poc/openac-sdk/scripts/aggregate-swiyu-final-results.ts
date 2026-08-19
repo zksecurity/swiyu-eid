@@ -8,7 +8,7 @@ const metadata = json(`${root}/metadata.json`);
 validateProvenance(metadata);
 const productionVerifierDocument = json(`${root}/raw/production-control/age-over-18.json`);
 validateProductionVerifierControl(productionVerifierDocument, metadata);
-const hostDocuments = Object.fromEntries(["age", "residence", "scoped-nullifier"].map((profile) => {
+const hostDocuments = Object.fromEntries(["age", "canton", "residence", "scoped-nullifier"].map((profile) => {
   const document = json(`${root}/raw/sdk-host/${profile}.json`);
   validateSdkHostRuns(profile, document);
   return [profile, document];
@@ -16,6 +16,7 @@ const hostDocuments = Object.fromEntries(["age", "residence", "scoped-nullifier"
 
 const profiles = [
   aggregateProfile("age-over-18", "age"),
+  aggregateProfile("resident-canton", "canton"),
   aggregateProfile("authoritative-residence-exact", "residence"),
   aggregateProfile("scoped-nullifier", "scoped-nullifier"),
 ];
@@ -24,7 +25,7 @@ const ageProfile = profiles.find((profile) => profile.profile === "age-over-18")
 const nullifierProfile = profiles.find((profile) => profile.profile === "scoped-nullifier")!;
 const residenceProfile = profiles.find((profile) =>
   profile.profile === "authoritative-residence-exact")!;
-for (const profile of profiles) {
+for (const profile of profiles.filter((value) => value.profile !== "resident-canton")) {
   const statusPreprocessing = composePackedStatusPreprocessing(profile);
   profile.directComparisonExcludingRequiredStatusPathDiagnostic =
     profile.directComparison;
@@ -364,6 +365,11 @@ function assertOptimizedCircuitIdentity(profile: string, native: any, witness: a
       prepare: "swiyu_age18_prepare_compact",
       show: "swiyu_age18_show_packed_chunk_v2",
     },
+    canton: {
+      profile: "swiyu.canton-eligibility.prepare-show.v1",
+      prepare: "swiyu_canton_prepare_compact",
+      show: "swiyu_canton_show_split",
+    },
     residence: {
       profile: "swiyu.residence-eligibility.combined-disclosure.v1",
       prepare: "swiyu_residence_combined_prepare_compact",
@@ -380,6 +386,7 @@ function assertOptimizedCircuitIdentity(profile: string, native: any, witness: a
       native.prepare_circuit !== identity.prepare || native.show_circuit !== identity.show) {
     throw new Error(`${profile} native run does not use the optimized circuit identity`);
   }
+  if (profile === "canton") return;
   const packed = profile === "residence"
     ? witness.policy?.primaryStatusProfile
     : witness.policy?.packedStatusShow;
@@ -820,14 +827,7 @@ function assertSemanticParity(profile: string, control: any, witness: any) {
       qualification: "functional parity: both enforce the same verifier scope and atomic registry state; the ordinary control reveals credential_uid whereas ZK reveals only a derived scoped nullifier",
     };
   }
-  const zk = {
-    acceptedVct: witness.vct,
-    requiredValidUntil: Number(witness.policy.requiredValidUntil),
-    statusRequired: witness.policy.statusRequired,
-    disclosedClaims: [],
-  };
-  assertEqual(standard, zk, "professional licence policy");
-  return { equal: true, standard, zk };
+  throw new Error(`unsupported semantic-parity profile: ${profile}`);
 }
 
 function assertPackedStatusParity(control: any, manifest: any, label: string) {
@@ -924,6 +924,14 @@ function validateSdkHostRuns(profile: string, report: any) {
     age: {
       implementationProfile: "swiyu.age-over-18.status.v1",
       exactAdapter: false,
+    },
+    canton: {
+      implementationProfile: "swiyu.canton-eligibility.prepare-show.v1",
+      circuits: {
+        prepare: "swiyu_canton_prepare_compact",
+        show: "swiyu_canton_show_split",
+      },
+      exactAdapter: true,
     },
     residence: {
       implementationProfile: "swiyu.residence-eligibility.combined-disclosure.v1",

@@ -22,4 +22,4 @@ ports:
       - c1f56ca36534a493dbca518440ae97d30ae57a18
       - 6e2464dcee8ee3129737694ddda2681e8fef09e3
       - 36fc470230a0f6617e8f0475fcaf08cc0b39a959
-    scope: swiyu circuits, SDK and native proof paths, optimizations, tests, and benchmark evidence
+    scope: age verification, canton membership, residence eligibility, scoped one-claim nullifiers, and their shared proof and benchmark infrastructure

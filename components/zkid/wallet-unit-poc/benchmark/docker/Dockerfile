@@ -80,7 +80,7 @@ RUN cd /workspace/ecdsa-spartan2 \
  && touch build.rs src/lib.rs src/main.rs \
       src/bin/swiyu-profile.rs src/bin/status-proof-benchmark.rs \
       src/bin/swiyu-split-benchmark.rs src/bin/swiyu-canton-benchmark.rs \
-      src/bin/swiyu-professional-license-benchmark.rs \
+      src/bin/swiyu-profile-benchmark.rs \
  && CARGO_NET_OFFLINE=false cargo fetch --locked
 
 COPY circom /workspace/circom
@@ -90,6 +90,8 @@ RUN cd /workspace/circom \
  && bash scripts/compile.sh swiyu_age18_prepare_compact \
  && bash scripts/compile.sh swiyu_age18_show_split \
  && bash scripts/compile.sh swiyu_age18_show_packed_chunk_v2 \
+ && bash scripts/compile.sh swiyu_canton_prepare_compact \
+ && bash scripts/compile.sh swiyu_canton_show_split \
  && bash scripts/compile.sh swiyu_residence_prepare_compact \
  && bash scripts/compile.sh swiyu_residence_combined_prepare_compact \
  && bash scripts/compile.sh swiyu_residence_show_split \
@@ -105,7 +107,7 @@ COPY ecdsa-spartan2 /workspace/ecdsa-spartan2
 RUN cd /workspace/ecdsa-spartan2 \
  && cargo build --locked --release --no-default-features \
       --bin swiyu-split-benchmark \
-      --bin swiyu-professional-license-benchmark
+      --bin swiyu-profile-benchmark
 
 # Source provenance belongs on the finished image. Keeping these dynamic
 # values after compilation lets reporting/harness-only fixes reuse the exact

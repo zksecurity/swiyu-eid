@@ -39,12 +39,9 @@ const STATUS_INDEX = 42;
 const STATUS_LIST_URI = "https://status.example.ch/lists/2026-07";
 const ACCEPTED_PERSON_ISSUER = "did:example:issuer";
 const ACCEPTED_RESIDENCE_ISSUER = "did:example:issuer";
-const ACCEPTED_PROFESSIONAL_ISSUER = "did:example:licen";
 const ACCEPTED_ISSUER_KID = "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01";
 const ACCEPTED_PERSON_VCT = "https://example.ch/vct/person";
 const ACCEPTED_RESIDENCE_VCT = SWIYU_BENCHMARK_RESIDENCE.vct;
-const PROFESSIONAL_REQUIRED_VALID_UNTIL = 1_760_000_000;
-const PROFESSIONAL_ACCEPTED_VCT = "urn:ch:professional-license:v1";
 const RESIDENCE_POLICY_ID = SWIYU_BENCHMARK_RESIDENCE.policyId;
 const RESIDENCE_POLICY_VERSION = SWIYU_BENCHMARK_RESIDENCE.policyVersion;
 const RESIDENCE_DIRECTORY_AS_OF = SWIYU_BENCHMARK_RESIDENCE.policy.municipalityDirectoryAsOf;
@@ -105,23 +102,6 @@ const PROFILE_CONFIGS = {
     validate(_payload, claims) {
       const canton = claims.get("resident_canton");
       if (typeof canton !== "string" || !["ZH", "BE"].includes(canton)) throw new Error("canton not allowed");
-    },
-  },
-  "professional-license": {
-    issuer: ACCEPTED_PROFESSIONAL_ISSUER,
-    vct: PROFESSIONAL_ACCEPTED_VCT,
-    predicate: `require accepted professional-license VCT, exp > ${PROFESSIONAL_REQUIRED_VALID_UNTIL}, and VALID status; disclose no licence identifier`,
-    privacyDifference: "The control reveals the accepted VCT and validity interval already present in the SD-JWT envelope.",
-    disclosures: [],
-    policy: {
-      acceptedVct: PROFESSIONAL_ACCEPTED_VCT,
-      requiredValidUntil: PROFESSIONAL_REQUIRED_VALID_UNTIL,
-      statusRequired: "VALID (00)",
-      disclosedClaims: [],
-    },
-    validate(payload) {
-      if (payload.vct !== PROFESSIONAL_ACCEPTED_VCT) throw new Error("license VCT not accepted");
-      if (typeof payload.exp !== "number" || payload.exp <= PROFESSIONAL_REQUIRED_VALID_UNTIL) throw new Error("license validity is too short");
     },
   },
   "authoritative-residence-exact": {

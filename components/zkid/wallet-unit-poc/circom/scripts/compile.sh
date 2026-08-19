@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $0 {jwt|jwt_1k|jwt_2k|jwt_4k|jwt_8k|show|ecdsa|mdoc|swiyu_age18_status_2k|swiyu_age18_status_compact|swiyu_age18_prepare_compact|swiyu_age18_show_split|swiyu_age18_show_packed_chunk_v2|swiyu_canton_prepare_compact|swiyu_canton_show_split|swiyu_professional_license_prepare_compact|swiyu_professional_license_show_split|swiyu_residence_prepare_compact|swiyu_residence_combined_prepare_compact|swiyu_residence_show_split|swiyu_residence_show_packed_chunk_v2|swiyu_nullifier_prepare|swiyu_nullifier_show|swiyu_nullifier_age18_prepare|swiyu_nullifier_age18_show|swiyu_nullifier_age18_show_packed_chunk_v2|swiyu_status_dense_17_bench|swiyu_status_binary_17_core_bench|swiyu_status_ternary_11_core_bench|swiyu_status_packed_chunk_v2_core_bench|swiyu_status_sparse_64_bench|all}"
+  echo "Usage: $0 {jwt|jwt_1k|jwt_2k|jwt_4k|jwt_8k|show|ecdsa|mdoc|swiyu_age18_status_2k|swiyu_age18_status_compact|swiyu_age18_prepare_compact|swiyu_age18_show_split|swiyu_age18_show_packed_chunk_v2|swiyu_canton_prepare_compact|swiyu_canton_show_split|swiyu_residence_prepare_compact|swiyu_residence_combined_prepare_compact|swiyu_residence_show_split|swiyu_residence_show_packed_chunk_v2|swiyu_nullifier_prepare|swiyu_nullifier_show|swiyu_nullifier_age18_prepare|swiyu_nullifier_age18_show|swiyu_nullifier_age18_show_packed_chunk_v2|swiyu_status_dense_17_bench|swiyu_status_binary_17_core_bench|swiyu_status_ternary_11_core_bench|swiyu_status_packed_chunk_v2_core_bench|swiyu_status_sparse_64_bench|all}"
   echo "  jwt:    Compile the default JWT circuit."
   echo "  jwt_1k: Compile JWT circuit (1KB - maxMsg=1280)."
   echo "  jwt_2k: Compile JWT circuit (2KB - maxMsg=2048)."
@@ -15,8 +15,6 @@ usage() {
   echo "  swiyu_age18_prepare_compact: Compile the reusable credential-authentication stage."
   echo "  swiyu_age18_show_split: Compile the challenge/status/predicate presentation stage."
   echo "  swiyu_age18_show_packed_chunk_v2: Compile the versioned packed-status age Show A/B."
-  echo "  swiyu_professional_license_prepare_compact: Compile professional-licence credential authentication without age disclosure."
-  echo "  swiyu_professional_license_show_split: Compile professional-licence valid-through presentation."
   echo "  swiyu_residence_prepare_compact: Compile authoritative residence credential authentication."
   echo "  swiyu_residence_combined_prepare_compact: Compile optimized combined-disclosure residence authentication."
   echo "  swiyu_residence_show_split: Compile residence area/duration presentation with ternary status."
@@ -51,8 +49,6 @@ compile_circuit() {
      [ "$name" = "swiyu_age18_show_packed_chunk_v2" ] ||
      [ "$name" = "swiyu_canton_prepare_compact" ] ||
      [ "$name" = "swiyu_canton_show_split" ] ||
-     [ "$name" = "swiyu_professional_license_prepare_compact" ] ||
-     [ "$name" = "swiyu_professional_license_show_split" ] ||
      [ "$name" = "swiyu_residence_prepare_compact" ] ||
      [ "$name" = "swiyu_residence_combined_prepare_compact" ] ||
      [ "$name" = "swiyu_residence_show_split" ] ||
@@ -88,8 +84,6 @@ compile_circuit() {
      [ "$name" = "swiyu_age18_show_packed_chunk_v2" ] ||
      [ "$name" = "swiyu_canton_prepare_compact" ] ||
      [ "$name" = "swiyu_canton_show_split" ] ||
-     [ "$name" = "swiyu_professional_license_prepare_compact" ] ||
-     [ "$name" = "swiyu_professional_license_show_split" ] ||
      [ "$name" = "swiyu_residence_prepare_compact" ] ||
      [ "$name" = "swiyu_residence_combined_prepare_compact" ] ||
      [ "$name" = "swiyu_residence_show_split" ] ||
@@ -117,8 +111,6 @@ compile_circuit() {
      [ "$name" != "swiyu_age18_show_packed_chunk_v2" ] &&
      [ "$name" != "swiyu_canton_prepare_compact" ] &&
      [ "$name" != "swiyu_canton_show_split" ] &&
-     [ "$name" != "swiyu_professional_license_prepare_compact" ] &&
-     [ "$name" != "swiyu_professional_license_show_split" ] &&
      [ "$name" != "swiyu_residence_prepare_compact" ] &&
      [ "$name" != "swiyu_residence_combined_prepare_compact" ] &&
      [ "$name" != "swiyu_residence_show_split" ] &&
@@ -143,7 +135,7 @@ compile_circuit() {
 }
 
 case "$1" in
-  jwt|jwt_1k|jwt_2k|jwt_4k|jwt_8k|show|ecdsa|mdoc|swiyu_age18_status_2k|swiyu_age18_status_compact|swiyu_age18_prepare_compact|swiyu_age18_show_split|swiyu_age18_show_packed_chunk_v2|swiyu_canton_prepare_compact|swiyu_canton_show_split|swiyu_professional_license_prepare_compact|swiyu_professional_license_show_split|swiyu_residence_prepare_compact|swiyu_residence_combined_prepare_compact|swiyu_residence_show_split|swiyu_residence_show_packed_chunk_v2|swiyu_nullifier_prepare|swiyu_nullifier_show|swiyu_nullifier_age18_prepare|swiyu_nullifier_age18_show|swiyu_nullifier_age18_show_packed_chunk_v2|swiyu_status_dense_17_bench|swiyu_status_binary_17_core_bench|swiyu_status_ternary_11_core_bench|swiyu_status_packed_chunk_v2_core_bench|swiyu_status_sparse_64_bench)
+  jwt|jwt_1k|jwt_2k|jwt_4k|jwt_8k|show|ecdsa|mdoc|swiyu_age18_status_2k|swiyu_age18_status_compact|swiyu_age18_prepare_compact|swiyu_age18_show_split|swiyu_age18_show_packed_chunk_v2|swiyu_canton_prepare_compact|swiyu_canton_show_split|swiyu_residence_prepare_compact|swiyu_residence_combined_prepare_compact|swiyu_residence_show_split|swiyu_residence_show_packed_chunk_v2|swiyu_nullifier_prepare|swiyu_nullifier_show|swiyu_nullifier_age18_prepare|swiyu_nullifier_age18_show|swiyu_nullifier_age18_show_packed_chunk_v2|swiyu_status_dense_17_bench|swiyu_status_binary_17_core_bench|swiyu_status_ternary_11_core_bench|swiyu_status_packed_chunk_v2_core_bench|swiyu_status_sparse_64_bench)
     compile_circuit "$1"
     ;;
   all)

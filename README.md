@@ -21,6 +21,7 @@ The imported project-specific commit lineage is recorded in
 ## Added ZK work
 
 - Age and private-status proof, plus an optimized Prepare/Show variant.
+- Private canton membership against a verifier-selected allow-list.
 - Residence eligibility over a hidden municipality and residence-start date.
 - Credential-scoped nullifier for one accepted claim per credential and scope.
 - Matched no-ZK controls, pinned container runs, raw samples, artifact sizes,
@@ -35,7 +36,7 @@ and benchmark headlines are in [`benchmark`](benchmark/README.md).
 
 The Java verifier can route the original monolithic age profile to a local ZK
 sidecar while leaving ordinary SD-JWT verification unchanged. The optimized
-Prepare/Show age, residence, and nullifier profiles are implemented and
+Prepare/Show age, canton, residence, and nullifier profiles are implemented and
 benchmarked in the zkID component, but are not yet wired into the Android
 wallet or the Java verifier contract. The issuer remains unchanged and issues
 ordinary ES256 SD-JWT credentials.
