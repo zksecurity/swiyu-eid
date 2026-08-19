@@ -59,5 +59,269 @@
     "template": "MDOC",
     "params": [1792, 256, 4, 32, 64],
     "pubs": ["pubKeyX", "pubKeyY", "valueTypes", "claimFlags"]
+  },
+  "swiyu_age18_status_2k": {
+    "file": "swiyu-age18-status",
+    "template": "SwiyuAge18Status",
+    "params": [1920, 256, 1600, 17, 1, 1, 0],
+    "pubs": [
+      "issuerPubKeyX",
+      "issuerPubKeyY",
+      "challengeHash",
+      "cutoffDate",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo"
+    ]
+  },
+  "swiyu_age18_status_compact": {
+    "file": "swiyu-age18-status",
+    "template": "SwiyuAge18Status",
+    "params": [896, 256, 600, 17, 1, 1, 0],
+    "pubs": [
+      "issuerPubKeyX",
+      "issuerPubKeyY",
+      "challengeHash",
+      "cutoffDate",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo"
+    ]
+  },
+  "swiyu_age18_prepare_compact": {
+    "file": "main/swiyu_age18_prepare_compact",
+    "template": "SwiyuAge18Status",
+    "params": [896, 256, 600, 17, 0, 1, 0],
+    "pubs": ["issuerPubKeyX", "issuerPubKeyY"]
+  },
+  "swiyu_age18_show_split": {
+    "file": "main/swiyu_age18_show_split",
+    "template": "SwiyuAge18ShowSplit",
+    "params": [17],
+    "pubs": [
+      "challengeHash",
+      "cutoffDate",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo"
+    ]
+  },
+  "swiyu_age18_show_packed_chunk_v2": {
+    "file": "main/swiyu_age18_show_packed_chunk_v2",
+    "template": "SwiyuAge18ShowPackedChunkV2",
+    "params": [],
+    "pubs": [
+      "challengeHash",
+      "cutoffDate",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo"
+    ]
+  },
+  "swiyu_canton_prepare_compact": {
+    "file": "main/swiyu_canton_prepare_compact",
+    "template": "SwiyuCantonPrepareBase",
+    "params": [896, 256, 600],
+    "pubs": ["issuerPubKeyX", "issuerPubKeyY"]
+  },
+  "swiyu_canton_show_split": {
+    "file": "main/swiyu_canton_show_split",
+    "template": "SwiyuCantonShowSplit",
+    "params": [17],
+    "pubs": [
+      "challengeHash",
+      "allowedCount",
+      "allowedCantonCodes",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo"
+    ]
+  },
+  "swiyu_professional_license_prepare_compact": {
+    "file": "main/swiyu_professional_license_prepare_compact",
+    "template": "SwiyuAge18Status",
+    "params": [896, 256, 600, 17, 0, 0, 0],
+    "pubs": ["issuerPubKeyX", "issuerPubKeyY"]
+  },
+  "swiyu_professional_license_show_split": {
+    "file": "main/swiyu_professional_license_show_split",
+    "template": "SwiyuProfessionalLicenseShowSplit",
+    "params": [17],
+    "pubs": [
+      "challengeHash",
+      "currentTime",
+      "requiredValidUntil",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo"
+    ]
+  },
+  "swiyu_residence_prepare_compact": {
+    "file": "main/swiyu_residence_prepare_compact",
+    "template": "SwiyuResidencePrepareBase",
+    "params": [896, 248, 632],
+    "pubs": ["issuerPubKeyX", "issuerPubKeyY"]
+  },
+  "swiyu_residence_combined_prepare_compact": {
+    "file": "main/swiyu_residence_combined_prepare_compact",
+    "template": "SwiyuResidenceCombinedPrepareBase",
+    "params": [832, 248, 572],
+    "pubs": ["issuerPubKeyX", "issuerPubKeyY"]
+  },
+  "swiyu_residence_show_split": {
+    "file": "main/swiyu_residence_show_split",
+    "template": "SwiyuResidenceShowSplit",
+    "params": [11],
+    "pubs": [
+      "challengeHash",
+      "allowedCount",
+      "allowedMunicipalityCodes",
+      "minimumResidenceDays",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo"
+    ]
+  },
+  "swiyu_residence_show_packed_chunk_v2": {
+    "file": "main/swiyu_residence_show_packed_chunk_v2",
+    "template": "SwiyuResidenceShowPackedChunkV2",
+    "params": [],
+    "pubs": [
+      "challengeHash",
+      "allowedCount",
+      "allowedMunicipalityCodes",
+      "minimumResidenceDays",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo"
+    ]
+  },
+  "swiyu_nullifier_prepare": {
+    "file": "main/swiyu_nullifier_prepare",
+    "template": "SwiyuNullifierAuthenticatedPrepare",
+    "params": [],
+    "pubs": ["issuerPubKeyX", "issuerPubKeyY"]
+  },
+  "swiyu_nullifier_show": {
+    "file": "main/swiyu_nullifier_show",
+    "template": "SwiyuNullifierShow",
+    "params": [],
+    "pubs": [
+      "scopeDigestHi",
+      "scopeDigestLo",
+      "expectedNullifierHi",
+      "expectedNullifierLo"
+    ]
+  },
+  "swiyu_nullifier_age18_prepare": {
+    "file": "main/swiyu_nullifier_age18_prepare",
+    "template": "SwiyuNullifierAge18Prepare",
+    "params": [],
+    "pubs": ["issuerPubKeyX", "issuerPubKeyY"]
+  },
+  "swiyu_nullifier_age18_show": {
+    "file": "main/swiyu_nullifier_age18_show",
+    "template": "SwiyuNullifierAge18Show",
+    "params": [],
+    "pubs": [
+      "challengeHash",
+      "cutoffDate",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo",
+      "scopeDigestHi",
+      "scopeDigestLo",
+      "expectedNullifierHi",
+      "expectedNullifierLo"
+    ]
+  },
+  "swiyu_nullifier_age18_show_packed_chunk_v2": {
+    "file": "main/swiyu_nullifier_age18_show_packed_chunk_v2",
+    "template": "SwiyuNullifierAge18ShowPackedChunkV2",
+    "params": [],
+    "pubs": [
+      "challengeHash",
+      "cutoffDate",
+      "currentTime",
+      "expectedMetadataHashHi",
+      "expectedMetadataHashLo",
+      "expectedStatusSnapshotHashHi",
+      "expectedStatusSnapshotHashLo",
+      "scopeDigestHi",
+      "scopeDigestLo",
+      "expectedNullifierHi",
+      "expectedNullifierLo"
+    ]
+  },
+  "swiyu_status_dense_17_bench": {
+    "file": "swiyu/status-proof-benchmark",
+    "template": "SwiyuDenseStatusBenchmark",
+    "params": [],
+    "pubs": [
+      "snapshotEpoch",
+      "expectedSnapshotRootHi",
+      "expectedSnapshotRootLo",
+      "expectedQueryHandleHi",
+      "expectedQueryHandleLo"
+    ]
+  },
+  "swiyu_status_binary_17_core_bench": {
+    "file": "main/swiyu_status_binary_17_core_bench",
+    "template": "SwiyuBinaryStatusCoreBenchmark",
+    "params": [],
+    "pubs": [
+      "snapshotEpoch",
+      "expectedSnapshotRootHi",
+      "expectedSnapshotRootLo"
+    ]
+  },
+  "swiyu_status_ternary_11_core_bench": {
+    "file": "main/swiyu_status_ternary_11_core_bench",
+    "template": "SwiyuTernaryStatusCoreBenchmark",
+    "params": [],
+    "pubs": [
+      "snapshotEpoch",
+      "expectedSnapshotRootHi",
+      "expectedSnapshotRootLo"
+    ]
+  },
+  "swiyu_status_packed_chunk_v2_core_bench": {
+    "file": "main/swiyu_status_packed_chunk_v2_core_bench",
+    "template": "SwiyuPackedStatusChunkV2CoreBenchmark",
+    "params": [],
+    "pubs": [
+      "snapshotEpoch",
+      "expectedSnapshotRootHi",
+      "expectedSnapshotRootLo"
+    ]
+  },
+  "swiyu_status_sparse_64_bench": {
+    "file": "swiyu/status-proof-benchmark",
+    "template": "SwiyuSparseStatusBenchmark",
+    "params": [],
+    "pubs": [
+      "snapshotEpoch",
+      "expectedSnapshotRootHi",
+      "expectedSnapshotRootLo",
+      "expectedQueryHandleHi",
+      "expectedQueryHandleLo"
+    ]
   }
 }

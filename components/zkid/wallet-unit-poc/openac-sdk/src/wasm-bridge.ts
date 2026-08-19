@@ -99,6 +99,17 @@ interface WasmVerifyResult {
   error: string | null;
 }
 
+interface WasmSwiyuProofResult {
+  proof: Uint8Array;
+  public_values: Uint8Array[];
+}
+
+interface WasmSwiyuVerifyResult {
+  valid: boolean;
+  public_values: Uint8Array[];
+  error: string | null;
+}
+
 interface OpenACWasmModule {
   init(): void;
   precompute_from_witness(
@@ -126,6 +137,15 @@ interface OpenACWasmModule {
     showVk: Uint8Array,
     showInstance: Uint8Array,
   ): WasmVerifyResult;
+  swiyu_prove_from_witness(
+    provingKey: Uint8Array,
+    witnessWtns: Uint8Array,
+  ): WasmSwiyuProofResult;
+  swiyu_verify(
+    proof: Uint8Array,
+    verifyingKey: Uint8Array,
+    expectedPublicContext: Uint8Array,
+  ): WasmSwiyuVerifyResult;
 }
 
 export interface SetupKeys {
@@ -195,7 +215,9 @@ export class WasmBridge {
           );
           module.initSync({ module: wasmBytes });
         }
-        this.wasm = module as OpenACWasmModule;
+        // Generated wasm-pack declarations may lag newly-added exports until
+        // `npm run build:wasm`; the runtime shape is validated by method calls.
+        this.wasm = module as unknown as OpenACWasmModule;
       } catch (e) {
         throw new WasmError(
           "WASM_LOAD_FAILED",
@@ -346,5 +368,36 @@ export class WasmBridge {
         error: errorMessage,
       };
     }
+  }
+
+  async swiyuProveFromWitness(
+    provingKey: Uint8Array,
+    witnessWtns: Uint8Array,
+  ): Promise<{ proof: Uint8Array; publicValues: Uint8Array[] }> {
+    const result = this.getWasm().swiyu_prove_from_witness(
+      provingKey,
+      witnessWtns,
+    );
+    return {
+      proof: new Uint8Array(result.proof),
+      publicValues: result.public_values.map((value) => new Uint8Array(value)),
+    };
+  }
+
+  async swiyuVerify(
+    proof: Uint8Array,
+    verifyingKey: Uint8Array,
+    expectedPublicContext: Uint8Array,
+  ): Promise<{ valid: boolean; publicValues: Uint8Array[]; error?: string }> {
+    const result = this.getWasm().swiyu_verify(
+      proof,
+      verifyingKey,
+      expectedPublicContext,
+    );
+    return {
+      valid: result.valid,
+      publicValues: result.public_values.map((value) => new Uint8Array(value)),
+      error: result.error ?? undefined,
+    };
   }
 }

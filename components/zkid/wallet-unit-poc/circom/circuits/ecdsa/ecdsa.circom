@@ -65,9 +65,14 @@ template ECDSA() {
 
     // TODO - Its shocking that this is more efficient than big number multiply, perhaps we should double check
 
+    // Decompose and range-check s^-1 once. Both scalar multiplications consume
+    // the same canonical bits, avoiding a duplicate K_add relation.
+    component siBits = K_add();
+    siBits.s <== s_inverse;
+
     // s^-1 x Q_a computation
-    component siPub = Secp256r1Mul();
-    siPub.scalar <== s_inverse;
+    component siPub = Secp256r1MulBits();
+    siPub.scalarBits <== siBits.out;
     siPub.xP <== pubKeyX;
     siPub.yP <== pubKeyY;
 
@@ -78,8 +83,8 @@ template ECDSA() {
     rSiPub.yP <== siPub.outY;
 
     // s^-1 x G computation
-    component siG = Secp256r1Mul();
-    siG.scalar <== s_inverse;
+    component siG = Secp256r1MulBits();
+    siG.scalarBits <== siBits.out;
     siG.xP <== 0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296;
     siG.yP <== 0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5;
 

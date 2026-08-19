@@ -1,0 +1,261 @@
+{
+  "profile": "swiyu.professional-license-valid-through.v1",
+  "business_statement": "The holder controls an accepted professional-licence VCT credential that is currently VALID/non-revoked and whose JWT expiry is strictly after the verifier-selected project end; licence semantics rely on the accepted VCT schema.",
+  "accepted_vct": "urn:ch:professional-license:v1",
+  "repetitions": 1,
+  "expanded_after_first_two": false,
+  "raw_runs": [
+    {
+      "run": 1,
+      "prepare": {
+        "witness_handoff_ms": 125.617417,
+        "setup_ms": 21707.185802,
+        "key_serialization_ms": 218.52525,
+        "assignment_ms": 5108.904461,
+        "prepared_state_serialization_ms": 48.377791,
+        "final_proof_ms": 4256.05346,
+        "proof_serialization_ms": 25.663208,
+        "proof_deserialization_ms": 84.48729200000001,
+        "verify_ms": 686.954333,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 180.91987500000002,
+        "setup_ms": 11700.893672,
+        "key_serialization_ms": 150.588958,
+        "assignment_ms": 2324.485209,
+        "prepared_state_serialization_ms": 28.804541,
+        "final_proof_ms": 2137.847251,
+        "proof_serialization_ms": 14.989625,
+        "proof_deserialization_ms": 42.376083,
+        "verify_ms": 444.40358299999997,
+        "verified": true
+      },
+      "link_randomness_ms": 0.008624999999999999,
+      "linked_commitments_equal": true
+    }
+  ],
+  "prepare_summary": {
+    "witness_handoff": {
+      "min_ms": 125.617417,
+      "median_ms": 125.617417,
+      "max_ms": 125.617417,
+      "mean_ms": 125.617417,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 21707.185802,
+      "median_ms": 21707.185802,
+      "max_ms": 21707.185802,
+      "mean_ms": 21707.185802,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 218.52525,
+      "median_ms": 218.52525,
+      "max_ms": 218.52525,
+      "mean_ms": 218.52525,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 5108.904461,
+      "median_ms": 5108.904461,
+      "max_ms": 5108.904461,
+      "mean_ms": 5108.904461,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 48.377791,
+      "median_ms": 48.377791,
+      "max_ms": 48.377791,
+      "mean_ms": 48.377791,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 4256.05346,
+      "median_ms": 4256.05346,
+      "max_ms": 4256.05346,
+      "mean_ms": 4256.05346,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 25.663208,
+      "median_ms": 25.663208,
+      "max_ms": 25.663208,
+      "mean_ms": 25.663208,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 84.48729200000001,
+      "median_ms": 84.48729200000001,
+      "max_ms": 84.48729200000001,
+      "mean_ms": 84.48729200000001,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 686.954333,
+      "median_ms": 686.954333,
+      "max_ms": 686.954333,
+      "mean_ms": 686.954333,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "show_summary": {
+    "witness_handoff": {
+      "min_ms": 180.91987500000002,
+      "median_ms": 180.91987500000002,
+      "max_ms": 180.91987500000002,
+      "mean_ms": 180.91987500000002,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 11700.893672,
+      "median_ms": 11700.893672,
+      "max_ms": 11700.893672,
+      "mean_ms": 11700.893672,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 150.588958,
+      "median_ms": 150.588958,
+      "max_ms": 150.588958,
+      "mean_ms": 150.588958,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 2324.485209,
+      "median_ms": 2324.485209,
+      "max_ms": 2324.485209,
+      "mean_ms": 2324.485209,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 28.804541,
+      "median_ms": 28.804541,
+      "max_ms": 28.804541,
+      "mean_ms": 28.804541,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 2137.847251,
+      "median_ms": 2137.847251,
+      "max_ms": 2137.847251,
+      "mean_ms": 2137.847251,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 14.989625,
+      "median_ms": 14.989625,
+      "max_ms": 14.989625,
+      "mean_ms": 14.989625,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 42.376083,
+      "median_ms": 42.376083,
+      "max_ms": 42.376083,
+      "mean_ms": 42.376083,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 444.40358299999997,
+      "median_ms": 444.40358299999997,
+      "max_ms": 444.40358299999997,
+      "mean_ms": 444.40358299999997,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "witness_generation": {
+    "expandedAfterFirstTwo": false,
+    "policy": {
+      "credentialExp": "1800000000",
+      "currentTime": "1750000000",
+      "requiredValidUntil": "1760000000",
+      "statusRequired": "VALID (00)"
+    },
+    "processPeakRssBytes": 1124331520,
+    "profile": "swiyu.professional-license-valid-through.v1",
+    "repetitions": 1,
+    "vct": "urn:ch:professional-license:v1",
+    "witnessGenerationMs": {
+      "prepare": [
+        4613.874752
+      ],
+      "show": [
+        4595.379669
+      ]
+    }
+  },
+  "exact_sizes": {
+    "prepare": {
+      "constraints": 2224731,
+      "wires": 2127173,
+      "r1cs_bytes": 470257100,
+      "wasm_bytes": 9192642,
+      "witness_bytes": 68069612,
+      "proving_key_bytes": 574634082,
+      "verifying_key_bytes": 574634050,
+      "proof_bytes": 180055,
+      "pre_reblind_instance_bytes": 135471,
+      "assignment_bytes": 134348817,
+      "public_input_count": 2,
+      "hidden_shared_value_count": 11
+    },
+    "show": {
+      "constraints": 1271440,
+      "wires": 1256480,
+      "r1cs_bytes": 313469252,
+      "wasm_bytes": 5399967,
+      "witness_bytes": 40207436,
+      "proving_key_bytes": 370543754,
+      "verifying_key_bytes": 370543722,
+      "proof_bytes": 112135,
+      "pre_reblind_instance_bytes": 68047,
+      "assignment_bytes": 67174417,
+      "public_input_count": 7,
+      "hidden_shared_value_count": 11
+    }
+  },
+  "negative_linkage": {
+    "unlinked_show_verified_independently": true,
+    "unlinked_shared_commitment_rejected": true
+  },
+  "production_peak_rss_bytes": 4022579200,
+  "peak_rss_after_negative_control_bytes": 4022579200
+}

@@ -1,0 +1,9 @@
+**/.DS_Store
+**/node_modules
+**/target
+circom/build
+openac-sdk/dist
+openac-sdk/assets/*.wasm
+docs
+mobile
+web-demo

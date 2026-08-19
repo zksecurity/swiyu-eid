@@ -1,0 +1,426 @@
+{
+  "profile": "swiyu.residence-eligibility.combined-disclosure.v1",
+  "prepare_circuit": "swiyu_residence_combined_prepare_compact",
+  "show_circuit": "swiyu_residence_show_packed_chunk_v2",
+  "business_statement": "authoritative current main residence is in the accepted municipality set and began at least the required whole UTC days ago",
+  "accepted_vct": "urn:ch:swiyu-lab:residence-eligibility:v1",
+  "repetitions": 1,
+  "expanded_after_first_two": false,
+  "raw_runs": [
+    {
+      "run": 1,
+      "prepare": {
+        "witness_handoff_ms": 111.625875,
+        "setup_ms": 40350.664352,
+        "key_serialization_ms": 294.887667,
+        "assignment_ms": 8524.649545,
+        "prepared_state_serialization_ms": 56.084208000000004,
+        "final_proof_ms": 7546.560254,
+        "proof_serialization_ms": 30.884459,
+        "proof_deserialization_ms": 98.045333,
+        "verify_ms": 1162.325126,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 99.02508399999999,
+        "setup_ms": 8806.891796,
+        "key_serialization_ms": 98.25825,
+        "assignment_ms": 1678.9734589999998,
+        "prepared_state_serialization_ms": 19.004208000000002,
+        "final_proof_ms": 1591.882751,
+        "proof_serialization_ms": 10.36975,
+        "proof_deserialization_ms": 32.127292000000004,
+        "verify_ms": 238.201958,
+        "verified": true
+      },
+      "link_randomness_ms": 0.010458,
+      "linked_commitments_equal": true
+    }
+  ],
+  "prepare_summary": {
+    "witness_handoff": {
+      "min_ms": 111.625875,
+      "median_ms": 111.625875,
+      "max_ms": 111.625875,
+      "mean_ms": 111.625875,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 40350.664352,
+      "median_ms": 40350.664352,
+      "max_ms": 40350.664352,
+      "mean_ms": 40350.664352,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 294.887667,
+      "median_ms": 294.887667,
+      "max_ms": 294.887667,
+      "mean_ms": 294.887667,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 8524.649545,
+      "median_ms": 8524.649545,
+      "max_ms": 8524.649545,
+      "mean_ms": 8524.649545,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 56.084208000000004,
+      "median_ms": 56.084208000000004,
+      "max_ms": 56.084208000000004,
+      "mean_ms": 56.084208000000004,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 7546.560254,
+      "median_ms": 7546.560254,
+      "max_ms": 7546.560254,
+      "mean_ms": 7546.560254,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 30.884459,
+      "median_ms": 30.884459,
+      "max_ms": 30.884459,
+      "mean_ms": 30.884459,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 98.045333,
+      "median_ms": 98.045333,
+      "max_ms": 98.045333,
+      "mean_ms": 98.045333,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 1162.325126,
+      "median_ms": 1162.325126,
+      "max_ms": 1162.325126,
+      "mean_ms": 1162.325126,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "show_summary": {
+    "witness_handoff": {
+      "min_ms": 99.02508399999999,
+      "median_ms": 99.02508399999999,
+      "max_ms": 99.02508399999999,
+      "mean_ms": 99.02508399999999,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 8806.891796,
+      "median_ms": 8806.891796,
+      "max_ms": 8806.891796,
+      "mean_ms": 8806.891796,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 98.25825,
+      "median_ms": 98.25825,
+      "max_ms": 98.25825,
+      "mean_ms": 98.25825,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 1678.9734589999998,
+      "median_ms": 1678.9734589999998,
+      "max_ms": 1678.9734589999998,
+      "mean_ms": 1678.9734589999998,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 19.004208000000002,
+      "median_ms": 19.004208000000002,
+      "max_ms": 19.004208000000002,
+      "mean_ms": 19.004208000000002,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 1591.882751,
+      "median_ms": 1591.882751,
+      "max_ms": 1591.882751,
+      "mean_ms": 1591.882751,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 10.36975,
+      "median_ms": 10.36975,
+      "max_ms": 10.36975,
+      "mean_ms": 10.36975,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 32.127292000000004,
+      "median_ms": 32.127292000000004,
+      "max_ms": 32.127292000000004,
+      "mean_ms": 32.127292000000004,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 238.201958,
+      "median_ms": 238.201958,
+      "max_ms": 238.201958,
+      "mean_ms": 238.201958,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "witness_generation": {
+    "abControl": {
+      "legacyShowCircuit": "swiyu_residence_show_split",
+      "legacyShowWitnessBytes": 28598060,
+      "legacyShowWitnessMs": [
+        4222.966418
+      ],
+      "legacyShowWitnessStats": {
+        "coefficientOfVariation": 0,
+        "max": 4222.966418,
+        "mean": 4222.966418,
+        "median": 4222.966418,
+        "min": 4222.966418,
+        "standardDeviation": 0
+      },
+      "prepareCircuit": "swiyu_residence_prepare_compact",
+      "prepareWitnessBytes": 82669036,
+      "prepareWitnessMs": [
+        7342.103461000001
+      ],
+      "prepareWitnessStats": {
+        "coefficientOfVariation": 0,
+        "max": 7342.103461000001,
+        "mean": 7342.103461000001,
+        "median": 7342.103461000001,
+        "min": 7342.103461000001,
+        "standardDeviation": 0
+      }
+    },
+    "bounds": {
+      "encodedHeaderBytes": 248,
+      "encodedPayloadBytes": 572,
+      "fixtureStatusUriBytes": 39,
+      "paddedSigningInputBytes": 832,
+      "portability": "bounded fixture/profile optimization; not a universal SD-JWT URI bound",
+      "statusUriCommitmentBytes": 160,
+      "statusUriParserBufferBytes": 120
+    },
+    "circuits": {
+      "prepare": "swiyu_residence_combined_prepare_compact",
+      "show": "swiyu_residence_show_packed_chunk_v2"
+    },
+    "controlProfile": "swiyu.residence-eligibility.prepare-show.v1",
+    "disclosure": {
+      "decodedBytes": 84,
+      "encodedBytes": 112,
+      "payloadDecodedBytes": 428,
+      "payloadEncodedBytes": 571,
+      "signingInputBytes": 818
+    },
+    "expandedAfterFirstTwo": false,
+    "fixtureIdentity": {
+      "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+      "disclosureSha256": [
+        "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+      ],
+      "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y"
+    },
+    "policy": {
+      "UTCWholeDaySemantics": true,
+      "allowedMunicipalityBfs": [
+        261,
+        351
+      ],
+      "currentTime": 1750000000,
+      "disclosureShape": "[salt,residence,{municipality_bfs,since}]",
+      "holderChallengeBinding": "swiyu-residence-policy-v1",
+      "minimumResidenceDays": 365,
+      "municipalityBfs": 261,
+      "municipalityDirectoryAsOf": "2025-01-01",
+      "municipalityDirectorySha256": "2a510d6f7de86e40a8d584daba5985422728317619f1e9225bf3c3e28c40905c",
+      "primaryStatusProfile": {
+        "chunkBytes": 64,
+        "circuitId": "swiyu_residence_show_packed_chunk_v2",
+        "profile": "swiyu.residence-eligibility.packed-status-chunk.v2",
+        "root": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeDepth": 6,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2"
+      },
+      "residenceSince": "2023-01-01",
+      "statusRequired": "VALID (00)",
+      "statusSnapshot": {
+        "encoding": "packed two-bit statuses",
+        "epoch": 1749999970,
+        "listLength": 65536,
+        "packedV2": {
+          "chunkBytes": 64,
+          "circuitId": "swiyu_residence_show_packed_chunk_v2",
+          "profile": "swiyu.residence-eligibility.packed-status-chunk.v2",
+          "root": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+          "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+          "treeDepth": 6,
+          "treeProfile": "packed-status-chunk-ternary-merkle-v2"
+        },
+        "root": "0c5ff2d21a2425ba5f5497b19a04feace17592249fdb1902805a4829f0ea1162",
+        "sdkHostRootContract": "same all-VALID entries, list length, epoch, and ternary construction; exact root must match"
+      }
+    },
+    "predicate": "issuer-authenticated municipality is in a public 1..16 BFS allow-list and residence_since is at least the public duration",
+    "processPeakRssBytes": 1133494272,
+    "profile": "swiyu.residence-eligibility.combined-disclosure.v1",
+    "repetitions": 1,
+    "representation": "one object-valued SD-JWT disclosure",
+    "selectiveDisclosureTradeoff": "municipality_bfs and since cannot be released independently",
+    "statusSnapshotStagesMs": {
+      "expandedAfterFirstTwo": false,
+      "packedV2PathGeneration": [
+        0.24637499999971624
+      ],
+      "packedV2PathGenerationStats": {
+        "coefficientOfVariation": 0,
+        "max": 0.24637499999971624,
+        "mean": 0.24637499999971624,
+        "median": 0.24637499999971624,
+        "min": 0.24637499999971624,
+        "standardDeviation": 0
+      },
+      "packedV2TreeBuild": [
+        20.25104200000078
+      ],
+      "packedV2TreeBuildStats": {
+        "coefficientOfVariation": 0,
+        "max": 20.25104200000078,
+        "mean": 20.25104200000078,
+        "median": 20.25104200000078,
+        "min": 20.25104200000078,
+        "standardDeviation": 0
+      },
+      "repetitions": 1,
+      "statusPathGeneration": [
+        0.27516599999944447
+      ],
+      "statusPathGenerationStats": {
+        "coefficientOfVariation": 0,
+        "max": 0.27516599999944447,
+        "mean": 0.27516599999944447,
+        "median": 0.27516599999944447,
+        "min": 0.27516599999944447,
+        "standardDeviation": 0
+      },
+      "ternaryTreeBuild": [
+        4479.615711
+      ],
+      "ternaryTreeBuildStats": {
+        "coefficientOfVariation": 0,
+        "max": 4479.615711,
+        "mean": 4479.615711,
+        "median": 4479.615711,
+        "min": 4479.615711,
+        "standardDeviation": 0
+      }
+    },
+    "witnessBytes": {
+      "prepare": 72514988,
+      "show": 19937164
+    },
+    "witnessGenerationMs": {
+      "prepare": [
+        6795.342959999999
+      ],
+      "show": [
+        2820.6148759999996
+      ]
+    },
+    "witnessGenerationStats": {
+      "prepare": {
+        "coefficientOfVariation": 0,
+        "maximum": 6795.342959999999,
+        "mean": 6795.342959999999,
+        "median": 6795.342959999999,
+        "minimum": 6795.342959999999,
+        "standardDeviation": 0
+      },
+      "show": {
+        "coefficientOfVariation": 0,
+        "max": 2820.6148759999996,
+        "mean": 2820.6148759999996,
+        "median": 2820.6148759999996,
+        "min": 2820.6148759999996,
+        "standardDeviation": 0
+      }
+    }
+  },
+  "exact_sizes": {
+    "prepare": {
+      "constraints": 2364636,
+      "wires": 2266091,
+      "r1cs_bytes": 495486680,
+      "wasm_bytes": 9839681,
+      "witness_bytes": 72514988,
+      "proving_key_bytes": 599566722,
+      "verifying_key_bytes": 599566690,
+      "proof_bytes": 180055,
+      "pre_reblind_instance_bytes": 135471,
+      "assignment_bytes": 134348817,
+      "public_input_count": 2,
+      "hidden_shared_value_count": 11
+    },
+    "show": {
+      "constraints": 630413,
+      "wires": 623034,
+      "r1cs_bytes": 155065852,
+      "wasm_bytes": 2886046,
+      "witness_bytes": 19937164,
+      "proving_key_bytes": 183551810,
+      "verifying_key_bytes": 183551778,
+      "proof_bytes": 78391,
+      "pre_reblind_instance_bytes": 34799,
+      "assignment_bytes": 33587217,
+      "public_input_count": 24,
+      "hidden_shared_value_count": 11
+    }
+  },
+  "negative_linkage": {
+    "unlinked_show_verified_independently": true,
+    "unlinked_shared_commitment_rejected": true
+  },
+  "production_peak_rss_bytes": 4103389184,
+  "peak_rss_after_negative_control_bytes": 4103389184
+}

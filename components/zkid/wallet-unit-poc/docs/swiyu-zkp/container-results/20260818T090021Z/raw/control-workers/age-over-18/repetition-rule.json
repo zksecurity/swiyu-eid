@@ -1,0 +1,31 @@
+{
+  "profile": "age-over-18",
+  "threshold": 0.15,
+  "denominator": "mean of first two",
+  "principalStages": [
+    "cold.oneTimeTrustMaterialSetup",
+    "cold.perCredentialReusableWalletPreparation",
+    "cold.perPresentationWallet",
+    "cold.perPresentationVerifierStateless",
+    "cold.perPresentationEndToEndWithUncachedCredentialValidation",
+    "steadyState.oneTimeTrustMaterialSetup",
+    "steadyState.perCredentialReusableWalletPreparation",
+    "steadyState.perPresentationWallet",
+    "steadyState.perPresentationVerifierStateless",
+    "steadyState.perPresentationEndToEndWithUncachedCredentialValidation"
+  ],
+  "relativeDeltas": {
+    "cold.oneTimeTrustMaterialSetup": 0.1926347213466098,
+    "cold.perCredentialReusableWalletPreparation": 0.2192748424871126,
+    "cold.perPresentationWallet": 0.2826555529077545,
+    "cold.perPresentationVerifierStateless": 0.14425283822757168,
+    "cold.perPresentationEndToEndWithUncachedCredentialValidation": 0.341486933049252,
+    "steadyState.oneTimeTrustMaterialSetup": 0.01742956561469058,
+    "steadyState.perCredentialReusableWalletPreparation": 0.02375086345485129,
+    "steadyState.perPresentationWallet": 0.059870521342407425,
+    "steadyState.perPresentationVerifierStateless": 0.004297091108803803,
+    "steadyState.perPresentationEndToEndWithUncachedCredentialValidation": 0.07710148449863048
+  },
+  "expanded": true,
+  "requiredRuns": 7
+}

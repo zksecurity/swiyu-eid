@@ -1,0 +1,53 @@
+{
+  "predicate": "issuer-authenticated resident_canton belongs to a public 1..4 canton allow-list",
+  "policy": {
+    "disclosedClaim": [
+      "resident_canton",
+      "ZH"
+    ],
+    "allowedValues": [
+      "ZH",
+      "BE"
+    ],
+    "allowedCount": 2,
+    "statusRequired": "VALID (00)"
+  },
+  "repetitionRule": {
+    "firstTwoPrincipalStageVariationOver15Percent": false,
+    "requiredRuns": 1,
+    "satisfied": true
+  },
+  "prepareWitnessMs": [
+    5189.566419
+  ],
+  "showWitnessMs": [
+    4688.960960999999
+  ],
+  "prepareWitnessStats": {
+    "values": [
+      5189.566419
+    ],
+    "min": 5189.566419,
+    "median": 5189.566419,
+    "max": 5189.566419,
+    "mean": 5189.566419,
+    "variance": 0,
+    "standardDeviation": 0,
+    "coefficientOfVariation": 0
+  },
+  "showWitnessStats": {
+    "values": [
+      4688.960960999999
+    ],
+    "min": 4688.960960999999,
+    "median": 4688.960960999999,
+    "max": 4688.960960999999,
+    "mean": 4688.960960999999,
+    "variance": 0,
+    "standardDeviation": 0,
+    "coefficientOfVariation": 0
+  },
+  "prepareWitnessBytes": 75490060,
+  "showWitnessBytes": 40202444,
+  "processPeakRssBytes": 1451655168
+}

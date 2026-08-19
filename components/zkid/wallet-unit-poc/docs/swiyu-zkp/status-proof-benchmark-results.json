@@ -1,0 +1,65 @@
+{
+  "date": "2026-07-15",
+  "system": {
+    "os": "macOS 26.4",
+    "architecture": "arm64",
+    "proof_system": "Spartan2",
+    "build": "Rust release, no default features"
+  },
+  "scope": "isolated status-only component relations; not full SD-JWT proofs and not additive to the monolithic proof",
+  "fixture": {
+    "issued_entries": 256,
+    "revoked_entries": 4,
+    "revoked_indices": [3, 64, 191, 255],
+    "valid_query": 42
+  },
+  "public_context": "valid, epoch, snapshotRootHi, snapshotRootLo, saltedQueryHandleHi, saltedQueryHandleLo",
+  "profiles": [
+    {
+      "profile": "dense-fixed-index-status-v1",
+      "circuit": "swiyu_status_dense_17_bench",
+      "relation": "fixed depth-17 exact two-bit VALID membership",
+      "constraints": 1197925,
+      "wires": 1183745,
+      "public_values": 6,
+      "private_inputs": 579,
+      "r1cs_bytes": 295742696,
+      "witness_bytes": 37879916,
+      "witness_generation_ms": 3200,
+      "setup_ms": 5016,
+      "prove_ms": 1858,
+      "verify_ms": 186,
+      "proving_key_bytes": 352474314,
+      "verifying_key_bytes": 352474282,
+      "proof_bytes": 112095,
+      "public_context_bytes": 192,
+      "process_peak_rss_bytes": 3438018560,
+      "verified": true,
+      "tampered_public_root_rejected": true,
+      "tampered_public_query_handle_rejected": true
+    },
+    {
+      "profile": "sparse-valid-nonmembership-v1",
+      "circuit": "swiyu_status_sparse_64_bench",
+      "relation": "depth-64 canonical-empty valid nonmembership",
+      "constraints": 4083606,
+      "wires": 4035547,
+      "public_values": 6,
+      "private_inputs": 2082,
+      "r1cs_bytes": 1007882904,
+      "witness_bytes": 129137580,
+      "witness_generation_ms": 7964,
+      "setup_ms": 17733,
+      "prove_ms": 5932,
+      "verify_ms": 361,
+      "proving_key_bytes": 1130247762,
+      "verifying_key_bytes": 1130247730,
+      "proof_bytes": 180175,
+      "public_context_bytes": 192,
+      "process_peak_rss_bytes": 6829670400,
+      "verified": true,
+      "tampered_public_root_rejected": true,
+      "tampered_public_query_handle_rejected": true
+    }
+  ]
+}

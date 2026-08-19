@@ -44,9 +44,12 @@ if [ -d "$CIRCOM_BUILD" ]; then
     # Copy R1CS + WASM witness calculator for each named circuit. The SDK
     # picks the per-size jwt_{1k|2k|4k|8k}.wasm at runtime based on the
     # requested VcSize.
-    for name in jwt jwt_1k jwt_2k jwt_4k jwt_8k show mdoc; do
+    for name in jwt jwt_1k jwt_2k jwt_4k jwt_8k show mdoc swiyu_age18_status_2k; do
         src_dir="$CIRCOM_BUILD/$name/${name}_js"
-        if [ -f "$src_dir/$name.r1cs" ]; then
+        # The fixed swiyu setup is native and its browser prover consumes a
+        # pre-generated proving key plus `.wtns`; do not duplicate the ~GB
+        # R1CS in the SDK assets directory.
+        if [ "$name" != "swiyu_age18_status_2k" ] && [ -f "$src_dir/$name.r1cs" ]; then
             cp "$src_dir/$name.r1cs" "$ASSETS_DIR/$name.r1cs"
             echo "  Copied $name.r1cs"
         fi
@@ -75,6 +78,11 @@ if [ -d "$SPARTAN_KEYS" ]; then
             echo "  Bundled ${size}_show_verifying.key"
         fi
     done
+    # The measured fixed-profile Spartan keys are about 1.60 GB each. Keep
+    # them in the native provisioning directory and pass local-file references
+    # to the Node backend; copying them into the SDK would silently add another
+    # 3.2 GB and still would not make the browser WASM path practical.
+    echo "  Swiyu fixed-profile keys stay externally provisioned in $SPARTAN_KEYS"
 else
     echo "Warning: spartan2 keys dir not found at $SPARTAN_KEYS — show VKs not bundled."
 fi

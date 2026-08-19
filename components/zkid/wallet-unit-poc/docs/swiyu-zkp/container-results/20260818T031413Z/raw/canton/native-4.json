@@ -1,0 +1,172 @@
+{
+  "profile": "swiyu.canton-eligibility.prepare-show.v1",
+  "run_count": 1,
+  "repetition_rule": {
+    "first_two_principal_stage_variation_over_15_percent": false,
+    "required_runs": 1,
+    "satisfied": true
+  },
+  "timing_milliseconds": {
+    "prepare_setup_ms": {
+      "values": [
+        24146.648553
+      ],
+      "min": 24146.648553,
+      "median": 24146.648553,
+      "max": 24146.648553,
+      "mean": 24146.648553,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepare_assignment_ms": {
+      "values": [
+        5949.985753
+      ],
+      "min": 5949.985753,
+      "median": 5949.985753,
+      "max": 5949.985753,
+      "mean": 5949.985753,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepare_final_proof_ms": {
+      "values": [
+        4296.548127
+      ],
+      "min": 4296.548127,
+      "median": 4296.548127,
+      "max": 4296.548127,
+      "mean": 4296.548127,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepare_verify_ms": {
+      "values": [
+        680.56025
+      ],
+      "min": 680.56025,
+      "median": 680.56025,
+      "max": 680.56025,
+      "mean": 680.56025,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "show_setup_ms": {
+      "values": [
+        12415.665755999999
+      ],
+      "min": 12415.665755999999,
+      "median": 12415.665755999999,
+      "max": 12415.665755999999,
+      "mean": 12415.665755999999,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "show_assignment_ms": {
+      "values": [
+        2247.487585
+      ],
+      "min": 2247.487585,
+      "median": 2247.487585,
+      "max": 2247.487585,
+      "mean": 2247.487585,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "show_final_proof_ms": {
+      "values": [
+        1953.011375
+      ],
+      "min": 1953.011375,
+      "median": 1953.011375,
+      "max": 1953.011375,
+      "mean": 1953.011375,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "show_verify_ms": {
+      "values": [
+        303.96241699999996
+      ],
+      "min": 303.96241699999996,
+      "median": 303.96241699999996,
+      "max": 303.96241699999996,
+      "mean": 303.96241699999996,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "raw_runs": [
+    {
+      "profile": "swiyu.canton-eligibility.prepare-show.v1",
+      "generated_at_unix_seconds": 1787024169,
+      "prepare": {
+        "constraints": 2462518,
+        "wires": 2359062,
+        "r1cs_bytes": 518376940,
+        "wasm_bytes": 10194876,
+        "witness_bytes": 75490060,
+        "witness_handoff_ms": 99.633583,
+        "setup_ms": 24146.648553,
+        "key_serialization_ms": 225.256708,
+        "assignment_ms": 5949.985753,
+        "prepared_state_serialization_ms": 48.568124999999995,
+        "final_proof_ms": 4296.548127,
+        "proof_serialization_ms": 29.713292,
+        "proof_deserialization_ms": 90.371666,
+        "verify_ms": 680.56025,
+        "proving_key_bytes": 622868842,
+        "verifying_key_bytes": 622868810,
+        "final_proof_bytes": 180055,
+        "pre_reblind_instance_bytes": 135471,
+        "assignment_bytes": 134348817,
+        "public_input_count": 2,
+        "hidden_shared_value_count": 11,
+        "verified": true
+      },
+      "show": {
+        "constraints": 1271288,
+        "wires": 1256324,
+        "r1cs_bytes": 313437776,
+        "wasm_bytes": 5404260,
+        "witness_bytes": 40202444,
+        "witness_handoff_ms": 43.131958999999995,
+        "setup_ms": 12415.665755999999,
+        "key_serialization_ms": 142.549167,
+        "assignment_ms": 2247.487585,
+        "prepared_state_serialization_ms": 25.863541,
+        "final_proof_ms": 1953.011375,
+        "proof_serialization_ms": 13.823333,
+        "proof_deserialization_ms": 44.254917,
+        "verify_ms": 303.96241699999996,
+        "proving_key_bytes": 370512194,
+        "verifying_key_bytes": 370512162,
+        "final_proof_bytes": 112263,
+        "pre_reblind_instance_bytes": 68175,
+        "assignment_bytes": 67174417,
+        "public_input_count": 11,
+        "hidden_shared_value_count": 11,
+        "verified": true
+      },
+      "linkage": {
+        "linked_outputs_identical": true,
+        "pre_reblind_commitments_differ": true,
+        "reblinded_commitments_equal": true,
+        "link_randomness_ms": 0.017499999999999998,
+        "unlinked_show_assignment_ms": 1921.500168,
+        "unlinked_show_final_proof_ms": 1752.8789580000002,
+        "unlinked_show_verified": true,
+        "unlinked_commitment_rejected": true
+      },
+      "process_peak_rss_bytes": 4139307008
+    }
+  ]
+}

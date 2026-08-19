@@ -1,0 +1,400 @@
+{
+  "schema": "swiyu.zk-sdk-host-orchestration.v1",
+  "profile": "age",
+  "generatedAt": "2026-08-18T10:57:01.931Z",
+  "runtime": {
+    "node": "v22.14.0",
+    "platform": "linux",
+    "arch": "arm64"
+  },
+  "runs": 3,
+  "repetitionRule": {
+    "adaptive": true,
+    "thresholdRelativeToFirstTwoMean": 0.15,
+    "firstTwoPrincipalStageVariationOver15Percent": false,
+    "requiredRuns": 3,
+    "satisfied": true
+  },
+  "iterationsPerRun": 1000,
+  "warmupsPerWorker": 100,
+  "implementation": {
+    "kind": "age full wallet path plus exact-sized split-envelope framing",
+    "exactProfileAdapter": false
+  },
+  "boundary": {
+    "included": [
+      "SD-JWT parse and issuer verification",
+      "challenge/status validation and status Merkle-witness verification",
+      "public-context and circuit-input construction",
+      "holder P-256 signing and self-verification",
+      "SDK proof-envelope object construction",
+      "exact-sized two-proof base64url/JSON envelope framing",
+      "verifier public-context reconstruction with a fake proof verifier"
+    ],
+    "excluded": [
+      "Circom witness generation",
+      "Spartan assignment, proof, setup, proof serialization/deserialization, and verification",
+      "network and persistent storage I/O"
+    ],
+    "caveat": "age wallet.show uses a recording witness generator and binding fake proof backend; exact two-proof framing is measured separately"
+  },
+  "syntheticProofPairBytes": 257902,
+  "prepareProofBytes": 180055,
+  "showProofBytes": 77847,
+  "exactProofFramingIncludedInShow": false,
+  "rawRuns": [
+    {
+      "profile": "age",
+      "implementationProfile": "swiyu.age-over-18.status.v1",
+      "run": 1,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 5.396452795,
+          "cpuMsPerOperation": 5.586367,
+          "totalWallMs": 5396.452795,
+          "totalCpuMs": 5586.367
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 6.4832776690000005,
+          "cpuMsPerOperation": 6.684329,
+          "totalWallMs": 6483.277669,
+          "totalCpuMs": 6684.329
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 0.00304925,
+          "cpuMsPerOperation": 0.003059,
+          "totalWallMs": 3.04925,
+          "totalCpuMs": 3.059
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 2.626001751,
+          "cpuMsPerOperation": 2.7553919999999996,
+          "totalWallMs": 2626.001751,
+          "totalCpuMs": 2755.392
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 0.16814445900000002,
+          "cpuMsPerOperation": 0.20730500000000002,
+          "totalWallMs": 168.144459,
+          "totalCpuMs": 207.305
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 730,
+        "syntheticProofPairRawBytes": 257902,
+        "syntheticProofPairBase64urlBytes": 343870,
+        "syntheticProofPairFramedJsonBytes": 344211,
+        "transmittedEnvelopeJsonBytes": 344211
+      },
+      "processPeakRssBytes": 221413376,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "1",
+        "--iterations",
+        "1000",
+        "--profile",
+        "age",
+        "--proof-pair-bytes",
+        "257902",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "77847"
+      ],
+      "startedAt": "2026-08-18T10:55:54.422Z",
+      "endedAt": "2026-08-18T10:56:17.721Z"
+    },
+    {
+      "profile": "age",
+      "implementationProfile": "swiyu.age-over-18.status.v1",
+      "run": 2,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 6.053190668999999,
+          "cpuMsPerOperation": 6.334102,
+          "totalWallMs": 6053.190669,
+          "totalCpuMs": 6334.102
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 6.159526003,
+          "cpuMsPerOperation": 6.492853,
+          "totalWallMs": 6159.526003,
+          "totalCpuMs": 6492.853
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 0.002661958,
+          "cpuMsPerOperation": 0.0026720000000000003,
+          "totalWallMs": 2.661958,
+          "totalCpuMs": 2.672
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 2.507303168,
+          "cpuMsPerOperation": 2.511897,
+          "totalWallMs": 2507.303168,
+          "totalCpuMs": 2511.897
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 0.158886083,
+          "cpuMsPerOperation": 0.192276,
+          "totalWallMs": 158.886083,
+          "totalCpuMs": 192.276
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 730,
+        "syntheticProofPairRawBytes": 257902,
+        "syntheticProofPairBase64urlBytes": 343870,
+        "syntheticProofPairFramedJsonBytes": 344211,
+        "transmittedEnvelopeJsonBytes": 344211
+      },
+      "processPeakRssBytes": 214048768,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "2",
+        "--iterations",
+        "1000",
+        "--profile",
+        "age",
+        "--proof-pair-bytes",
+        "257902",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "77847"
+      ],
+      "startedAt": "2026-08-18T10:56:17.721Z",
+      "endedAt": "2026-08-18T10:56:40.141Z"
+    },
+    {
+      "profile": "age",
+      "implementationProfile": "swiyu.age-over-18.status.v1",
+      "run": 3,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 5.216619378000001,
+          "cpuMsPerOperation": 5.415045,
+          "totalWallMs": 5216.619378,
+          "totalCpuMs": 5415.045
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 7.125966086,
+          "cpuMsPerOperation": 7.489497999999999,
+          "totalWallMs": 7125.966086,
+          "totalCpuMs": 7489.498
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 0.002539167,
+          "cpuMsPerOperation": 0.002552,
+          "totalWallMs": 2.539167,
+          "totalCpuMs": 2.552
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 2.488901126,
+          "cpuMsPerOperation": 2.493396,
+          "totalWallMs": 2488.901126,
+          "totalCpuMs": 2493.396
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 0.16471562499999998,
+          "cpuMsPerOperation": 0.200465,
+          "totalWallMs": 164.715625,
+          "totalCpuMs": 200.465
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 730,
+        "syntheticProofPairRawBytes": 257902,
+        "syntheticProofPairBase64urlBytes": 343870,
+        "syntheticProofPairFramedJsonBytes": 344211,
+        "transmittedEnvelopeJsonBytes": 344211
+      },
+      "processPeakRssBytes": 212144128,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "3",
+        "--iterations",
+        "1000",
+        "--profile",
+        "age",
+        "--proof-pair-bytes",
+        "257902",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "77847"
+      ],
+      "startedAt": "2026-08-18T10:56:40.141Z",
+      "endedAt": "2026-08-18T10:57:01.930Z"
+    }
+  ],
+  "summary": {
+    "perCredentialPrepareSdk": {
+      "wallMs": {
+        "samples": [
+          5.396452795,
+          6.053190668999999,
+          5.216619378000001
+        ],
+        "min": 5.216619378000001,
+        "median": 5.396452795,
+        "max": 6.053190668999999,
+        "mean": 5.555420947333334,
+        "variance": 0.19391603632355642,
+        "standardDeviation": 0.4403589857418109,
+        "coefficientOfVariation": 0.0792665380205236
+      },
+      "cpuMs": {
+        "samples": [
+          5.586367,
+          6.334102,
+          5.415045
+        ],
+        "min": 5.415045,
+        "median": 5.586367,
+        "max": 6.334102,
+        "mean": 5.778504666666667,
+        "variance": 0.2388541045263331,
+        "standardDeviation": 0.4887270245508561,
+        "coefficientOfVariation": 0.08457672923067458
+      }
+    },
+    "perPresentationShowSdkWithFakeBoundaries": {
+      "wallMs": {
+        "samples": [
+          6.4832776690000005,
+          6.159526003,
+          7.125966086
+        ],
+        "min": 6.159526003,
+        "median": 6.4832776690000005,
+        "max": 7.125966086,
+        "mean": 6.589589919333332,
+        "variance": 0.24197832943546477,
+        "standardDeviation": 0.49191292871347136,
+        "coefficientOfVariation": 0.07465000625763342
+      },
+      "cpuMs": {
+        "samples": [
+          6.684329,
+          6.492853,
+          7.489497999999999
+        ],
+        "min": 6.492853,
+        "median": 6.684329,
+        "max": 7.489497999999999,
+        "mean": 6.888893333333333,
+        "variance": 0.27971023886033286,
+        "standardDeviation": 0.528876392799237,
+        "coefficientOfVariation": 0.07677233006935373
+      }
+    },
+    "perPresentationEnvelopeObjectJson": {
+      "wallMs": {
+        "samples": [
+          0.00304925,
+          0.002661958,
+          0.002539167
+        ],
+        "min": 0.002539167,
+        "median": 0.002661958,
+        "max": 0.00304925,
+        "mean": 0.0027501250000000004,
+        "variance": 7.087623163899994e-8,
+        "standardDeviation": 0.00026622590339596923,
+        "coefficientOfVariation": 0.09680501918857114
+      },
+      "cpuMs": {
+        "samples": [
+          0.003059,
+          0.0026720000000000003,
+          0.002552
+        ],
+        "min": 0.002552,
+        "median": 0.0026720000000000003,
+        "max": 0.003059,
+        "mean": 0.002761,
+        "variance": 7.0203e-8,
+        "standardDeviation": 0.00026495848731452254,
+        "coefficientOfVariation": 0.09596468211319178
+      }
+    },
+    "exactSizedProofPairFraming": {
+      "wallMs": {
+        "samples": [
+          2.626001751,
+          2.507303168,
+          2.488901126
+        ],
+        "min": 2.488901126,
+        "median": 2.507303168,
+        "max": 2.626001751,
+        "mean": 2.5407353483333335,
+        "variance": 0.005537428355228046,
+        "standardDeviation": 0.07441389893849164,
+        "coefficientOfVariation": 0.029288331422359877
+      },
+      "cpuMs": {
+        "samples": [
+          2.7553919999999996,
+          2.511897,
+          2.493396
+        ],
+        "min": 2.493396,
+        "median": 2.511897,
+        "max": 2.7553919999999996,
+        "mean": 2.586895,
+        "variance": 0.021379001006999934,
+        "standardDeviation": 0.14621559768711384,
+        "coefficientOfVariation": 0.05652165924288146
+      }
+    },
+    "perPresentationVerifierSdkWithFakeBoundary": {
+      "wallMs": {
+        "samples": [
+          0.16814445900000002,
+          0.158886083,
+          0.16471562499999998
+        ],
+        "min": 0.158886083,
+        "median": 0.16471562499999998,
+        "max": 0.16814445900000002,
+        "mean": 0.163915389,
+        "variance": 0.000021909664781116026,
+        "standardDeviation": 0.004680776087479087,
+        "coefficientOfVariation": 0.02855605026492715
+      },
+      "cpuMs": {
+        "samples": [
+          0.20730500000000002,
+          0.192276,
+          0.200465
+        ],
+        "min": 0.192276,
+        "median": 0.200465,
+        "max": 0.20730500000000002,
+        "mean": 0.20001533333333335,
+        "variance": 0.00005661936033333344,
+        "standardDeviation": 0.007524583731565052,
+        "coefficientOfVariation": 0.03762003445518369
+      }
+    }
+  }
+}

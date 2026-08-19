@@ -1,0 +1,1355 @@
+{
+  "schema": "swiyu.no-zk-sd-jwt-control-benchmark.v3",
+  "profile": "authoritative-residence-exact",
+  "generatedAt": "2026-08-18T10:55:30.407Z",
+  "runtime": {
+    "node": "v22.14.0",
+    "platform": "linux",
+    "arch": "arm64"
+  },
+  "semantics": {
+    "predicate": "accepted authoritative residence credential; hidden-profile policy is approved jurisdiction plus minimum residence duration",
+    "authoritativeLookup": {
+      "issuer": "did:example:issuer",
+      "kid": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+      "vct": "urn:ch:swiyu-lab:residence-eligibility:v1"
+    },
+    "holderBinding": "ES256 kb+jwt binds nonce, audience, sd_hash, and, for scoped-nullifier, its canonical scope and nullifier",
+    "status": "pre-authenticated packed two-bit status bytes bound to URI https://status.example.ch/lists/2026-07 and index 42; network fetch, JWT authentication, decompression, and DID resolution are outside both timed paths",
+    "privacyDifference": "Exact-policy SD-JWT control: the combined residence disclosure reveals municipality_bfs and since so the verifier can evaluate the same policy; ZK authenticates that same object but hides both fields."
+  },
+  "policy": {
+    "controlKind": "verifier-evaluated-exact-policy",
+    "policyId": "ch.residence-benefit.eligibility",
+    "policyVersion": "2025-01-01",
+    "municipalityDirectoryAsOf": "2025-01-01",
+    "municipalityDirectorySha256": "2a510d6f7de86e40a8d584daba5985422728317619f1e9225bf3c3e28c40905c",
+    "allowedMunicipalityBfsCodes": [
+      261,
+      351
+    ],
+    "maximumAllowedMunicipalities": 16,
+    "minimumResidenceDays": 365,
+    "currentEpochDay": 20254,
+    "statusRequired": "VALID (00)"
+  },
+  "iterationsPerRun": 1000,
+  "coldIterationsPerRun": 1,
+  "repetitionRule": {
+    "adaptive": true,
+    "thresholdRelativeToFirstTwoMean": 0.15,
+    "principalStages": [
+      "cold.oneTimeTrustMaterialSetup",
+      "cold.perCredentialReusableWalletPreparation",
+      "cold.perPresentationWallet",
+      "cold.perPresentationVerifierStateless",
+      "cold.perPresentationEndToEndWithUncachedCredentialValidation",
+      "steadyState.oneTimeTrustMaterialSetup",
+      "steadyState.perCredentialReusableWalletPreparation",
+      "steadyState.perPresentationWallet",
+      "steadyState.perPresentationVerifierStateless",
+      "steadyState.perPresentationEndToEndWithUncachedCredentialValidation"
+    ],
+    "firstTwoPrincipalStageVariationOver15Percent": true,
+    "requiredRuns": 7,
+    "satisfied": true
+  },
+  "rawRuns": [
+    {
+      "profile": "authoritative-residence-exact",
+      "run": 1,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.556917,
+          "cpuMsPerOperation": 0.583,
+          "totalWallMs": 0.556917,
+          "totalCpuMs": 0.583
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 11.571333,
+          "cpuMsPerOperation": 12.233,
+          "totalWallMs": 11.571333,
+          "totalCpuMs": 12.233
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 6.163208,
+          "cpuMsPerOperation": 10.761,
+          "totalWallMs": 6.163208,
+          "totalCpuMs": 10.761
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 17.979958,
+          "cpuMsPerOperation": 21.287,
+          "totalWallMs": 17.979958,
+          "totalCpuMs": 21.287
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 17.979958,
+          "cpuMsPerOperation": 21.287,
+          "totalWallMs": 17.979958,
+          "totalCpuMs": 21.287
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 24.284584,
+          "cpuMsPerOperation": 24.712,
+          "totalWallMs": 24.284584,
+          "totalCpuMs": 24.712
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009389709,
+          "cpuMsPerOperation": 0.022077000000000003,
+          "totalWallMs": 9.389709,
+          "totalCpuMs": 22.077
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 5.338638585,
+          "cpuMsPerOperation": 5.414236,
+          "totalWallMs": 5338.638585,
+          "totalCpuMs": 5414.236
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.780755125,
+          "cpuMsPerOperation": 0.86538,
+          "totalWallMs": 780.755125,
+          "totalCpuMs": 865.38
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 10.030234504,
+          "cpuMsPerOperation": 10.204658,
+          "totalWallMs": 10030.234504,
+          "totalCpuMs": 10204.658
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 10.030234504,
+          "cpuMsPerOperation": 10.204658,
+          "totalWallMs": 10030.234504,
+          "totalCpuMs": 10204.658
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.753291423,
+          "cpuMsPerOperation": 14.911831,
+          "totalWallMs": 14753.291423,
+          "totalCpuMs": 14911.831
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1019,
+        "preparedCredentialStorageBytes": 1446,
+        "transmittedPresentationBytes": 1339,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0,
+        "exactCombinedDisclosureGrammarRejects": {
+          "duplicateObjectKey": true,
+          "nonCanonicalSalt": true,
+          "malformedTuple": true,
+          "reversedObjectKeys": true
+        }
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+        "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+        "disclosureSha256": [
+          "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 138301440
+    },
+    {
+      "profile": "authoritative-residence-exact",
+      "run": 2,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.766083,
+          "cpuMsPerOperation": 0.799,
+          "totalWallMs": 0.766083,
+          "totalCpuMs": 0.799
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 8.083834,
+          "cpuMsPerOperation": 8.801,
+          "totalWallMs": 8.083834,
+          "totalCpuMs": 8.801
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 4.19825,
+          "cpuMsPerOperation": 6.523,
+          "totalWallMs": 4.19825,
+          "totalCpuMs": 6.523
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 12.301333,
+          "cpuMsPerOperation": 16.201,
+          "totalWallMs": 12.301333,
+          "totalCpuMs": 16.201
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 12.301333,
+          "cpuMsPerOperation": 16.201,
+          "totalWallMs": 12.301333,
+          "totalCpuMs": 16.201
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 16.405166,
+          "cpuMsPerOperation": 16.673,
+          "totalWallMs": 16.405166,
+          "totalCpuMs": 16.673
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.008260541,
+          "cpuMsPerOperation": 0.019904,
+          "totalWallMs": 8.260541,
+          "totalCpuMs": 19.904
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 5.259234752999999,
+          "cpuMsPerOperation": 5.3171610000000005,
+          "totalWallMs": 5259.234753,
+          "totalCpuMs": 5317.161
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.6223903340000001,
+          "cpuMsPerOperation": 0.6856380000000001,
+          "totalWallMs": 622.390334,
+          "totalCpuMs": 685.638
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.645645962,
+          "cpuMsPerOperation": 9.817844,
+          "totalWallMs": 9645.645962,
+          "totalCpuMs": 9817.844
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.645645962,
+          "cpuMsPerOperation": 9.817844,
+          "totalWallMs": 9645.645962,
+          "totalCpuMs": 9817.844
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.480910715,
+          "cpuMsPerOperation": 14.639351000000001,
+          "totalWallMs": 14480.910715,
+          "totalCpuMs": 14639.351
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1019,
+        "preparedCredentialStorageBytes": 1446,
+        "transmittedPresentationBytes": 1339,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0,
+        "exactCombinedDisclosureGrammarRejects": {
+          "duplicateObjectKey": true,
+          "nonCanonicalSalt": true,
+          "malformedTuple": true,
+          "reversedObjectKeys": true
+        }
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+        "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+        "disclosureSha256": [
+          "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140705792
+    },
+    {
+      "profile": "authoritative-residence-exact",
+      "run": 3,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.559125,
+          "cpuMsPerOperation": 0.587,
+          "totalWallMs": 0.559125,
+          "totalCpuMs": 0.587
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 20.820291,
+          "cpuMsPerOperation": 24.787,
+          "totalWallMs": 20.820291,
+          "totalCpuMs": 24.787
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 5.533125,
+          "cpuMsPerOperation": 9.722,
+          "totalWallMs": 5.533125,
+          "totalCpuMs": 9.722
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 16.887542,
+          "cpuMsPerOperation": 20.866,
+          "totalWallMs": 16.887542,
+          "totalCpuMs": 20.866
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 16.887542,
+          "cpuMsPerOperation": 20.866,
+          "totalWallMs": 16.887542,
+          "totalCpuMs": 20.866
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 24.301625,
+          "cpuMsPerOperation": 24.919,
+          "totalWallMs": 24.301625,
+          "totalCpuMs": 24.919
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009559374999999998,
+          "cpuMsPerOperation": 0.022711,
+          "totalWallMs": 9.559375,
+          "totalCpuMs": 22.711
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.662931418,
+          "cpuMsPerOperation": 4.724381,
+          "totalWallMs": 4662.931418,
+          "totalCpuMs": 4724.381
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.608107666,
+          "cpuMsPerOperation": 0.6678529999999999,
+          "totalWallMs": 608.107666,
+          "totalCpuMs": 667.853
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.193298004,
+          "cpuMsPerOperation": 9.354989999999999,
+          "totalWallMs": 9193.298004,
+          "totalCpuMs": 9354.99
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.193298004,
+          "cpuMsPerOperation": 9.354989999999999,
+          "totalWallMs": 9193.298004,
+          "totalCpuMs": 9354.99
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.275149256,
+          "cpuMsPerOperation": 14.433364,
+          "totalWallMs": 14275.149256,
+          "totalCpuMs": 14433.364
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1019,
+        "preparedCredentialStorageBytes": 1446,
+        "transmittedPresentationBytes": 1339,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0,
+        "exactCombinedDisclosureGrammarRejects": {
+          "duplicateObjectKey": true,
+          "nonCanonicalSalt": true,
+          "malformedTuple": true,
+          "reversedObjectKeys": true
+        }
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+        "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+        "disclosureSha256": [
+          "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140574720
+    },
+    {
+      "profile": "authoritative-residence-exact",
+      "run": 4,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.595875,
+          "cpuMsPerOperation": 0.645,
+          "totalWallMs": 0.595875,
+          "totalCpuMs": 0.645
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 12.06825,
+          "cpuMsPerOperation": 13.057,
+          "totalWallMs": 12.06825,
+          "totalCpuMs": 13.057
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 6.579625,
+          "cpuMsPerOperation": 11.221,
+          "totalWallMs": 6.579625,
+          "totalCpuMs": 11.221
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 22.67675,
+          "cpuMsPerOperation": 29.151,
+          "totalWallMs": 22.67675,
+          "totalCpuMs": 29.151
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 22.67675,
+          "cpuMsPerOperation": 29.151,
+          "totalWallMs": 22.67675,
+          "totalCpuMs": 29.151
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 27.380834,
+          "cpuMsPerOperation": 27.803,
+          "totalWallMs": 27.380834,
+          "totalCpuMs": 27.803
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.011634916,
+          "cpuMsPerOperation": 0.025561,
+          "totalWallMs": 11.634916,
+          "totalCpuMs": 25.561
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 6.021487378,
+          "cpuMsPerOperation": 6.024558,
+          "totalWallMs": 6021.487378,
+          "totalCpuMs": 6024.558
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.6141587909999999,
+          "cpuMsPerOperation": 0.674943,
+          "totalWallMs": 614.158791,
+          "totalCpuMs": 674.943
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.021387004000001,
+          "cpuMsPerOperation": 9.169169,
+          "totalWallMs": 9021.387004,
+          "totalCpuMs": 9169.169
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.021387004000001,
+          "cpuMsPerOperation": 9.169169,
+          "totalWallMs": 9021.387004,
+          "totalCpuMs": 9169.169
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.438055757,
+          "cpuMsPerOperation": 14.603399999999999,
+          "totalWallMs": 14438.055757,
+          "totalCpuMs": 14603.4
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1019,
+        "preparedCredentialStorageBytes": 1446,
+        "transmittedPresentationBytes": 1339,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0,
+        "exactCombinedDisclosureGrammarRejects": {
+          "duplicateObjectKey": true,
+          "nonCanonicalSalt": true,
+          "malformedTuple": true,
+          "reversedObjectKeys": true
+        }
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+        "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+        "disclosureSha256": [
+          "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140562432
+    },
+    {
+      "profile": "authoritative-residence-exact",
+      "run": 5,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.447209,
+          "cpuMsPerOperation": 0.468,
+          "totalWallMs": 0.447209,
+          "totalCpuMs": 0.468
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 9.674625,
+          "cpuMsPerOperation": 10.399,
+          "totalWallMs": 9.674625,
+          "totalCpuMs": 10.399
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 4.4135,
+          "cpuMsPerOperation": 7.198,
+          "totalWallMs": 4.4135,
+          "totalCpuMs": 7.198
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 13.40875,
+          "cpuMsPerOperation": 16.951,
+          "totalWallMs": 13.40875,
+          "totalCpuMs": 16.951
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 13.40875,
+          "cpuMsPerOperation": 16.951,
+          "totalWallMs": 13.40875,
+          "totalCpuMs": 16.951
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 17.19675,
+          "cpuMsPerOperation": 17.484,
+          "totalWallMs": 17.19675,
+          "totalCpuMs": 17.484
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009682083000000001,
+          "cpuMsPerOperation": 0.02243,
+          "totalWallMs": 9.682083,
+          "totalCpuMs": 22.43
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.743504709,
+          "cpuMsPerOperation": 4.80057,
+          "totalWallMs": 4743.504709,
+          "totalCpuMs": 4800.57
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.617949167,
+          "cpuMsPerOperation": 0.680242,
+          "totalWallMs": 617.949167,
+          "totalCpuMs": 680.242
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.067700713,
+          "cpuMsPerOperation": 9.218561,
+          "totalWallMs": 9067.700713,
+          "totalCpuMs": 9218.561
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.067700713,
+          "cpuMsPerOperation": 9.218561,
+          "totalWallMs": 9067.700713,
+          "totalCpuMs": 9218.561
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.219000340000001,
+          "cpuMsPerOperation": 14.374818,
+          "totalWallMs": 14219.00034,
+          "totalCpuMs": 14374.818
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1019,
+        "preparedCredentialStorageBytes": 1446,
+        "transmittedPresentationBytes": 1339,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0,
+        "exactCombinedDisclosureGrammarRejects": {
+          "duplicateObjectKey": true,
+          "nonCanonicalSalt": true,
+          "malformedTuple": true,
+          "reversedObjectKeys": true
+        }
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+        "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+        "disclosureSha256": [
+          "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140607488
+    },
+    {
+      "profile": "authoritative-residence-exact",
+      "run": 6,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.431584,
+          "cpuMsPerOperation": 0.451,
+          "totalWallMs": 0.431584,
+          "totalCpuMs": 0.451
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 10.441167,
+          "cpuMsPerOperation": 11.089,
+          "totalWallMs": 10.441167,
+          "totalCpuMs": 11.089
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 4.452459,
+          "cpuMsPerOperation": 7.142,
+          "totalWallMs": 4.452459,
+          "totalCpuMs": 7.142
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 12.473958,
+          "cpuMsPerOperation": 16.036,
+          "totalWallMs": 12.473958,
+          "totalCpuMs": 16.036
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 12.473958,
+          "cpuMsPerOperation": 16.036,
+          "totalWallMs": 12.473958,
+          "totalCpuMs": 16.036
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 15.564584,
+          "cpuMsPerOperation": 15.824,
+          "totalWallMs": 15.564584,
+          "totalCpuMs": 15.824
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009657375,
+          "cpuMsPerOperation": 0.022617,
+          "totalWallMs": 9.657375,
+          "totalCpuMs": 22.617
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.813921377,
+          "cpuMsPerOperation": 4.879073,
+          "totalWallMs": 4813.921377,
+          "totalCpuMs": 4879.073
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.643404709,
+          "cpuMsPerOperation": 0.7062999999999999,
+          "totalWallMs": 643.404709,
+          "totalCpuMs": 706.3
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.577763212,
+          "cpuMsPerOperation": 9.751919,
+          "totalWallMs": 9577.763212,
+          "totalCpuMs": 9751.919
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.577763212,
+          "cpuMsPerOperation": 9.751919,
+          "totalWallMs": 9577.763212,
+          "totalCpuMs": 9751.919
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 15.753790091,
+          "cpuMsPerOperation": 15.935356,
+          "totalWallMs": 15753.790091,
+          "totalCpuMs": 15935.356
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1019,
+        "preparedCredentialStorageBytes": 1446,
+        "transmittedPresentationBytes": 1339,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0,
+        "exactCombinedDisclosureGrammarRejects": {
+          "duplicateObjectKey": true,
+          "nonCanonicalSalt": true,
+          "malformedTuple": true,
+          "reversedObjectKeys": true
+        }
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+        "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+        "disclosureSha256": [
+          "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140656640
+    },
+    {
+      "profile": "authoritative-residence-exact",
+      "run": 7,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.541542,
+          "cpuMsPerOperation": 0.565,
+          "totalWallMs": 0.541542,
+          "totalCpuMs": 0.565
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 9.745333,
+          "cpuMsPerOperation": 10.502,
+          "totalWallMs": 9.745333,
+          "totalCpuMs": 10.502
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 5.124875,
+          "cpuMsPerOperation": 8.316,
+          "totalWallMs": 5.124875,
+          "totalCpuMs": 8.316
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 15.901375,
+          "cpuMsPerOperation": 19.491,
+          "totalWallMs": 15.901375,
+          "totalCpuMs": 19.491
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 15.901375,
+          "cpuMsPerOperation": 19.491,
+          "totalWallMs": 15.901375,
+          "totalCpuMs": 19.491
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 22.966542,
+          "cpuMsPerOperation": 23.429,
+          "totalWallMs": 22.966542,
+          "totalCpuMs": 23.429
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009659958,
+          "cpuMsPerOperation": 0.022285,
+          "totalWallMs": 9.659958,
+          "totalCpuMs": 22.285
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.728462835,
+          "cpuMsPerOperation": 4.793247999999999,
+          "totalWallMs": 4728.462835,
+          "totalCpuMs": 4793.248
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.6168920419999999,
+          "cpuMsPerOperation": 0.675751,
+          "totalWallMs": 616.892042,
+          "totalCpuMs": 675.751
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.091085046,
+          "cpuMsPerOperation": 9.250950999999999,
+          "totalWallMs": 9091.085046,
+          "totalCpuMs": 9250.951
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.091085046,
+          "cpuMsPerOperation": 9.250950999999999,
+          "totalWallMs": 9091.085046,
+          "totalCpuMs": 9250.951
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.97625984,
+          "cpuMsPerOperation": 15.160025,
+          "totalWallMs": 14976.25984,
+          "totalCpuMs": 15160.025
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1019,
+        "preparedCredentialStorageBytes": 1446,
+        "transmittedPresentationBytes": 1339,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0,
+        "exactCombinedDisclosureGrammarRejects": {
+          "duplicateObjectKey": true,
+          "nonCanonicalSalt": true,
+          "malformedTuple": true,
+          "reversedObjectKeys": true
+        }
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+        "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+        "disclosureSha256": [
+          "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 132128768
+    }
+  ],
+  "coldSummary": {
+    "oneTimeTrustMaterialSetup": {
+      "wallMs": {
+        "min": 0.431584,
+        "median": 0.556917,
+        "max": 0.766083,
+        "mean": 0.5569049999999999,
+        "variance": 0.012208935392333328,
+        "standardDeviation": 0.11049405138890206,
+        "coefficientOfVariation": 0.19840736102010592,
+        "medianAbsoluteDeviation": 0.03895800000000005,
+        "raw": [
+          0.556917,
+          0.766083,
+          0.559125,
+          0.595875,
+          0.447209,
+          0.431584,
+          0.541542
+        ]
+      },
+      "cpuMs": {
+        "min": 0.451,
+        "median": 0.583,
+        "max": 0.799,
+        "mean": 0.5854285714285714,
+        "variance": 0.013574619047619049,
+        "standardDeviation": 0.1165101671426964,
+        "coefficientOfVariation": 0.19901687896507436,
+        "medianAbsoluteDeviation": 0.062000000000000055,
+        "raw": [
+          0.583,
+          0.799,
+          0.587,
+          0.645,
+          0.468,
+          0.451,
+          0.565
+        ]
+      }
+    },
+    "perCredentialReusableWalletPreparation": {
+      "wallMs": {
+        "min": 8.083834,
+        "median": 10.441167,
+        "max": 20.820291,
+        "mean": 11.772119000000002,
+        "variance": 17.64660786098367,
+        "standardDeviation": 4.200786576462041,
+        "coefficientOfVariation": 0.356842007497719,
+        "medianAbsoluteDeviation": 1.1301659999999991,
+        "raw": [
+          11.571333,
+          8.083834,
+          20.820291,
+          12.06825,
+          9.674625,
+          10.441167,
+          9.745333
+        ]
+      },
+      "cpuMs": {
+        "min": 8.801,
+        "median": 11.089,
+        "max": 24.787,
+        "mean": 12.981142857142856,
+        "variance": 28.968524142857138,
+        "standardDeviation": 5.382241553744791,
+        "coefficientOfVariation": 0.41462000788191156,
+        "medianAbsoluteDeviation": 1.1440000000000001,
+        "raw": [
+          12.233,
+          8.801,
+          24.787,
+          13.057,
+          10.399,
+          11.089,
+          10.502
+        ]
+      }
+    },
+    "perPresentationWallet": {
+      "wallMs": {
+        "min": 4.19825,
+        "median": 5.124875,
+        "max": 6.579625,
+        "mean": 5.209291714285714,
+        "variance": 0.8546748884399049,
+        "standardDeviation": 0.9244862835325924,
+        "coefficientOfVariation": 0.17746871057294128,
+        "medianAbsoluteDeviation": 0.7113750000000003,
+        "raw": [
+          6.163208,
+          4.19825,
+          5.533125,
+          6.579625,
+          4.4135,
+          4.452459,
+          5.124875
+        ]
+      },
+      "cpuMs": {
+        "min": 6.523,
+        "median": 8.316,
+        "max": 11.221,
+        "mean": 8.69757142857143,
+        "variance": 3.536292952380952,
+        "standardDeviation": 1.8805033773915303,
+        "coefficientOfVariation": 0.21621016772729185,
+        "medianAbsoluteDeviation": 1.4059999999999988,
+        "raw": [
+          10.761,
+          6.523,
+          9.722,
+          11.221,
+          7.198,
+          7.142,
+          8.316
+        ]
+      }
+    },
+    "perPresentationVerifierStateless": {
+      "wallMs": {
+        "min": 12.301333,
+        "median": 15.901375,
+        "max": 22.67675,
+        "mean": 15.947095142857142,
+        "variance": 13.684129299073474,
+        "standardDeviation": 3.6992065769666707,
+        "coefficientOfVariation": 0.23196742377395177,
+        "medianAbsoluteDeviation": 2.4926250000000003,
+        "raw": [
+          17.979958,
+          12.301333,
+          16.887542,
+          22.67675,
+          13.40875,
+          12.473958,
+          15.901375
+        ]
+      },
+      "cpuMs": {
+        "min": 16.036,
+        "median": 19.491,
+        "max": 29.151,
+        "mean": 19.99757142857143,
+        "variance": 20.974710619047617,
+        "standardDeviation": 4.5798155660515,
+        "coefficientOfVariation": 0.2290185877025103,
+        "medianAbsoluteDeviation": 2.539999999999999,
+        "raw": [
+          21.287,
+          16.201,
+          20.866,
+          29.151,
+          16.951,
+          16.036,
+          19.491
+        ]
+      }
+    },
+    "perPresentationEndToEndWithUncachedCredentialValidation": {
+      "wallMs": {
+        "min": 15.564584,
+        "median": 22.966542,
+        "max": 27.380834,
+        "mean": 21.157155,
+        "variance": 21.869937158656327,
+        "standardDeviation": 4.676530461641015,
+        "coefficientOfVariation": 0.2210377747689146,
+        "medianAbsoluteDeviation": 4.414292,
+        "raw": [
+          24.284584,
+          16.405166,
+          24.301625,
+          27.380834,
+          17.19675,
+          15.564584,
+          22.966542
+        ]
+      },
+      "cpuMs": {
+        "min": 15.824,
+        "median": 23.429,
+        "max": 27.803,
+        "mean": 21.549142857142858,
+        "variance": 22.84726847619048,
+        "standardDeviation": 4.779881638303451,
+        "coefficientOfVariation": 0.22181307488613503,
+        "medianAbsoluteDeviation": 4.374000000000002,
+        "raw": [
+          24.712,
+          16.673,
+          24.919,
+          27.803,
+          17.484,
+          15.824,
+          23.429
+        ]
+      }
+    },
+    "perPresentationVerifier": {
+      "wallMs": {
+        "min": 12.301333,
+        "median": 15.901375,
+        "max": 22.67675,
+        "mean": 15.947095142857142,
+        "variance": 13.684129299073474,
+        "standardDeviation": 3.6992065769666707,
+        "coefficientOfVariation": 0.23196742377395177,
+        "medianAbsoluteDeviation": 2.4926250000000003,
+        "raw": [
+          17.979958,
+          12.301333,
+          16.887542,
+          22.67675,
+          13.40875,
+          12.473958,
+          15.901375
+        ]
+      },
+      "cpuMs": {
+        "min": 16.036,
+        "median": 19.491,
+        "max": 29.151,
+        "mean": 19.99757142857143,
+        "variance": 20.974710619047617,
+        "standardDeviation": 4.5798155660515,
+        "coefficientOfVariation": 0.2290185877025103,
+        "medianAbsoluteDeviation": 2.539999999999999,
+        "raw": [
+          21.287,
+          16.201,
+          20.866,
+          29.151,
+          16.951,
+          16.036,
+          19.491
+        ]
+      }
+    }
+  },
+  "summary": {
+    "oneTimeTrustMaterialSetup": {
+      "wallMs": {
+        "min": 0.008260541,
+        "median": 0.009657375,
+        "max": 0.011634916,
+        "mean": 0.009691993857142856,
+        "variance": 9.892151030094769e-7,
+        "standardDeviation": 0.0009945929333196957,
+        "coefficientOfVariation": 0.10262005403425792,
+        "medianAbsoluteDeviation": 0.00009800000000000086,
+        "raw": [
+          0.009389709,
+          0.008260541,
+          0.009559374999999998,
+          0.011634916,
+          0.009682083000000001,
+          0.009657375,
+          0.009659958
+        ]
+      },
+      "cpuMs": {
+        "min": 0.019904,
+        "median": 0.02243,
+        "max": 0.025561,
+        "mean": 0.02251214285714286,
+        "variance": 0.000002732694809523808,
+        "standardDeviation": 0.0016530864495009957,
+        "coefficientOfVariation": 0.07343087950316952,
+        "medianAbsoluteDeviation": 0.000281,
+        "raw": [
+          0.022077000000000003,
+          0.019904,
+          0.022711,
+          0.025561,
+          0.02243,
+          0.022617,
+          0.022285
+        ]
+      }
+    },
+    "perCredentialReusableWalletPreparation": {
+      "wallMs": {
+        "min": 4.662931418,
+        "median": 4.813921377,
+        "max": 6.021487378,
+        "mean": 5.0811687221428565,
+        "variance": 0.24449323847290594,
+        "standardDeviation": 0.49446257540172434,
+        "coefficientOfVariation": 0.09731276453130591,
+        "medianAbsoluteDeviation": 0.15098995899999945,
+        "raw": [
+          5.338638585,
+          5.259234752999999,
+          4.662931418,
+          6.021487378,
+          4.743504709,
+          4.813921377,
+          4.728462835
+        ]
+      },
+      "cpuMs": {
+        "min": 4.724381,
+        "median": 4.879073,
+        "max": 6.024558,
+        "mean": 5.136175285714286,
+        "variance": 0.22753393113323817,
+        "standardDeviation": 0.47700516887475986,
+        "coefficientOfVariation": 0.09287166857437634,
+        "medianAbsoluteDeviation": 0.15469199999999983,
+        "raw": [
+          5.414236,
+          5.3171610000000005,
+          4.724381,
+          6.024558,
+          4.80057,
+          4.879073,
+          4.793247999999999
+        ]
+      }
+    },
+    "perPresentationWallet": {
+      "wallMs": {
+        "min": 0.608107666,
+        "median": 0.617949167,
+        "max": 0.780755125,
+        "mean": 0.6433796905714286,
+        "variance": 0.0037931412407890886,
+        "standardDeviation": 0.06158848302068406,
+        "coefficientOfVariation": 0.09572649544778636,
+        "medianAbsoluteDeviation": 0.004441167000000079,
+        "raw": [
+          0.780755125,
+          0.6223903340000001,
+          0.608107666,
+          0.6141587909999999,
+          0.617949167,
+          0.643404709,
+          0.6168920419999999
+        ]
+      },
+      "cpuMs": {
+        "min": 0.6678529999999999,
+        "median": 0.680242,
+        "max": 0.86538,
+        "mean": 0.7080152857142856,
+        "variance": 0.004964410538571432,
+        "standardDeviation": 0.07045857320845655,
+        "coefficientOfVariation": 0.09951561022778482,
+        "medianAbsoluteDeviation": 0.005396000000000067,
+        "raw": [
+          0.86538,
+          0.6856380000000001,
+          0.6678529999999999,
+          0.674943,
+          0.680242,
+          0.7062999999999999,
+          0.675751
+        ]
+      }
+    },
+    "perPresentationVerifierStateless": {
+      "wallMs": {
+        "min": 9.021387004000001,
+        "median": 9.193298004,
+        "max": 10.030234504,
+        "mean": 9.375302063571429,
+        "variance": 0.14613201543479806,
+        "standardDeviation": 0.382272174549493,
+        "coefficientOfVariation": 0.04077438486327237,
+        "medianAbsoluteDeviation": 0.1719109999999997,
+        "raw": [
+          10.030234504,
+          9.645645962,
+          9.193298004,
+          9.021387004000001,
+          9.067700713,
+          9.577763212,
+          9.091085046
+        ]
+      },
+      "cpuMs": {
+        "min": 9.169169,
+        "median": 9.354989999999999,
+        "max": 10.204658,
+        "mean": 9.538298857142857,
+        "variance": 0.1537456060724763,
+        "standardDeviation": 0.3921040755621858,
+        "coefficientOfVariation": 0.04110838645704149,
+        "medianAbsoluteDeviation": 0.1858209999999989,
+        "raw": [
+          10.204658,
+          9.817844,
+          9.354989999999999,
+          9.169169,
+          9.218561,
+          9.751919,
+          9.250950999999999
+        ]
+      }
+    },
+    "perPresentationEndToEndWithUncachedCredentialValidation": {
+      "wallMs": {
+        "min": 14.219000340000001,
+        "median": 14.480910715,
+        "max": 15.753790091,
+        "mean": 14.69949391742857,
+        "variance": 0.28635082780918647,
+        "standardDeviation": 0.5351175831620434,
+        "coefficientOfVariation": 0.03640380996570072,
+        "medianAbsoluteDeviation": 0.26191037499999936,
+        "raw": [
+          14.753291423,
+          14.480910715,
+          14.275149256,
+          14.438055757,
+          14.219000340000001,
+          15.753790091,
+          14.97625984
+        ]
+      },
+      "cpuMs": {
+        "min": 14.374818,
+        "median": 14.639351000000001,
+        "max": 15.935356,
+        "mean": 14.865449285714288,
+        "variance": 0.2968055846232384,
+        "standardDeviation": 0.54479866430016,
+        "coefficientOfVariation": 0.03664865109887476,
+        "medianAbsoluteDeviation": 0.2645330000000019,
+        "raw": [
+          14.911831,
+          14.639351000000001,
+          14.433364,
+          14.603399999999999,
+          14.374818,
+          15.935356,
+          15.160025
+        ]
+      }
+    },
+    "perPresentationVerifier": {
+      "wallMs": {
+        "min": 9.021387004000001,
+        "median": 9.193298004,
+        "max": 10.030234504,
+        "mean": 9.375302063571429,
+        "variance": 0.14613201543479806,
+        "standardDeviation": 0.382272174549493,
+        "coefficientOfVariation": 0.04077438486327237,
+        "medianAbsoluteDeviation": 0.1719109999999997,
+        "raw": [
+          10.030234504,
+          9.645645962,
+          9.193298004,
+          9.021387004000001,
+          9.067700713,
+          9.577763212,
+          9.091085046
+        ]
+      },
+      "cpuMs": {
+        "min": 9.169169,
+        "median": 9.354989999999999,
+        "max": 10.204658,
+        "mean": 9.538298857142857,
+        "variance": 0.1537456060724763,
+        "standardDeviation": 0.3921040755621858,
+        "coefficientOfVariation": 0.04110838645704149,
+        "medianAbsoluteDeviation": 0.1858209999999989,
+        "raw": [
+          10.204658,
+          9.817844,
+          9.354989999999999,
+          9.169169,
+          9.218561,
+          9.751919,
+          9.250950999999999
+        ]
+      }
+    }
+  }
+}

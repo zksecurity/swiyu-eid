@@ -1,0 +1,1313 @@
+{
+  "schema": "swiyu.no-zk-sd-jwt-control-benchmark.v3",
+  "profile": "authoritative-residence-derived",
+  "generatedAt": "2026-08-18T10:55:30.752Z",
+  "runtime": {
+    "node": "v22.14.0",
+    "platform": "linux",
+    "arch": "arm64"
+  },
+  "semantics": {
+    "predicate": "selectively disclose issuer-derived residence_eligible=true for an exact policy version",
+    "authoritativeLookup": {
+      "issuer": "did:example:issuer",
+      "kid": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+      "vct": "urn:ch:swiyu-lab:residence-eligibility:v1"
+    },
+    "holderBinding": "ES256 kb+jwt binds nonce, audience, sd_hash, and, for scoped-nullifier, its canonical scope and nullifier",
+    "status": "pre-authenticated packed two-bit status bytes bound to URI https://status.example.ch/lists/2026-07 and index 42; network fetch, JWT authentication, decompression, and DID resolution are outside both timed paths",
+    "privacyDifference": "Age-style secondary control: raw residence details remain hidden, but policy evaluation and freshness are delegated to the issuer rather than independently proven to the verifier."
+  },
+  "policy": {
+    "controlKind": "issuer-derived-boolean",
+    "policyId": "ch.residence-benefit.eligibility",
+    "policyVersion": "2025-01-01",
+    "municipalityDirectoryAsOf": "2025-01-01",
+    "municipalityDirectorySha256": "2a510d6f7de86e40a8d584daba5985422728317619f1e9225bf3c3e28c40905c",
+    "allowedMunicipalityBfsCodes": [
+      261,
+      351
+    ],
+    "maximumAllowedMunicipalities": 16,
+    "minimumResidenceDays": 365,
+    "currentEpochDay": 20254,
+    "statusRequired": "VALID (00)"
+  },
+  "iterationsPerRun": 1000,
+  "coldIterationsPerRun": 1,
+  "repetitionRule": {
+    "adaptive": true,
+    "thresholdRelativeToFirstTwoMean": 0.15,
+    "principalStages": [
+      "cold.oneTimeTrustMaterialSetup",
+      "cold.perCredentialReusableWalletPreparation",
+      "cold.perPresentationWallet",
+      "cold.perPresentationVerifierStateless",
+      "cold.perPresentationEndToEndWithUncachedCredentialValidation",
+      "steadyState.oneTimeTrustMaterialSetup",
+      "steadyState.perCredentialReusableWalletPreparation",
+      "steadyState.perPresentationWallet",
+      "steadyState.perPresentationVerifierStateless",
+      "steadyState.perPresentationEndToEndWithUncachedCredentialValidation"
+    ],
+    "firstTwoPrincipalStageVariationOver15Percent": true,
+    "requiredRuns": 7,
+    "satisfied": true
+  },
+  "rawRuns": [
+    {
+      "profile": "authoritative-residence-derived",
+      "run": 1,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.367625,
+          "cpuMsPerOperation": 0.396,
+          "totalWallMs": 0.367625,
+          "totalCpuMs": 0.396
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 10.04,
+          "cpuMsPerOperation": 10.048,
+          "totalWallMs": 10.04,
+          "totalCpuMs": 10.048
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 5.667458,
+          "cpuMsPerOperation": 9.815,
+          "totalWallMs": 5.667458,
+          "totalCpuMs": 9.815
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 15.4645,
+          "cpuMsPerOperation": 18.287,
+          "totalWallMs": 15.4645,
+          "totalCpuMs": 18.287
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 15.4645,
+          "cpuMsPerOperation": 18.287,
+          "totalWallMs": 15.4645,
+          "totalCpuMs": 18.287
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 20.635042,
+          "cpuMsPerOperation": 20.745,
+          "totalWallMs": 20.635042,
+          "totalCpuMs": 20.745
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009297916000000002,
+          "cpuMsPerOperation": 0.022306999999999997,
+          "totalWallMs": 9.297916,
+          "totalCpuMs": 22.307
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.611857336,
+          "cpuMsPerOperation": 4.681161,
+          "totalWallMs": 4611.857336,
+          "totalCpuMs": 4681.161
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.6038093330000001,
+          "cpuMsPerOperation": 0.6667150000000001,
+          "totalWallMs": 603.809333,
+          "totalCpuMs": 666.715
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.873158921,
+          "cpuMsPerOperation": 10.037989,
+          "totalWallMs": 9873.158921,
+          "totalCpuMs": 10037.989
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.873158921,
+          "cpuMsPerOperation": 10.037989,
+          "totalWallMs": 9873.158921,
+          "totalCpuMs": 10037.989
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.893892465,
+          "cpuMsPerOperation": 15.054022000000002,
+          "totalWallMs": 14893.892465,
+          "totalCpuMs": 15054.022
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1130,
+        "preparedCredentialStorageBytes": 1557,
+        "transmittedPresentationBytes": 1450,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "-uZR8QKHqEJAlNfTRUjqqHd3v6Wz39xEKSCTfyBqaFc",
+        "issuerJwtSha256": "YHIwAOxM0tm6xvjfWRDAk5wgA_A_lJAMC7czKVxIwww",
+        "disclosureSha256": [
+          "NUGmx5V9pkKshVYe45GjZGFbQamglduxqoVZGnLYEcQ"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140845056
+    },
+    {
+      "profile": "authoritative-residence-derived",
+      "run": 2,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.319125,
+          "cpuMsPerOperation": 0.348,
+          "totalWallMs": 0.319125,
+          "totalCpuMs": 0.348
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 9.191792,
+          "cpuMsPerOperation": 9.198,
+          "totalWallMs": 9.191792,
+          "totalCpuMs": 9.198
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 4.818875,
+          "cpuMsPerOperation": 8.277,
+          "totalWallMs": 4.818875,
+          "totalCpuMs": 8.277
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 13.554917,
+          "cpuMsPerOperation": 16.115,
+          "totalWallMs": 13.554917,
+          "totalCpuMs": 16.115
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 13.554917,
+          "cpuMsPerOperation": 16.115,
+          "totalWallMs": 13.554917,
+          "totalCpuMs": 16.115
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 17.72875,
+          "cpuMsPerOperation": 17.931,
+          "totalWallMs": 17.72875,
+          "totalCpuMs": 17.931
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009850250000000001,
+          "cpuMsPerOperation": 0.022616,
+          "totalWallMs": 9.85025,
+          "totalCpuMs": 22.616
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.581841002,
+          "cpuMsPerOperation": 4.641023000000001,
+          "totalWallMs": 4581.841002,
+          "totalCpuMs": 4641.023
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.759079417,
+          "cpuMsPerOperation": 0.826074,
+          "totalWallMs": 759.079417,
+          "totalCpuMs": 826.074
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 10.028108712,
+          "cpuMsPerOperation": 10.191443999999999,
+          "totalWallMs": 10028.108712,
+          "totalCpuMs": 10191.444
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 10.028108712,
+          "cpuMsPerOperation": 10.191443999999999,
+          "totalWallMs": 10028.108712,
+          "totalCpuMs": 10191.444
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 15.342255548999999,
+          "cpuMsPerOperation": 15.518051,
+          "totalWallMs": 15342.255549,
+          "totalCpuMs": 15518.051
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1130,
+        "preparedCredentialStorageBytes": 1557,
+        "transmittedPresentationBytes": 1450,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "-uZR8QKHqEJAlNfTRUjqqHd3v6Wz39xEKSCTfyBqaFc",
+        "issuerJwtSha256": "YHIwAOxM0tm6xvjfWRDAk5wgA_A_lJAMC7czKVxIwww",
+        "disclosureSha256": [
+          "NUGmx5V9pkKshVYe45GjZGFbQamglduxqoVZGnLYEcQ"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140931072
+    },
+    {
+      "profile": "authoritative-residence-derived",
+      "run": 3,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.4045,
+          "cpuMsPerOperation": 0.435,
+          "totalWallMs": 0.4045,
+          "totalCpuMs": 0.435
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 14.426125,
+          "cpuMsPerOperation": 16.352,
+          "totalWallMs": 14.426125,
+          "totalCpuMs": 16.352
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 5.858875,
+          "cpuMsPerOperation": 10.819,
+          "totalWallMs": 5.858875,
+          "totalCpuMs": 10.819
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 20.003334,
+          "cpuMsPerOperation": 23.282,
+          "totalWallMs": 20.003334,
+          "totalCpuMs": 23.282
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 20.003334,
+          "cpuMsPerOperation": 23.282,
+          "totalWallMs": 20.003334,
+          "totalCpuMs": 23.282
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 24.41725,
+          "cpuMsPerOperation": 24.576,
+          "totalWallMs": 24.41725,
+          "totalCpuMs": 24.576
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.010532375,
+          "cpuMsPerOperation": 0.025379000000000002,
+          "totalWallMs": 10.532375,
+          "totalCpuMs": 25.379
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 5.114245627,
+          "cpuMsPerOperation": 5.184538,
+          "totalWallMs": 5114.245627,
+          "totalCpuMs": 5184.538
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.614287417,
+          "cpuMsPerOperation": 0.680805,
+          "totalWallMs": 614.287417,
+          "totalCpuMs": 680.805
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.288774963,
+          "cpuMsPerOperation": 9.446529,
+          "totalWallMs": 9288.774963,
+          "totalCpuMs": 9446.529
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.288774963,
+          "cpuMsPerOperation": 9.446529,
+          "totalWallMs": 9288.774963,
+          "totalCpuMs": 9446.529
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.467212465000001,
+          "cpuMsPerOperation": 14.62176,
+          "totalWallMs": 14467.212465,
+          "totalCpuMs": 14621.76
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1130,
+        "preparedCredentialStorageBytes": 1557,
+        "transmittedPresentationBytes": 1450,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "-uZR8QKHqEJAlNfTRUjqqHd3v6Wz39xEKSCTfyBqaFc",
+        "issuerJwtSha256": "YHIwAOxM0tm6xvjfWRDAk5wgA_A_lJAMC7czKVxIwww",
+        "disclosureSha256": [
+          "NUGmx5V9pkKshVYe45GjZGFbQamglduxqoVZGnLYEcQ"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140615680
+    },
+    {
+      "profile": "authoritative-residence-derived",
+      "run": 4,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.281,
+          "cpuMsPerOperation": 0.306,
+          "totalWallMs": 0.281,
+          "totalCpuMs": 0.306
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 10.926208,
+          "cpuMsPerOperation": 10.935,
+          "totalWallMs": 10.926208,
+          "totalCpuMs": 10.935
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 5.150375,
+          "cpuMsPerOperation": 9.189,
+          "totalWallMs": 5.150375,
+          "totalCpuMs": 9.189
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 16.891666,
+          "cpuMsPerOperation": 21.762,
+          "totalWallMs": 16.891666,
+          "totalCpuMs": 21.762
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 16.891666,
+          "cpuMsPerOperation": 21.762,
+          "totalWallMs": 16.891666,
+          "totalCpuMs": 21.762
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 18.246375,
+          "cpuMsPerOperation": 18.478,
+          "totalWallMs": 18.246375,
+          "totalCpuMs": 18.478
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009581416,
+          "cpuMsPerOperation": 0.022731,
+          "totalWallMs": 9.581416,
+          "totalCpuMs": 22.731
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.729727128,
+          "cpuMsPerOperation": 4.797854,
+          "totalWallMs": 4729.727128,
+          "totalCpuMs": 4797.854
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.630973292,
+          "cpuMsPerOperation": 0.6914389999999999,
+          "totalWallMs": 630.973292,
+          "totalCpuMs": 691.439
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.167250546,
+          "cpuMsPerOperation": 9.32019,
+          "totalWallMs": 9167.250546,
+          "totalCpuMs": 9320.19
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.167250546,
+          "cpuMsPerOperation": 9.32019,
+          "totalWallMs": 9167.250546,
+          "totalCpuMs": 9320.19
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 15.204006923000001,
+          "cpuMsPerOperation": 15.381426,
+          "totalWallMs": 15204.006923,
+          "totalCpuMs": 15381.426
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1130,
+        "preparedCredentialStorageBytes": 1557,
+        "transmittedPresentationBytes": 1450,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "-uZR8QKHqEJAlNfTRUjqqHd3v6Wz39xEKSCTfyBqaFc",
+        "issuerJwtSha256": "YHIwAOxM0tm6xvjfWRDAk5wgA_A_lJAMC7czKVxIwww",
+        "disclosureSha256": [
+          "NUGmx5V9pkKshVYe45GjZGFbQamglduxqoVZGnLYEcQ"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140374016
+    },
+    {
+      "profile": "authoritative-residence-derived",
+      "run": 5,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.287416,
+          "cpuMsPerOperation": 0.31,
+          "totalWallMs": 0.287416,
+          "totalCpuMs": 0.31
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 8.313792,
+          "cpuMsPerOperation": 8.323,
+          "totalWallMs": 8.313792,
+          "totalCpuMs": 8.323
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 4.842167,
+          "cpuMsPerOperation": 8.482,
+          "totalWallMs": 4.842167,
+          "totalCpuMs": 8.482
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 16.185583,
+          "cpuMsPerOperation": 20.075,
+          "totalWallMs": 16.185583,
+          "totalCpuMs": 20.075
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 16.185583,
+          "cpuMsPerOperation": 20.075,
+          "totalWallMs": 16.185583,
+          "totalCpuMs": 20.075
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 20.57575,
+          "cpuMsPerOperation": 20.769,
+          "totalWallMs": 20.57575,
+          "totalCpuMs": 20.769
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.008538500000000001,
+          "cpuMsPerOperation": 0.020614,
+          "totalWallMs": 8.5385,
+          "totalCpuMs": 20.614
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 5.356103293,
+          "cpuMsPerOperation": 5.42753,
+          "totalWallMs": 5356.103293,
+          "totalCpuMs": 5427.53
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.6629405,
+          "cpuMsPerOperation": 0.7314740000000001,
+          "totalWallMs": 662.9405,
+          "totalCpuMs": 731.474
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 10.454601297,
+          "cpuMsPerOperation": 10.632479,
+          "totalWallMs": 10454.601297,
+          "totalCpuMs": 10632.479
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 10.454601297,
+          "cpuMsPerOperation": 10.632479,
+          "totalWallMs": 10454.601297,
+          "totalCpuMs": 10632.479
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.66655134,
+          "cpuMsPerOperation": 14.825541999999999,
+          "totalWallMs": 14666.55134,
+          "totalCpuMs": 14825.542
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1130,
+        "preparedCredentialStorageBytes": 1557,
+        "transmittedPresentationBytes": 1450,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "-uZR8QKHqEJAlNfTRUjqqHd3v6Wz39xEKSCTfyBqaFc",
+        "issuerJwtSha256": "YHIwAOxM0tm6xvjfWRDAk5wgA_A_lJAMC7czKVxIwww",
+        "disclosureSha256": [
+          "NUGmx5V9pkKshVYe45GjZGFbQamglduxqoVZGnLYEcQ"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140496896
+    },
+    {
+      "profile": "authoritative-residence-derived",
+      "run": 6,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.350334,
+          "cpuMsPerOperation": 0.387,
+          "totalWallMs": 0.350334,
+          "totalCpuMs": 0.387
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 12.736916,
+          "cpuMsPerOperation": 14.165,
+          "totalWallMs": 12.736916,
+          "totalCpuMs": 14.165
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 4.320375,
+          "cpuMsPerOperation": 7.574,
+          "totalWallMs": 4.320375,
+          "totalCpuMs": 7.574
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 17.044708,
+          "cpuMsPerOperation": 20.778,
+          "totalWallMs": 17.044708,
+          "totalCpuMs": 20.778
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 17.044708,
+          "cpuMsPerOperation": 20.778,
+          "totalWallMs": 17.044708,
+          "totalCpuMs": 20.778
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 20.709459,
+          "cpuMsPerOperation": 20.872,
+          "totalWallMs": 20.709459,
+          "totalCpuMs": 20.872
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.00911525,
+          "cpuMsPerOperation": 0.021812,
+          "totalWallMs": 9.11525,
+          "totalCpuMs": 21.812
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.641460585,
+          "cpuMsPerOperation": 4.704584,
+          "totalWallMs": 4641.460585,
+          "totalCpuMs": 4704.584
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.60503125,
+          "cpuMsPerOperation": 0.667239,
+          "totalWallMs": 605.03125,
+          "totalCpuMs": 667.239
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 9.10102642,
+          "cpuMsPerOperation": 9.262771,
+          "totalWallMs": 9101.02642,
+          "totalCpuMs": 9262.771
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 9.10102642,
+          "cpuMsPerOperation": 9.262771,
+          "totalWallMs": 9101.02642,
+          "totalCpuMs": 9262.771
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 15.20503734,
+          "cpuMsPerOperation": 15.380336,
+          "totalWallMs": 15205.03734,
+          "totalCpuMs": 15380.336
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1130,
+        "preparedCredentialStorageBytes": 1557,
+        "transmittedPresentationBytes": 1450,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "-uZR8QKHqEJAlNfTRUjqqHd3v6Wz39xEKSCTfyBqaFc",
+        "issuerJwtSha256": "YHIwAOxM0tm6xvjfWRDAk5wgA_A_lJAMC7czKVxIwww",
+        "disclosureSha256": [
+          "NUGmx5V9pkKshVYe45GjZGFbQamglduxqoVZGnLYEcQ"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 141017088
+    },
+    {
+      "profile": "authoritative-residence-derived",
+      "run": 7,
+      "iterations": 1000,
+      "coldIterations": 1,
+      "coldTimings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.315541,
+          "cpuMsPerOperation": 0.339,
+          "totalWallMs": 0.315541,
+          "totalCpuMs": 0.339
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 8.215542,
+          "cpuMsPerOperation": 8.223,
+          "totalWallMs": 8.215542,
+          "totalCpuMs": 8.223
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 4.560708,
+          "cpuMsPerOperation": 8.465,
+          "totalWallMs": 4.560708,
+          "totalCpuMs": 8.465
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 14.99175,
+          "cpuMsPerOperation": 17.349,
+          "totalWallMs": 14.99175,
+          "totalCpuMs": 17.349
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 14.99175,
+          "cpuMsPerOperation": 17.349,
+          "totalWallMs": 14.99175,
+          "totalCpuMs": 17.349
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 20.927792,
+          "cpuMsPerOperation": 21.085,
+          "totalWallMs": 20.927792,
+          "totalCpuMs": 21.085
+        }
+      },
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.008568917,
+          "cpuMsPerOperation": 0.020735,
+          "totalWallMs": 8.568917,
+          "totalCpuMs": 20.735
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.577195585,
+          "cpuMsPerOperation": 4.640964,
+          "totalWallMs": 4577.195585,
+          "totalCpuMs": 4640.964
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.601269126,
+          "cpuMsPerOperation": 0.6599149999999999,
+          "totalWallMs": 601.269126,
+          "totalCpuMs": 659.915
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 10.844309964,
+          "cpuMsPerOperation": 11.027848,
+          "totalWallMs": 10844.309964,
+          "totalCpuMs": 11027.848
+        },
+        "perPresentationVerifierStateless": {
+          "wallMsPerOperation": 10.844309964,
+          "cpuMsPerOperation": 11.027848,
+          "totalWallMs": 10844.309964,
+          "totalCpuMs": 11027.848
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 14.648869631,
+          "cpuMsPerOperation": 14.822893,
+          "totalWallMs": 14648.869631,
+          "totalCpuMs": 14822.893
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 1130,
+        "preparedCredentialStorageBytes": 1557,
+        "transmittedPresentationBytes": 1450,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "correctness": {
+        "validPresentationAccepted": true,
+        "packedStatusValue": 0
+      },
+      "fixtureIdentity": {
+        "compactCredentialSha256": "-uZR8QKHqEJAlNfTRUjqqHd3v6Wz39xEKSCTfyBqaFc",
+        "issuerJwtSha256": "YHIwAOxM0tm6xvjfWRDAk5wgA_A_lJAMC7czKVxIwww",
+        "disclosureSha256": [
+          "NUGmx5V9pkKshVYe45GjZGFbQamglduxqoVZGnLYEcQ"
+        ]
+      },
+      "statusSnapshotIdentity": {
+        "uri": "https://status.example.ch/lists/2026-07",
+        "index": 42,
+        "listLength": 65536,
+        "selectedValue": 0,
+        "epoch": 1749999970,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "packedChunkRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      },
+      "processPeakRssBytes": 140869632
+    }
+  ],
+  "coldSummary": {
+    "oneTimeTrustMaterialSetup": {
+      "wallMs": {
+        "min": 0.281,
+        "median": 0.319125,
+        "max": 0.4045,
+        "mean": 0.3322201428571429,
+        "variance": 0.0019810973838095235,
+        "standardDeviation": 0.04450952014804837,
+        "coefficientOfVariation": 0.13397598280844694,
+        "medianAbsoluteDeviation": 0.03170899999999999,
+        "raw": [
+          0.367625,
+          0.319125,
+          0.4045,
+          0.281,
+          0.287416,
+          0.350334,
+          0.315541
+        ]
+      },
+      "cpuMs": {
+        "min": 0.306,
+        "median": 0.348,
+        "max": 0.435,
+        "mean": 0.3601428571428572,
+        "variance": 0.002275142857142857,
+        "standardDeviation": 0.04769845759710535,
+        "coefficientOfVariation": 0.13244315873849163,
+        "medianAbsoluteDeviation": 0.039000000000000035,
+        "raw": [
+          0.396,
+          0.348,
+          0.435,
+          0.306,
+          0.31,
+          0.387,
+          0.339
+        ]
+      }
+    },
+    "perCredentialReusableWalletPreparation": {
+      "wallMs": {
+        "min": 8.215542,
+        "median": 10.04,
+        "max": 14.426125,
+        "mean": 10.550053571428572,
+        "variance": 5.417271398357955,
+        "standardDeviation": 2.3275032542099603,
+        "coefficientOfVariation": 0.22061530194626258,
+        "medianAbsoluteDeviation": 1.7262079999999997,
+        "raw": [
+          10.04,
+          9.191792,
+          14.426125,
+          10.926208,
+          8.313792,
+          12.736916,
+          8.215542
+        ]
+      },
+      "cpuMs": {
+        "min": 8.223,
+        "median": 10.048,
+        "max": 16.352,
+        "mean": 11.034857142857144,
+        "variance": 9.61473580952381,
+        "standardDeviation": 3.1007637461638073,
+        "coefficientOfVariation": 0.2809971806631797,
+        "medianAbsoluteDeviation": 1.7249999999999996,
+        "raw": [
+          10.048,
+          9.198,
+          16.352,
+          10.935,
+          8.323,
+          14.165,
+          8.223
+        ]
+      }
+    },
+    "perPresentationWallet": {
+      "wallMs": {
+        "min": 4.320375,
+        "median": 4.842167,
+        "max": 5.858875,
+        "mean": 5.031261857142857,
+        "variance": 0.31858718090547616,
+        "standardDeviation": 0.5644352760994622,
+        "coefficientOfVariation": 0.11218562899844625,
+        "medianAbsoluteDeviation": 0.3082080000000005,
+        "raw": [
+          5.667458,
+          4.818875,
+          5.858875,
+          5.150375,
+          4.842167,
+          4.320375,
+          4.560708
+        ]
+      },
+      "cpuMs": {
+        "min": 7.574,
+        "median": 8.482,
+        "max": 10.819,
+        "mean": 8.945857142857141,
+        "variance": 1.1831568095238103,
+        "standardDeviation": 1.087730117963004,
+        "coefficientOfVariation": 0.12159037424731366,
+        "medianAbsoluteDeviation": 0.7070000000000007,
+        "raw": [
+          9.815,
+          8.277,
+          10.819,
+          9.189,
+          8.482,
+          7.574,
+          8.465
+        ]
+      }
+    },
+    "perPresentationVerifierStateless": {
+      "wallMs": {
+        "min": 13.554917,
+        "median": 16.185583,
+        "max": 20.003334,
+        "mean": 16.305208285714283,
+        "variance": 4.096216955328905,
+        "standardDeviation": 2.023911301250355,
+        "coefficientOfVariation": 0.12412667570911029,
+        "medianAbsoluteDeviation": 0.8591249999999988,
+        "raw": [
+          15.4645,
+          13.554917,
+          20.003334,
+          16.891666,
+          16.185583,
+          17.044708,
+          14.99175
+        ]
+      },
+      "cpuMs": {
+        "min": 16.115,
+        "median": 20.075,
+        "max": 23.282,
+        "mean": 19.663999999999998,
+        "variance": 6.458700000000001,
+        "standardDeviation": 2.5413972534808487,
+        "coefficientOfVariation": 0.1292411133788064,
+        "medianAbsoluteDeviation": 1.7880000000000003,
+        "raw": [
+          18.287,
+          16.115,
+          23.282,
+          21.762,
+          20.075,
+          20.778,
+          17.349
+        ]
+      }
+    },
+    "perPresentationEndToEndWithUncachedCredentialValidation": {
+      "wallMs": {
+        "min": 17.72875,
+        "median": 20.635042,
+        "max": 24.41725,
+        "mean": 20.462916857142858,
+        "variance": 4.724121186907473,
+        "standardDeviation": 2.173504356312053,
+        "coefficientOfVariation": 0.1062167418010772,
+        "medianAbsoluteDeviation": 0.2927500000000016,
+        "raw": [
+          20.635042,
+          17.72875,
+          24.41725,
+          18.246375,
+          20.57575,
+          20.709459,
+          20.927792
+        ]
+      },
+      "cpuMs": {
+        "min": 17.931,
+        "median": 20.769,
+        "max": 24.576,
+        "mean": 20.636571428571425,
+        "variance": 4.630742285714285,
+        "standardDeviation": 2.1519159569356523,
+        "coefficientOfVariation": 0.10427681576777405,
+        "medianAbsoluteDeviation": 0.3160000000000025,
+        "raw": [
+          20.745,
+          17.931,
+          24.576,
+          18.478,
+          20.769,
+          20.872,
+          21.085
+        ]
+      }
+    },
+    "perPresentationVerifier": {
+      "wallMs": {
+        "min": 13.554917,
+        "median": 16.185583,
+        "max": 20.003334,
+        "mean": 16.305208285714283,
+        "variance": 4.096216955328905,
+        "standardDeviation": 2.023911301250355,
+        "coefficientOfVariation": 0.12412667570911029,
+        "medianAbsoluteDeviation": 0.8591249999999988,
+        "raw": [
+          15.4645,
+          13.554917,
+          20.003334,
+          16.891666,
+          16.185583,
+          17.044708,
+          14.99175
+        ]
+      },
+      "cpuMs": {
+        "min": 16.115,
+        "median": 20.075,
+        "max": 23.282,
+        "mean": 19.663999999999998,
+        "variance": 6.458700000000001,
+        "standardDeviation": 2.5413972534808487,
+        "coefficientOfVariation": 0.1292411133788064,
+        "medianAbsoluteDeviation": 1.7880000000000003,
+        "raw": [
+          18.287,
+          16.115,
+          23.282,
+          21.762,
+          20.075,
+          20.778,
+          17.349
+        ]
+      }
+    }
+  },
+  "summary": {
+    "oneTimeTrustMaterialSetup": {
+      "wallMs": {
+        "min": 0.008538500000000001,
+        "median": 0.009297916000000002,
+        "max": 0.010532375,
+        "mean": 0.009354946285714287,
+        "variance": 5.046810027382379e-7,
+        "standardDeviation": 0.0007104090390319072,
+        "coefficientOfVariation": 0.07593940332043977,
+        "medianAbsoluteDeviation": 0.0005523339999999998,
+        "raw": [
+          0.009297916000000002,
+          0.009850250000000001,
+          0.010532375,
+          0.009581416,
+          0.008538500000000001,
+          0.00911525,
+          0.008568917
+        ]
+      },
+      "cpuMs": {
+        "min": 0.020614,
+        "median": 0.022306999999999997,
+        "max": 0.025379000000000002,
+        "mean": 0.02231342857142857,
+        "variance": 0.0000025491016190476214,
+        "standardDeviation": 0.0015965906234998441,
+        "coefficientOfVariation": 0.07155290449376359,
+        "medianAbsoluteDeviation": 0.0004949999999999954,
+        "raw": [
+          0.022306999999999997,
+          0.022616,
+          0.025379000000000002,
+          0.022731,
+          0.020614,
+          0.021812,
+          0.020735
+        ]
+      }
+    },
+    "perCredentialReusableWalletPreparation": {
+      "wallMs": {
+        "min": 4.577195585,
+        "median": 4.641460585,
+        "max": 5.356103293,
+        "mean": 4.8017757937142855,
+        "variance": 0.09511415881456685,
+        "standardDeviation": 0.3084058345987748,
+        "coefficientOfVariation": 0.06422745414362958,
+        "medianAbsoluteDeviation": 0.0642649999999998,
+        "raw": [
+          4.611857336,
+          4.581841002,
+          5.114245627,
+          4.729727128,
+          5.356103293,
+          4.641460585,
+          4.577195585
+        ]
+      },
+      "cpuMs": {
+        "min": 4.640964,
+        "median": 4.704584,
+        "max": 5.42753,
+        "mean": 4.8682362857142865,
+        "variance": 0.09714461694090466,
+        "standardDeviation": 0.31168031208420055,
+        "coefficientOfVariation": 0.06402325067885846,
+        "medianAbsoluteDeviation": 0.06361999999999934,
+        "raw": [
+          4.681161,
+          4.641023000000001,
+          5.184538,
+          4.797854,
+          5.42753,
+          4.704584,
+          4.640964
+        ]
+      }
+    },
+    "perPresentationWallet": {
+      "wallMs": {
+        "min": 0.601269126,
+        "median": 0.614287417,
+        "max": 0.759079417,
+        "mean": 0.6396271907142858,
+        "variance": 0.0032467463371809503,
+        "standardDeviation": 0.05698022759853588,
+        "coefficientOfVariation": 0.08908349805283419,
+        "medianAbsoluteDeviation": 0.01301829099999996,
+        "raw": [
+          0.6038093330000001,
+          0.759079417,
+          0.614287417,
+          0.630973292,
+          0.6629405,
+          0.60503125,
+          0.601269126
+        ]
+      },
+      "cpuMs": {
+        "min": 0.6599149999999999,
+        "median": 0.680805,
+        "max": 0.826074,
+        "mean": 0.7033801428571429,
+        "variance": 0.003505834818142858,
+        "standardDeviation": 0.059210090509497264,
+        "coefficientOfVariation": 0.08417936035126725,
+        "medianAbsoluteDeviation": 0.014089999999999936,
+        "raw": [
+          0.6667150000000001,
+          0.826074,
+          0.680805,
+          0.6914389999999999,
+          0.7314740000000001,
+          0.667239,
+          0.6599149999999999
+        ]
+      }
+    },
+    "perPresentationVerifierStateless": {
+      "wallMs": {
+        "min": 9.10102642,
+        "median": 9.873158921,
+        "max": 10.844309964,
+        "mean": 9.822461546142858,
+        "variance": 0.45387121655017,
+        "standardDeviation": 0.6736996486195981,
+        "coefficientOfVariation": 0.06858765956524925,
+        "medianAbsoluteDeviation": 0.5843839580000001,
+        "raw": [
+          9.873158921,
+          10.028108712,
+          9.288774963,
+          9.167250546,
+          10.454601297,
+          9.10102642,
+          10.844309964
+        ]
+      },
+      "cpuMs": {
+        "min": 9.262771,
+        "median": 10.037989,
+        "max": 11.027848,
+        "mean": 9.988464285714286,
+        "variance": 0.4676070065425713,
+        "standardDeviation": 0.6838179630154295,
+        "coefficientOfVariation": 0.06846077069058959,
+        "medianAbsoluteDeviation": 0.5944900000000004,
+        "raw": [
+          10.037989,
+          10.191443999999999,
+          9.446529,
+          9.32019,
+          10.632479,
+          9.262771,
+          11.027848
+        ]
+      }
+    },
+    "perPresentationEndToEndWithUncachedCredentialValidation": {
+      "wallMs": {
+        "min": 14.467212465000001,
+        "median": 14.893892465,
+        "max": 15.342255548999999,
+        "mean": 14.918260816142858,
+        "variance": 0.11393847472151597,
+        "standardDeviation": 0.33754773695214724,
+        "coefficientOfVariation": 0.02262648046660313,
+        "medianAbsoluteDeviation": 0.31011445800000104,
+        "raw": [
+          14.893892465,
+          15.342255548999999,
+          14.467212465000001,
+          15.204006923000001,
+          14.66655134,
+          15.20503734,
+          14.648869631
+        ]
+      },
+      "cpuMs": {
+        "min": 14.62176,
+        "median": 15.054022000000002,
+        "max": 15.518051,
+        "mean": 15.08629,
+        "variance": 0.1190304522616666,
+        "standardDeviation": 0.34500790173801327,
+        "coefficientOfVariation": 0.02286896922556926,
+        "medianAbsoluteDeviation": 0.3263139999999982,
+        "raw": [
+          15.054022000000002,
+          15.518051,
+          14.62176,
+          15.381426,
+          14.825541999999999,
+          15.380336,
+          14.822893
+        ]
+      }
+    },
+    "perPresentationVerifier": {
+      "wallMs": {
+        "min": 9.10102642,
+        "median": 9.873158921,
+        "max": 10.844309964,
+        "mean": 9.822461546142858,
+        "variance": 0.45387121655017,
+        "standardDeviation": 0.6736996486195981,
+        "coefficientOfVariation": 0.06858765956524925,
+        "medianAbsoluteDeviation": 0.5843839580000001,
+        "raw": [
+          9.873158921,
+          10.028108712,
+          9.288774963,
+          9.167250546,
+          10.454601297,
+          9.10102642,
+          10.844309964
+        ]
+      },
+      "cpuMs": {
+        "min": 9.262771,
+        "median": 10.037989,
+        "max": 11.027848,
+        "mean": 9.988464285714286,
+        "variance": 0.4676070065425713,
+        "standardDeviation": 0.6838179630154295,
+        "coefficientOfVariation": 0.06846077069058959,
+        "medianAbsoluteDeviation": 0.5944900000000004,
+        "raw": [
+          10.037989,
+          10.191443999999999,
+          9.446529,
+          9.32019,
+          10.632479,
+          9.262771,
+          11.027848
+        ]
+      }
+    }
+  }
+}

@@ -298,3 +298,7 @@ export {
 } from "./utils.js";
 
 export { DEFAULT_JWT_PARAMS, DEFAULT_SHOW_PARAMS } from "./types.js";
+
+// Fixed, opt-in swiyu age + private-status proof profile. Existing OpenAC
+// issuance and two-circuit APIs remain unchanged.
+export * from "./swiyu-zkp/index.js";

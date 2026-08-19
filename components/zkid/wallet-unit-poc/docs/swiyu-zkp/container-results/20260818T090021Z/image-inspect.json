@@ -1,0 +1,103 @@
+[
+    {
+        "Id": "sha256:c201b0ab1a15ee35eb195d0959f6fbbada6d5f849da9f780cfd8cdca1673f488",
+        "RepoTags": [
+            "swiyu-zk-benchmark:node22.14-rust1.91-arm64"
+        ],
+        "RepoDigests": [
+            "swiyu-zk-benchmark@sha256:c201b0ab1a15ee35eb195d0959f6fbbada6d5f849da9f780cfd8cdca1673f488"
+        ],
+        "Parent": "",
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-08-18T09:43:03.44866817Z",
+        "DockerVersion": "",
+        "Author": "",
+        "Architecture": "arm64",
+        "Os": "linux",
+        "Size": 1718914089,
+        "GraphDriver": {
+            "Data": null,
+            "Name": "overlayfs"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:bfb9d2a24727145b50c071a3599eef19a78bbf40abe1d449a5e363ff9d55719d",
+                "sha256:fa481b94334f6a3b06f2a19079a1114b457610e5650873540423d8ef487afd9d",
+                "sha256:6e4e30524a92da405cc7a552385660598f909d38a45a1e39effc676549c6727f",
+                "sha256:769c37de40b5692e1ada597c3839cf09ff163f438bc6bd568f5db45e09af4fcb",
+                "sha256:d2a8fefd4e78227ae9a1f8c1b8c186b768f44e8435d7e657ef9e25c172dc58b1",
+                "sha256:7105a4acba9d6792aa32906eb4bbf8ebc5c87553d9786946f46b9ba9545d982b",
+                "sha256:b4a606c71ee94caf879c7a9d3f670df40671b1779e9d7121201f60948abfd64f",
+                "sha256:fbb9b5abb0e6d3ccd92ee8ec00b33801dc7b2c9e202f20f5c9e387b12977278a",
+                "sha256:ff09a931529b44b5d5fb09f2e4e6a5884cfd91811f9f7ab57c26ba0051bb918e",
+                "sha256:ccf9c0a5433b2086f99db05594f6ef1ab22388574bfe5598839ad028783f5221",
+                "sha256:d6dbb707689351604566cd38c8ccc99356c711cedc354df14a7156defc0f9e89",
+                "sha256:c0d4d3f0e47dfb48a7970b062b7e9cc4f4ed48cbe1c5942f9f19f32c3979cb0b",
+                "sha256:5d1adad4da518162e16680b006449a09c6d26d349041690a519280fe0b150339",
+                "sha256:94b096d9fb1c7a34be7e273e44e0131e348e63dcfdab4aa8a026547582d46fc5",
+                "sha256:2c40e87ee5ce548fa80c97ce92828b7924ad4d81400d5654458bf07f0b3b5512",
+                "sha256:805435de3a59aade6a684f0a6d9ccbe9eede3f23ec78da780351197eb6aa7217",
+                "sha256:a205f3b92c86b7112f9030459fda943518eae1a16f4ed19b82f8bbf8f70d1452",
+                "sha256:1564624c40b0953c10f579a8a7f7232f17b017e2aca805f63306a2b742ebba22",
+                "sha256:3e014562ae1e808dcb71ff86685a990db91e4714b9b1cb4a7cb6b3eca1224144",
+                "sha256:bb9fd419ec6d7f984ae3426643a67b203e5ee21da099ae7133d35119276a29bf",
+                "sha256:2d83b688575e4d4e2e19d5cce3d0bc2fb496136f1320d185018b8c6d67286e6b",
+                "sha256:cc3fb14f55cd6f74f8a90ed602e53ddf71fb8b0d2878e951f3abe60fe6eb0033",
+                "sha256:f10030ab7aa4d360be73bd13f7af77e67a1592fcab42819b4c0ac83614a8e771",
+                "sha256:2bd69b5fc09cd7db2f34bb21ee7859b4d98c8424063d4bc84392ec9705d17b6c",
+                "sha256:75502a9ba0da3b62b404c9eb5fd04f5e489aef5d79378010d318b44887cc81a1",
+                "sha256:9d7432f12cb3ac295919b8fde8d2e7c0cb1dc4ca98bec1a8d4a24e9d9fd9e38e",
+                "sha256:3787da8713577baa4c8fbcaf729d334b0922bd3863a2f5b3352aa4a14329ad37",
+                "sha256:e53f23c776da0e45b1228a769bae239993327fe50fd993667ed0bf4b08d3d225"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-08-18T09:44:48.159940093Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:c201b0ab1a15ee35eb195d0959f6fbbada6d5f849da9f780cfd8cdca1673f488",
+            "size": 856
+        },
+        "Config": {
+            "Cmd": null,
+            "Entrypoint": [
+                "/workspace/benchmark/docker/run-final-benchmarks.sh"
+            ],
+            "Env": [
+                "PATH=/opt/java/openjdk/bin:/opt/circom/bin:/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "RUSTUP_HOME=/usr/local/rustup",
+                "CARGO_HOME=/usr/local/cargo",
+                "RUST_VERSION=1.91.0",
+                "CARGO_NET_OFFLINE=true",
+                "NODE_OPTIONS=--max-old-space-size=8192",
+                "RAYON_NUM_THREADS=4",
+                "TZ=UTC",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "SOURCE_COMMIT=6e2464dcee8ee3129737694ddda2681e8fef09e3",
+                "SOURCE_DIFF_SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "SOURCE_DIFF_STATUS=false",
+                "SWIYU_VERIFIER_COMMIT=058916d65776489e495e359e5f1dcd538b7bccd4",
+                "SWIYU_VERIFIER_TREE_SHA256=74c5448e23dad1f09e5c23eb53ba21d2269c7189735101109c4c209fce340736"
+            ],
+            "Labels": {
+                "ch.admin.bitbox.swiyu.verifier_source_commit": "058916d65776489e495e359e5f1dcd538b7bccd4",
+                "ch.admin.bitbox.swiyu.verifier_source_tree_sha256": "74c5448e23dad1f09e5c23eb53ba21d2269c7189735101109c4c209fce340736",
+                "org.opencontainers.image.description": "Pinned ARM64 swiyu SD-JWT versus ZK benchmark",
+                "org.opencontainers.image.maven_base": "maven:3.9.11-eclipse-temurin-21@sha256:6fdc855a6ed81d288ca7ca37ac6ff5e9308b612485c0801d70b25a858c83d237",
+                "org.opencontainers.image.node_base": "node:22.14.0-bookworm-slim@sha256:1c18d9ab3af4585870b92e4dbc5cac5a0dc77dd13df1a5905cea89fc720eb05b",
+                "org.opencontainers.image.rust_base": "rust:1.91.0-bookworm@sha256:e187887ec511b3d93e45c0231d2f0fd59f1347526c58aa86343aa83c74f3e1a9",
+                "org.opencontainers.image.source": "https://github.com/rust-lang/docker-rust",
+                "org.opencontainers.image.source_commit": "6e2464dcee8ee3129737694ddda2681e8fef09e3",
+                "org.opencontainers.image.source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "org.opencontainers.image.title": "swiyu-zk-benchmark"
+            },
+            "OnBuild": null,
+            "User": "",
+            "Volumes": null,
+            "WorkingDir": "/workspace"
+        }
+    }
+]

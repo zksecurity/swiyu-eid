@@ -1,0 +1,447 @@
+{
+  "profile": "swiyu.professional-license-valid-through.v1",
+  "business_statement": "The holder controls an accepted professional-licence VCT credential that is currently VALID/non-revoked and whose JWT expiry is strictly after the verifier-selected project end; licence semantics rely on the accepted VCT schema.",
+  "accepted_vct": "urn:ch:professional-license:v1",
+  "repetitions": 7,
+  "expanded_after_first_two": true,
+  "raw_runs": [
+    {
+      "run": 1,
+      "prepare": {
+        "witness_handoff_ms": 75.248125,
+        "setup_ms": 13584.587625,
+        "key_serialization_ms": 233.175542,
+        "assignment_ms": 4190.211625,
+        "prepared_state_serialization_ms": 62.858625,
+        "final_proof_ms": 4184.294125,
+        "proof_serialization_ms": 29.259375000000002,
+        "proof_deserialization_ms": 95.037959,
+        "verify_ms": 621.706042,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 80.38804099999999,
+        "setup_ms": 7693.229125,
+        "key_serialization_ms": 153.8955,
+        "assignment_ms": 1956.0776250000001,
+        "prepared_state_serialization_ms": 33.583707999999994,
+        "final_proof_ms": 1877.251667,
+        "proof_serialization_ms": 16.802750000000003,
+        "proof_deserialization_ms": 47.715083,
+        "verify_ms": 280.614917,
+        "verified": true
+      },
+      "link_randomness_ms": 0.016958,
+      "linked_commitments_equal": true
+    },
+    {
+      "run": 2,
+      "prepare": {
+        "witness_handoff_ms": 108.159041,
+        "setup_ms": 13996.713959,
+        "key_serialization_ms": 223.434875,
+        "assignment_ms": 4511.313125,
+        "prepared_state_serialization_ms": 62.290416,
+        "final_proof_ms": 4791.9667500000005,
+        "proof_serialization_ms": 29.542915999999998,
+        "proof_deserialization_ms": 104.255917,
+        "verify_ms": 653.4239170000001,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 76.565333,
+        "setup_ms": 7155.93025,
+        "key_serialization_ms": 152.87716700000001,
+        "assignment_ms": 2084.724459,
+        "prepared_state_serialization_ms": 27.804333,
+        "final_proof_ms": 1781.8695,
+        "proof_serialization_ms": 16.48075,
+        "proof_deserialization_ms": 46.683333,
+        "verify_ms": 227.885125,
+        "verified": true
+      },
+      "link_randomness_ms": 0.013208,
+      "linked_commitments_equal": true
+    },
+    {
+      "run": 3,
+      "prepare": {
+        "witness_handoff_ms": 92.24758299999999,
+        "setup_ms": 12838.070958999999,
+        "key_serialization_ms": 226.373291,
+        "assignment_ms": 3992.762666,
+        "prepared_state_serialization_ms": 86.501625,
+        "final_proof_ms": 4309.087791999999,
+        "proof_serialization_ms": 36.236666,
+        "proof_deserialization_ms": 128.08708299999998,
+        "verify_ms": 515.124834,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 70.919375,
+        "setup_ms": 8720.808874999999,
+        "key_serialization_ms": 153.827792,
+        "assignment_ms": 1903.516583,
+        "prepared_state_serialization_ms": 27.821209,
+        "final_proof_ms": 1866.684625,
+        "proof_serialization_ms": 14.662167,
+        "proof_deserialization_ms": 47.351,
+        "verify_ms": 240.601583,
+        "verified": true
+      },
+      "link_randomness_ms": 0.016375,
+      "linked_commitments_equal": true
+    },
+    {
+      "run": 4,
+      "prepare": {
+        "witness_handoff_ms": 104.335917,
+        "setup_ms": 12158.098833,
+        "key_serialization_ms": 241.095834,
+        "assignment_ms": 3657.677209,
+        "prepared_state_serialization_ms": 56.31875,
+        "final_proof_ms": 3330.811916,
+        "proof_serialization_ms": 29.246458999999998,
+        "proof_deserialization_ms": 94.817417,
+        "verify_ms": 439.414042,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 71.11675000000001,
+        "setup_ms": 6889.403083,
+        "key_serialization_ms": 160.41649999999998,
+        "assignment_ms": 1876.3004159999998,
+        "prepared_state_serialization_ms": 29.002625000000002,
+        "final_proof_ms": 1732.998666,
+        "proof_serialization_ms": 14.614749999999999,
+        "proof_deserialization_ms": 47.685416000000004,
+        "verify_ms": 270.847542,
+        "verified": true
+      },
+      "link_randomness_ms": 0.015125,
+      "linked_commitments_equal": true
+    },
+    {
+      "run": 5,
+      "prepare": {
+        "witness_handoff_ms": 111.43866700000001,
+        "setup_ms": 12865.098666,
+        "key_serialization_ms": 240.336208,
+        "assignment_ms": 4183.789167,
+        "prepared_state_serialization_ms": 97.52716699999999,
+        "final_proof_ms": 4080.3565839999997,
+        "proof_serialization_ms": 33.183458,
+        "proof_deserialization_ms": 95.26575,
+        "verify_ms": 615.50075,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 66.33295799999999,
+        "setup_ms": 7689.932834,
+        "key_serialization_ms": 256.72970899999996,
+        "assignment_ms": 2117.869792,
+        "prepared_state_serialization_ms": 31.441499999999998,
+        "final_proof_ms": 2130.1645,
+        "proof_serialization_ms": 16.496457999999997,
+        "proof_deserialization_ms": 52.835458,
+        "verify_ms": 370.310375,
+        "verified": true
+      },
+      "link_randomness_ms": 0.017625000000000002,
+      "linked_commitments_equal": true
+    },
+    {
+      "run": 6,
+      "prepare": {
+        "witness_handoff_ms": 114.632458,
+        "setup_ms": 14732.490584000001,
+        "key_serialization_ms": 254.00050000000002,
+        "assignment_ms": 5207.693458,
+        "prepared_state_serialization_ms": 67.441916,
+        "final_proof_ms": 4404.17475,
+        "proof_serialization_ms": 29.227957999999997,
+        "proof_deserialization_ms": 94.258625,
+        "verify_ms": 614.285834,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 169.088833,
+        "setup_ms": 8211.771042,
+        "key_serialization_ms": 189.07916699999998,
+        "assignment_ms": 1977.2228750000002,
+        "prepared_state_serialization_ms": 28.549584,
+        "final_proof_ms": 1873.86525,
+        "proof_serialization_ms": 14.702167000000001,
+        "proof_deserialization_ms": 47.408375,
+        "verify_ms": 279.295709,
+        "verified": true
+      },
+      "link_randomness_ms": 0.014291,
+      "linked_commitments_equal": true
+    },
+    {
+      "run": 7,
+      "prepare": {
+        "witness_handoff_ms": 110.486959,
+        "setup_ms": 15236.54275,
+        "key_serialization_ms": 233.032292,
+        "assignment_ms": 4660.386334,
+        "prepared_state_serialization_ms": 65.059208,
+        "final_proof_ms": 5166.980667,
+        "proof_serialization_ms": 32.817,
+        "proof_deserialization_ms": 100.824625,
+        "verify_ms": 615.0834590000001,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 84.746166,
+        "setup_ms": 8200.357125,
+        "key_serialization_ms": 224.964916,
+        "assignment_ms": 2482.6763339999998,
+        "prepared_state_serialization_ms": 32.757708,
+        "final_proof_ms": 1783.786333,
+        "proof_serialization_ms": 14.602833,
+        "proof_deserialization_ms": 47.079917,
+        "verify_ms": 231.865625,
+        "verified": true
+      },
+      "link_randomness_ms": 0.01225,
+      "linked_commitments_equal": true
+    }
+  ],
+  "prepare_summary": {
+    "witness_handoff": {
+      "min_ms": 75.248125,
+      "median_ms": 108.159041,
+      "max_ms": 114.632458,
+      "mean_ms": 102.36410714285715,
+      "sample_variance_ms2": 195.65510541234354,
+      "sample_standard_deviation_ms": 13.987676912637907,
+      "coefficient_of_variation": 0.13664630409091544
+    },
+    "setup": {
+      "min_ms": 12158.098833,
+      "median_ms": 13584.587625,
+      "max_ms": 15236.54275,
+      "mean_ms": 13630.229053714287,
+      "sample_variance_ms2": 1218620.8069676196,
+      "sample_standard_deviation_ms": 1103.9115938188254,
+      "coefficient_of_variation": 0.08098995178059795
+    },
+    "key_serialization": {
+      "min_ms": 223.434875,
+      "median_ms": 233.175542,
+      "max_ms": 254.00050000000002,
+      "mean_ms": 235.9212202857143,
+      "sample_variance_ms2": 106.01425445407897,
+      "sample_standard_deviation_ms": 10.29632237520169,
+      "coefficient_of_variation": 0.04364305323078715
+    },
+    "assignment": {
+      "min_ms": 3657.677209,
+      "median_ms": 4190.211625,
+      "max_ms": 5207.693458,
+      "mean_ms": 4343.404797714285,
+      "sample_variance_ms2": 252963.8195346746,
+      "sample_standard_deviation_ms": 502.9550869955235,
+      "coefficient_of_variation": 0.11579742400712993
+    },
+    "prepared_state_serialization": {
+      "min_ms": 56.31875,
+      "median_ms": 65.059208,
+      "max_ms": 97.52716699999999,
+      "mean_ms": 71.14252957142857,
+      "sample_variance_ms2": 224.91327952998222,
+      "sample_standard_deviation_ms": 14.997109039077571,
+      "coefficient_of_variation": 0.21080370812539304
+    },
+    "final_proof": {
+      "min_ms": 3330.811916,
+      "median_ms": 4309.087791999999,
+      "max_ms": 5166.980667,
+      "mean_ms": 4323.953226285714,
+      "sample_variance_ms2": 333593.6748468531,
+      "sample_standard_deviation_ms": 577.5756875482667,
+      "coefficient_of_variation": 0.13357584074617884
+    },
+    "proof_serialization": {
+      "min_ms": 29.227957999999997,
+      "median_ms": 29.542915999999998,
+      "max_ms": 36.236666,
+      "mean_ms": 31.359118857142853,
+      "sample_variance_ms2": 7.659465370092813,
+      "sample_standard_deviation_ms": 2.7675739141155407,
+      "coefficient_of_variation": 0.08825419893726236
+    },
+    "proof_deserialization": {
+      "min_ms": 94.258625,
+      "median_ms": 95.26575,
+      "max_ms": 128.08708299999998,
+      "mean_ms": 101.79248228571429,
+      "sample_variance_ms2": 148.6739409214834,
+      "sample_standard_deviation_ms": 12.193192400740807,
+      "coefficient_of_variation": 0.11978480263912396
+    },
+    "verify": {
+      "min_ms": 439.414042,
+      "median_ms": 615.0834590000001,
+      "max_ms": 653.4239170000001,
+      "mean_ms": 582.0769825714286,
+      "sample_variance_ms2": 5790.023006677101,
+      "sample_standard_deviation_ms": 76.09220069545302,
+      "coefficient_of_variation": 0.13072532151898908
+    }
+  },
+  "show_summary": {
+    "witness_handoff": {
+      "min_ms": 66.33295799999999,
+      "median_ms": 76.565333,
+      "max_ms": 169.088833,
+      "mean_ms": 88.45106514285715,
+      "sample_variance_ms2": 1303.2513623101997,
+      "sample_standard_deviation_ms": 36.10057288063722,
+      "coefficient_of_variation": 0.4081417541137719
+    },
+    "setup": {
+      "min_ms": 6889.403083,
+      "median_ms": 7693.229125,
+      "max_ms": 8720.808874999999,
+      "mean_ms": 7794.490333428571,
+      "sample_variance_ms2": 407507.51612686686,
+      "sample_standard_deviation_ms": 638.3631537979513,
+      "coefficient_of_variation": 0.0818992809651935
+    },
+    "key_serialization": {
+      "min_ms": 152.87716700000001,
+      "median_ms": 160.41649999999998,
+      "max_ms": 256.72970899999996,
+      "mean_ms": 184.54153585714286,
+      "sample_variance_ms2": 1722.1558809957953,
+      "sample_standard_deviation_ms": 41.498866020601035,
+      "coefficient_of_variation": 0.22487547764166277
+    },
+    "assignment": {
+      "min_ms": 1876.3004159999998,
+      "median_ms": 1977.2228750000002,
+      "max_ms": 2482.6763339999998,
+      "mean_ms": 2056.9125834285715,
+      "sample_variance_ms2": 43072.213240286954,
+      "sample_standard_deviation_ms": 207.53846207459222,
+      "coefficient_of_variation": 0.1008980467845921
+    },
+    "prepared_state_serialization": {
+      "min_ms": 27.804333,
+      "median_ms": 29.002625000000002,
+      "max_ms": 33.583707999999994,
+      "mean_ms": 30.137238142857143,
+      "sample_variance_ms2": 5.843424299632471,
+      "sample_standard_deviation_ms": 2.417317583527756,
+      "coefficient_of_variation": 0.0802103222620845
+    },
+    "final_proof": {
+      "min_ms": 1732.998666,
+      "median_ms": 1866.684625,
+      "max_ms": 2130.1645,
+      "mean_ms": 1863.8029344285715,
+      "sample_variance_ms2": 16910.73452953705,
+      "sample_standard_deviation_ms": 130.0412800980406,
+      "coefficient_of_variation": 0.0697720116734929
+    },
+    "proof_serialization": {
+      "min_ms": 14.602833,
+      "median_ms": 14.702167000000001,
+      "max_ms": 16.802750000000003,
+      "mean_ms": 15.480267857142858,
+      "sample_variance_ms2": 1.0960514981164766,
+      "sample_standard_deviation_ms": 1.0469247814988796,
+      "coefficient_of_variation": 0.067629629613664
+    },
+    "proof_deserialization": {
+      "min_ms": 46.683333,
+      "median_ms": 47.408375,
+      "max_ms": 52.835458,
+      "mean_ms": 48.108368857142864,
+      "sample_variance_ms2": 4.471829008620481,
+      "sample_standard_deviation_ms": 2.114669952645207,
+      "coefficient_of_variation": 0.04395638436473891
+    },
+    "verify": {
+      "min_ms": 227.885125,
+      "median_ms": 270.847542,
+      "max_ms": 370.310375,
+      "mean_ms": 271.63155371428576,
+      "sample_variance_ms2": 2389.250455194318,
+      "sample_standard_deviation_ms": 48.87995964804306,
+      "coefficient_of_variation": 0.1799494903285691
+    }
+  },
+  "witness_generation": {
+    "expandedAfterFirstTwo": true,
+    "policy": {
+      "credentialExp": "1800000000",
+      "currentTime": "1750000000",
+      "requiredValidUntil": "1760000000",
+      "statusRequired": "VALID (00)"
+    },
+    "processPeakRssBytes": 899039232,
+    "profile": "swiyu.professional-license-valid-through.v1",
+    "repetitions": 7,
+    "vct": "urn:ch:professional-license:v1",
+    "witnessGenerationMs": {
+      "prepare": [
+        4534.907707999999,
+        4066.016958999998,
+        4100.007749999997,
+        4221.060916999999,
+        4133.434540999995,
+        4144.783917000001,
+        4003.110458000003
+      ],
+      "show": [
+        4733.812833,
+        3998.4482910000006,
+        3859.368374999998,
+        4028.9872499999983,
+        4048.6921250000014,
+        3887.445375000003,
+        3770.603666999996
+      ]
+    }
+  },
+  "exact_sizes": {
+    "prepare": {
+      "constraints": 2224731,
+      "wires": 2127173,
+      "r1cs_bytes": 470257100,
+      "wasm_bytes": 9192642,
+      "witness_bytes": 68069612,
+      "proving_key_bytes": 574634082,
+      "verifying_key_bytes": 574634050,
+      "proof_bytes": 180055,
+      "pre_reblind_instance_bytes": 135471,
+      "assignment_bytes": 134348817,
+      "public_input_count": 2,
+      "hidden_shared_value_count": 11
+    },
+    "show": {
+      "constraints": 1271440,
+      "wires": 1256480,
+      "r1cs_bytes": 313469252,
+      "wasm_bytes": 5399967,
+      "witness_bytes": 40207436,
+      "proving_key_bytes": 370543754,
+      "verifying_key_bytes": 370543722,
+      "proof_bytes": 112135,
+      "pre_reblind_instance_bytes": 68047,
+      "assignment_bytes": 67174417,
+      "public_input_count": 7,
+      "hidden_shared_value_count": 11
+    }
+  },
+  "negative_linkage": {
+    "unlinked_show_verified_independently": true,
+    "unlinked_shared_commitment_rejected": true
+  },
+  "production_peak_rss_bytes": 3654287360,
+  "peak_rss_after_negative_control_bytes": 3654287360
+}

@@ -1,0 +1,225 @@
+{
+  "schema": "swiyu.production-sd-jwt-dcql-control.v1",
+  "classification": "production-verifier-supplement",
+  "generatedAt": "2026-08-18T03:18:58.799Z",
+  "implementation": {
+    "repository": "swiyu-verifier",
+    "source": {
+      "commit": "058916d65776489e495e359e5f1dcd538b7bccd4",
+      "treeSha256": "74c5448e23dad1f09e5c23eb53ba21d2269c7189735101109c4c209fce340736"
+    },
+    "classes": [
+      "SdJwtVpTokenVerifier",
+      "DcqlVpTokenVerifier",
+      "DcqlUtil"
+    ],
+    "qualification": "production verifier/DCQL classes with preloaded issuer-key and VALID-status adapters; wallet presentation construction and network/database/controller work excluded"
+  },
+  "iterationsPerRun": 1000,
+  "warmupsPerRun": 100,
+  "repetitionRule": {
+    "threshold": 0.15,
+    "denominator": "mean of first two",
+    "principalStages": [
+      "productionVerifierDcqlWall",
+      "productionVerifierDcqlCpu"
+    ],
+    "firstTwoRelativeDeltas": {
+      "wall": 0.007213725359405756,
+      "cpu": 0.0043916509478114
+    },
+    "expanded": false,
+    "requiredRuns": 3,
+    "satisfied": true
+  },
+  "policy": {
+    "claim": [
+      "age_over_18",
+      true
+    ],
+    "vct": "https://example.ch/vct/person",
+    "holderBinding": true,
+    "status": "VALID"
+  },
+  "exactSizes": {
+    "transmittedPresentationBytes": 1078
+  },
+  "processPeakRssBytes": {
+    "samples": [
+      246644736,
+      238977024,
+      244277248
+    ],
+    "min": 238977024,
+    "median": 244277248,
+    "max": 246644736,
+    "mean": 243299669.33333334,
+    "variance": 15415196865877.334,
+    "standardDeviation": 3926219.1566285924,
+    "coefficientOfVariation": 0.016137379748138767
+  },
+  "summary": {
+    "wallMs": {
+      "samples": [
+        1.8800663750000002,
+        1.8665528340000002,
+        1.873025959
+      ],
+      "min": 1.8665528340000002,
+      "median": 1.873025959,
+      "max": 1.8800663750000002,
+      "mean": 1.873215056,
+      "variance": 0.00004568076584622715,
+      "standardDeviation": 0.006758754755591236,
+      "coefficientOfVariation": 0.0036081040102376987
+    },
+    "cpuMs": {
+      "samples": [
+        1.867056657,
+        1.8588751609999998,
+        1.864569658
+      ],
+      "min": 1.8588751609999998,
+      "median": 1.864569658,
+      "max": 1.867056657,
+      "mean": 1.863500492,
+      "variance": 0.000017591556151171768,
+      "standardDeviation": 0.0041942289102017034,
+      "coefficientOfVariation": 0.002250725947327361
+    }
+  },
+  "rawRuns": [
+    {
+      "policy": {
+        "claim": [
+          "age_over_18",
+          true
+        ],
+        "vct": "https://example.ch/vct/person",
+        "holderBinding": true,
+        "status": "VALID"
+      },
+      "run": 1,
+      "source": {
+        "commit": "058916d65776489e495e359e5f1dcd538b7bccd4",
+        "treeSha256": "74c5448e23dad1f09e5c23eb53ba21d2269c7189735101109c4c209fce340736"
+      },
+      "processPeakRssBytes": 246644736,
+      "iterations": 1000,
+      "sizes": {
+        "transmittedPresentationBytes": 1078
+      },
+      "timing": {
+        "totalWallMs": 1880.066375,
+        "cpuMsPerOperation": 1.867056657,
+        "wallMsPerOperation": 1.8800663750000002,
+        "totalCpuMs": 1867.056657
+      },
+      "warmups": 100,
+      "boundary": {
+        "productionClasses": [
+          "SdJwtVpTokenVerifier",
+          "DcqlVpTokenVerifier",
+          "DcqlUtil"
+        ],
+        "preloaded": [
+          "issuer public key",
+          "VALID status decision"
+        ],
+        "excluded": [
+          "DID/status network I/O",
+          "database/session/controller work"
+        ]
+      },
+      "schema": "swiyu.production-sd-jwt-dcql-control-worker.v1"
+    },
+    {
+      "timing": {
+        "wallMsPerOperation": 1.8665528340000002,
+        "totalCpuMs": 1858.875161,
+        "totalWallMs": 1866.552834,
+        "cpuMsPerOperation": 1.8588751609999998
+      },
+      "warmups": 100,
+      "boundary": {
+        "productionClasses": [
+          "SdJwtVpTokenVerifier",
+          "DcqlVpTokenVerifier",
+          "DcqlUtil"
+        ],
+        "preloaded": [
+          "issuer public key",
+          "VALID status decision"
+        ],
+        "excluded": [
+          "DID/status network I/O",
+          "database/session/controller work"
+        ]
+      },
+      "schema": "swiyu.production-sd-jwt-dcql-control-worker.v1",
+      "policy": {
+        "holderBinding": true,
+        "status": "VALID",
+        "claim": [
+          "age_over_18",
+          true
+        ],
+        "vct": "https://example.ch/vct/person"
+      },
+      "run": 2,
+      "source": {
+        "treeSha256": "74c5448e23dad1f09e5c23eb53ba21d2269c7189735101109c4c209fce340736",
+        "commit": "058916d65776489e495e359e5f1dcd538b7bccd4"
+      },
+      "processPeakRssBytes": 238977024,
+      "iterations": 1000,
+      "sizes": {
+        "transmittedPresentationBytes": 1078
+      }
+    },
+    {
+      "boundary": {
+        "productionClasses": [
+          "SdJwtVpTokenVerifier",
+          "DcqlVpTokenVerifier",
+          "DcqlUtil"
+        ],
+        "preloaded": [
+          "issuer public key",
+          "VALID status decision"
+        ],
+        "excluded": [
+          "DID/status network I/O",
+          "database/session/controller work"
+        ]
+      },
+      "schema": "swiyu.production-sd-jwt-dcql-control-worker.v1",
+      "policy": {
+        "status": "VALID",
+        "claim": [
+          "age_over_18",
+          true
+        ],
+        "vct": "https://example.ch/vct/person",
+        "holderBinding": true
+      },
+      "run": 3,
+      "source": {
+        "treeSha256": "74c5448e23dad1f09e5c23eb53ba21d2269c7189735101109c4c209fce340736",
+        "commit": "058916d65776489e495e359e5f1dcd538b7bccd4"
+      },
+      "processPeakRssBytes": 244277248,
+      "iterations": 1000,
+      "sizes": {
+        "transmittedPresentationBytes": 1078
+      },
+      "timing": {
+        "wallMsPerOperation": 1.873025959,
+        "totalCpuMs": 1864.569658,
+        "totalWallMs": 1873.025959,
+        "cpuMsPerOperation": 1.864569658
+      },
+      "warmups": 100
+    }
+  ]
+}

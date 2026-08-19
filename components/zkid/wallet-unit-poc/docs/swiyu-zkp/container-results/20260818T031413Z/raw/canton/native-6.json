@@ -1,0 +1,172 @@
+{
+  "profile": "swiyu.canton-eligibility.prepare-show.v1",
+  "run_count": 1,
+  "repetition_rule": {
+    "first_two_principal_stage_variation_over_15_percent": false,
+    "required_runs": 1,
+    "satisfied": true
+  },
+  "timing_milliseconds": {
+    "prepare_setup_ms": {
+      "values": [
+        27686.795346
+      ],
+      "min": 27686.795346,
+      "median": 27686.795346,
+      "max": 27686.795346,
+      "mean": 27686.795346,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepare_assignment_ms": {
+      "values": [
+        5956.60421
+      ],
+      "min": 5956.60421,
+      "median": 5956.60421,
+      "max": 5956.60421,
+      "mean": 5956.60421,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepare_final_proof_ms": {
+      "values": [
+        4358.0564190000005
+      ],
+      "min": 4358.0564190000005,
+      "median": 4358.0564190000005,
+      "max": 4358.0564190000005,
+      "mean": 4358.0564190000005,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepare_verify_ms": {
+      "values": [
+        719.458125
+      ],
+      "min": 719.458125,
+      "median": 719.458125,
+      "max": 719.458125,
+      "mean": 719.458125,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "show_setup_ms": {
+      "values": [
+        11774.952339
+      ],
+      "min": 11774.952339,
+      "median": 11774.952339,
+      "max": 11774.952339,
+      "mean": 11774.952339,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "show_assignment_ms": {
+      "values": [
+        2500.7464179999997
+      ],
+      "min": 2500.7464179999997,
+      "median": 2500.7464179999997,
+      "max": 2500.7464179999997,
+      "mean": 2500.7464179999997,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "show_final_proof_ms": {
+      "values": [
+        2384.91696
+      ],
+      "min": 2384.91696,
+      "median": 2384.91696,
+      "max": 2384.91696,
+      "mean": 2384.91696,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "show_verify_ms": {
+      "values": [
+        387.88
+      ],
+      "min": 387.88,
+      "median": 387.88,
+      "max": 387.88,
+      "mean": 387.88,
+      "variance": 0.0,
+      "standard_deviation": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "raw_runs": [
+    {
+      "profile": "swiyu.canton-eligibility.prepare-show.v1",
+      "generated_at_unix_seconds": 1787024768,
+      "prepare": {
+        "constraints": 2462518,
+        "wires": 2359062,
+        "r1cs_bytes": 518376940,
+        "wasm_bytes": 10194876,
+        "witness_bytes": 75490060,
+        "witness_handoff_ms": 126.515708,
+        "setup_ms": 27686.795346,
+        "key_serialization_ms": 228.46337599999998,
+        "assignment_ms": 5956.60421,
+        "prepared_state_serialization_ms": 47.705541999999994,
+        "final_proof_ms": 4358.0564190000005,
+        "proof_serialization_ms": 27.925042,
+        "proof_deserialization_ms": 86.460333,
+        "verify_ms": 719.458125,
+        "proving_key_bytes": 622868842,
+        "verifying_key_bytes": 622868810,
+        "final_proof_bytes": 180055,
+        "pre_reblind_instance_bytes": 135471,
+        "assignment_bytes": 134348817,
+        "public_input_count": 2,
+        "hidden_shared_value_count": 11,
+        "verified": true
+      },
+      "show": {
+        "constraints": 1271288,
+        "wires": 1256324,
+        "r1cs_bytes": 313437776,
+        "wasm_bytes": 5404260,
+        "witness_bytes": 40202444,
+        "witness_handoff_ms": 52.265625,
+        "setup_ms": 11774.952339,
+        "key_serialization_ms": 141.00145799999999,
+        "assignment_ms": 2500.7464179999997,
+        "prepared_state_serialization_ms": 29.086083,
+        "final_proof_ms": 2384.91696,
+        "proof_serialization_ms": 14.034417000000001,
+        "proof_deserialization_ms": 44.555917,
+        "verify_ms": 387.88,
+        "proving_key_bytes": 370512194,
+        "verifying_key_bytes": 370512162,
+        "final_proof_bytes": 112263,
+        "pre_reblind_instance_bytes": 68175,
+        "assignment_bytes": 67174417,
+        "public_input_count": 11,
+        "hidden_shared_value_count": 11,
+        "verified": true
+      },
+      "linkage": {
+        "linked_outputs_identical": true,
+        "pre_reblind_commitments_differ": true,
+        "reblinded_commitments_equal": true,
+        "link_randomness_ms": 0.012791,
+        "unlinked_show_assignment_ms": 2316.385209,
+        "unlinked_show_final_proof_ms": 2024.1391250000001,
+        "unlinked_show_verified": true,
+        "unlinked_commitment_rejected": true
+      },
+      "process_peak_rss_bytes": 4139339776
+    }
+  ]
+}

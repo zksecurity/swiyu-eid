@@ -1,0 +1,21 @@
+{
+  "profile": "swiyu.professional-license-valid-through.v1",
+  "repetitions": 1,
+  "expandedAfterFirstTwo": false,
+  "processPeakRssBytes": 1123725312,
+  "vct": "urn:ch:professional-license:v1",
+  "policy": {
+    "currentTime": "1750000000",
+    "requiredValidUntil": "1760000000",
+    "credentialExp": "1800000000",
+    "statusRequired": "VALID (00)"
+  },
+  "witnessGenerationMs": {
+    "prepare": [
+      5548.726128
+    ],
+    "show": [
+      4798.851961
+    ]
+  }
+}

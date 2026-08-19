@@ -1,0 +1,261 @@
+{
+  "profile": "swiyu.professional-license-valid-through.v1",
+  "business_statement": "The holder controls an accepted professional-licence VCT credential that is currently VALID/non-revoked and whose JWT expiry is strictly after the verifier-selected project end; licence semantics rely on the accepted VCT schema.",
+  "accepted_vct": "urn:ch:professional-license:v1",
+  "repetitions": 1,
+  "expanded_after_first_two": false,
+  "raw_runs": [
+    {
+      "run": 1,
+      "prepare": {
+        "witness_handoff_ms": 91.694958,
+        "setup_ms": 21580.767718,
+        "key_serialization_ms": 224.84591700000001,
+        "assignment_ms": 5167.908127,
+        "prepared_state_serialization_ms": 47.640792000000005,
+        "final_proof_ms": 4340.082042999999,
+        "proof_serialization_ms": 26.793459,
+        "proof_deserialization_ms": 82.387333,
+        "verify_ms": 678.480584,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 144.127541,
+        "setup_ms": 11507.336505,
+        "key_serialization_ms": 157.273625,
+        "assignment_ms": 2037.0247090000003,
+        "prepared_state_serialization_ms": 26.039625,
+        "final_proof_ms": 1901.001876,
+        "proof_serialization_ms": 14.06725,
+        "proof_deserialization_ms": 41.207542,
+        "verify_ms": 349.241083,
+        "verified": true
+      },
+      "link_randomness_ms": 0.021832999999999998,
+      "linked_commitments_equal": true
+    }
+  ],
+  "prepare_summary": {
+    "witness_handoff": {
+      "min_ms": 91.694958,
+      "median_ms": 91.694958,
+      "max_ms": 91.694958,
+      "mean_ms": 91.694958,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 21580.767718,
+      "median_ms": 21580.767718,
+      "max_ms": 21580.767718,
+      "mean_ms": 21580.767718,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 224.84591700000001,
+      "median_ms": 224.84591700000001,
+      "max_ms": 224.84591700000001,
+      "mean_ms": 224.84591700000001,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 5167.908127,
+      "median_ms": 5167.908127,
+      "max_ms": 5167.908127,
+      "mean_ms": 5167.908127,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 47.640792000000005,
+      "median_ms": 47.640792000000005,
+      "max_ms": 47.640792000000005,
+      "mean_ms": 47.640792000000005,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 4340.082042999999,
+      "median_ms": 4340.082042999999,
+      "max_ms": 4340.082042999999,
+      "mean_ms": 4340.082042999999,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 26.793459,
+      "median_ms": 26.793459,
+      "max_ms": 26.793459,
+      "mean_ms": 26.793459,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 82.387333,
+      "median_ms": 82.387333,
+      "max_ms": 82.387333,
+      "mean_ms": 82.387333,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 678.480584,
+      "median_ms": 678.480584,
+      "max_ms": 678.480584,
+      "mean_ms": 678.480584,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "show_summary": {
+    "witness_handoff": {
+      "min_ms": 144.127541,
+      "median_ms": 144.127541,
+      "max_ms": 144.127541,
+      "mean_ms": 144.127541,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 11507.336505,
+      "median_ms": 11507.336505,
+      "max_ms": 11507.336505,
+      "mean_ms": 11507.336505,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 157.273625,
+      "median_ms": 157.273625,
+      "max_ms": 157.273625,
+      "mean_ms": 157.273625,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 2037.0247090000003,
+      "median_ms": 2037.0247090000003,
+      "max_ms": 2037.0247090000003,
+      "mean_ms": 2037.0247090000003,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 26.039625,
+      "median_ms": 26.039625,
+      "max_ms": 26.039625,
+      "mean_ms": 26.039625,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 1901.001876,
+      "median_ms": 1901.001876,
+      "max_ms": 1901.001876,
+      "mean_ms": 1901.001876,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 14.06725,
+      "median_ms": 14.06725,
+      "max_ms": 14.06725,
+      "mean_ms": 14.06725,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 41.207542,
+      "median_ms": 41.207542,
+      "max_ms": 41.207542,
+      "mean_ms": 41.207542,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 349.241083,
+      "median_ms": 349.241083,
+      "max_ms": 349.241083,
+      "mean_ms": 349.241083,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "witness_generation": {
+    "expandedAfterFirstTwo": false,
+    "policy": {
+      "credentialExp": "1800000000",
+      "currentTime": "1750000000",
+      "requiredValidUntil": "1760000000",
+      "statusRequired": "VALID (00)"
+    },
+    "processPeakRssBytes": 1123770368,
+    "profile": "swiyu.professional-license-valid-through.v1",
+    "repetitions": 1,
+    "vct": "urn:ch:professional-license:v1",
+    "witnessGenerationMs": {
+      "prepare": [
+        4710.345627
+      ],
+      "show": [
+        5046.415752000001
+      ]
+    }
+  },
+  "exact_sizes": {
+    "prepare": {
+      "constraints": 2224731,
+      "wires": 2127173,
+      "r1cs_bytes": 470257100,
+      "wasm_bytes": 9192642,
+      "witness_bytes": 68069612,
+      "proving_key_bytes": 574634082,
+      "verifying_key_bytes": 574634050,
+      "proof_bytes": 180055,
+      "pre_reblind_instance_bytes": 135471,
+      "assignment_bytes": 134348817,
+      "public_input_count": 2,
+      "hidden_shared_value_count": 11
+    },
+    "show": {
+      "constraints": 1271440,
+      "wires": 1256480,
+      "r1cs_bytes": 313469252,
+      "wasm_bytes": 5399967,
+      "witness_bytes": 40207436,
+      "proving_key_bytes": 370543754,
+      "verifying_key_bytes": 370543722,
+      "proof_bytes": 112135,
+      "pre_reblind_instance_bytes": 68047,
+      "assignment_bytes": 67174417,
+      "public_input_count": 7,
+      "hidden_shared_value_count": 11
+    }
+  },
+  "negative_linkage": {
+    "unlinked_show_verified_independently": true,
+    "unlinked_shared_commitment_rejected": true
+  },
+  "production_peak_rss_bytes": 4022611968,
+  "peak_rss_after_negative_control_bytes": 4022611968
+}

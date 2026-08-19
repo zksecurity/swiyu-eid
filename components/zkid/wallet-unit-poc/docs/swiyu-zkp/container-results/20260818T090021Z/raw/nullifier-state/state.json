@@ -1,0 +1,1639 @@
+{
+  "schema": "swiyu.nullifier-state-benchmark.v2",
+  "generatedAt": "2026-08-18T10:55:53.683Z",
+  "runtime": {
+    "node": "v22.14.0",
+    "platform": "linux",
+    "arch": "arm64"
+  },
+  "store": {
+    "engine": "node:sqlite DatabaseSync / SQLite",
+    "journalMode": "WAL",
+    "synchronous": "FULL",
+    "busyTimeoutMs": 5000,
+    "tables": [
+      "consumed_nullifiers WITHOUT ROWID; PRIMARY KEY(namespace, scope_hash, nullifier)",
+      "accepted_claims WITHOUT ROWID; PRIMARY KEY(namespace, scope_hash, nullifier); foreign key to consumed_nullifiers"
+    ],
+    "atomicClaim": "BEGIN IMMEDIATE; insert spent key; insert paired accepted claim; COMMIT"
+  },
+  "semantics": {
+    "lookupIsAdvisory": true,
+    "acceptanceRequiresAtomicInsert": true,
+    "acceptanceTransaction": "spent-nullifier and accepted-claim rows commit or roll back together",
+    "insertionOccursOnlyAfterCryptographicVerification": "enforced by caller lifecycle; this state-only harness receives verified nullifiers",
+    "sharedByProfiles": [
+      "scoped-nullifier no-ZK",
+      "scoped-nullifier ZK"
+    ],
+    "registryNamespaceId": "9kqRGZrFjDRXZwGF6wUVoA3lGIV3PaMAon1n059_ObQ",
+    "scopeDigest": "7btu2jTuYE3p4jXUQOTDYligVCObaNNCZ5LrIfFqDQM"
+  },
+  "iterationsPerRun": 1000,
+  "repetitionRule": {
+    "adaptive": true,
+    "thresholdRelativeToFirstTwoMean": 0.15,
+    "principalStages": [
+      "lookupMiss",
+      "atomicClaimTransactionSuccess",
+      "lookupHit",
+      "atomicClaimTransactionConflict",
+      "firstClaimStateTransition"
+    ],
+    "firstTwoRelativeDeltas": {
+      "lookupMiss": 0.11108499459215378,
+      "atomicClaimTransactionSuccess": 0.08040341853738191,
+      "lookupHit": 0.16257002400823137,
+      "atomicClaimTransactionConflict": 0.11946393149160589,
+      "firstClaimStateTransition": 0.2965477666382418
+    },
+    "expanded": true,
+    "requiredRuns": 7,
+    "satisfied": true
+  },
+  "rawRuns": [
+    {
+      "run": 1,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeStateStoreSetup": {
+          "wallMsPerOperation": 13.994416,
+          "cpuMsPerOperation": 4.479,
+          "totalWallMs": 13.994416,
+          "totalCpuMs": 4.479
+        },
+        "lookupMiss": {
+          "wallMsPerOperation": 0.002445208,
+          "cpuMsPerOperation": 0.008168,
+          "totalWallMs": 2.445208,
+          "totalCpuMs": 8.168
+        },
+        "atomicClaimTransactionSuccess": {
+          "wallMsPerOperation": 0.513486667,
+          "cpuMsPerOperation": 0.103181,
+          "totalWallMs": 513.486667,
+          "totalCpuMs": 103.181
+        },
+        "lookupHit": {
+          "wallMsPerOperation": 0.004729,
+          "cpuMsPerOperation": 0.0047350000000000005,
+          "totalWallMs": 4.729,
+          "totalCpuMs": 4.735
+        },
+        "atomicClaimTransactionConflict": {
+          "wallMsPerOperation": 0.00607325,
+          "cpuMsPerOperation": 0.006324,
+          "totalWallMs": 6.07325,
+          "totalCpuMs": 6.324
+        },
+        "firstClaimStateTransition": {
+          "wallMsPerOperation": 0.41978020800000004,
+          "cpuMsPerOperation": 0.099176,
+          "totalWallMs": 419.780208,
+          "totalCpuMs": 99.176
+        }
+      },
+      "storeConfiguration": {
+        "journalMode": "WAL",
+        "synchronous": 2,
+        "busyTimeoutMs": 5000,
+        "foreignKeys": 1
+      },
+      "correctness": {
+        "firstClaimAccepted": true,
+        "replayLookupHit": true,
+        "replayRejected": true,
+        "injectedFailureObserved": true,
+        "rollbackLeftCountsUnchanged": true,
+        "rollbackKeyAbsent": true,
+        "noOrphans": true,
+        "beforeRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        },
+        "afterRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        }
+      },
+      "sizes": {
+        "nullifierBytes": 32,
+        "scopeHashBytes": 32,
+        "namespaceBytes": 32,
+        "logicalPrimaryKeyBytes": 96,
+        "expectedRowsPerTable": 2101,
+        "spentRowsAfterRun": 2101,
+        "acceptedClaimRowsAfterRun": 2101,
+        "physicalBeforeMeasuredBatch": {
+          "databaseFileBytes": 4096,
+          "walFileBytes": 939392,
+          "shmFileBytes": 32768
+        },
+        "physicalBeforeCheckpoint": {
+          "databaseFileBytes": 512000,
+          "walFileBytes": 4132392,
+          "shmFileBytes": 32768
+        },
+        "physicalAfterCheckpoint": {
+          "databaseFileBytes": 602112,
+          "walFileBytes": 0,
+          "shmFileBytes": 0
+        },
+        "physicalGrowthDuringMeasuredBatchBytes": 3700904
+      },
+      "processPeakRssBytes": 62128128
+    },
+    {
+      "run": 2,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeStateStoreSetup": {
+          "wallMsPerOperation": 12.554208,
+          "cpuMsPerOperation": 2.239,
+          "totalWallMs": 12.554208,
+          "totalCpuMs": 2.239
+        },
+        "lookupMiss": {
+          "wallMsPerOperation": 0.002187875,
+          "cpuMsPerOperation": 0.009078,
+          "totalWallMs": 2.187875,
+          "totalCpuMs": 9.078
+        },
+        "atomicClaimTransactionSuccess": {
+          "wallMsPerOperation": 0.556502042,
+          "cpuMsPerOperation": 0.105504,
+          "totalWallMs": 556.502042,
+          "totalCpuMs": 105.504
+        },
+        "lookupHit": {
+          "wallMsPerOperation": 0.004018,
+          "cpuMsPerOperation": 0.004024,
+          "totalWallMs": 4.018,
+          "totalCpuMs": 4.024
+        },
+        "atomicClaimTransactionConflict": {
+          "wallMsPerOperation": 0.006844875,
+          "cpuMsPerOperation": 0.007041,
+          "totalWallMs": 6.844875,
+          "totalCpuMs": 7.041
+        },
+        "firstClaimStateTransition": {
+          "wallMsPerOperation": 0.565936209,
+          "cpuMsPerOperation": 0.12461,
+          "totalWallMs": 565.936209,
+          "totalCpuMs": 124.61
+        }
+      },
+      "storeConfiguration": {
+        "journalMode": "WAL",
+        "synchronous": 2,
+        "busyTimeoutMs": 5000,
+        "foreignKeys": 1
+      },
+      "correctness": {
+        "firstClaimAccepted": true,
+        "replayLookupHit": true,
+        "replayRejected": true,
+        "injectedFailureObserved": true,
+        "rollbackLeftCountsUnchanged": true,
+        "rollbackKeyAbsent": true,
+        "noOrphans": true,
+        "beforeRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        },
+        "afterRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        }
+      },
+      "sizes": {
+        "nullifierBytes": 32,
+        "scopeHashBytes": 32,
+        "namespaceBytes": 32,
+        "logicalPrimaryKeyBytes": 96,
+        "expectedRowsPerTable": 2101,
+        "spentRowsAfterRun": 2101,
+        "acceptedClaimRowsAfterRun": 2101,
+        "physicalBeforeMeasuredBatch": {
+          "databaseFileBytes": 4096,
+          "walFileBytes": 939392,
+          "shmFileBytes": 32768
+        },
+        "physicalBeforeCheckpoint": {
+          "databaseFileBytes": 512000,
+          "walFileBytes": 4132392,
+          "shmFileBytes": 32768
+        },
+        "physicalAfterCheckpoint": {
+          "databaseFileBytes": 602112,
+          "walFileBytes": 0,
+          "shmFileBytes": 0
+        },
+        "physicalGrowthDuringMeasuredBatchBytes": 3700904
+      },
+      "processPeakRssBytes": 61284352
+    },
+    {
+      "run": 3,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeStateStoreSetup": {
+          "wallMsPerOperation": 11.8655,
+          "cpuMsPerOperation": 2.54,
+          "totalWallMs": 11.8655,
+          "totalCpuMs": 2.54
+        },
+        "lookupMiss": {
+          "wallMsPerOperation": 0.002333958,
+          "cpuMsPerOperation": 0.01002,
+          "totalWallMs": 2.333958,
+          "totalCpuMs": 10.02
+        },
+        "atomicClaimTransactionSuccess": {
+          "wallMsPerOperation": 0.555537375,
+          "cpuMsPerOperation": 0.115415,
+          "totalWallMs": 555.537375,
+          "totalCpuMs": 115.415
+        },
+        "lookupHit": {
+          "wallMsPerOperation": 0.006575958,
+          "cpuMsPerOperation": 0.006587,
+          "totalWallMs": 6.575958,
+          "totalCpuMs": 6.587
+        },
+        "atomicClaimTransactionConflict": {
+          "wallMsPerOperation": 0.006923042,
+          "cpuMsPerOperation": 0.007410999999999999,
+          "totalWallMs": 6.923042,
+          "totalCpuMs": 7.411
+        },
+        "firstClaimStateTransition": {
+          "wallMsPerOperation": 0.46823254200000003,
+          "cpuMsPerOperation": 0.110187,
+          "totalWallMs": 468.232542,
+          "totalCpuMs": 110.187
+        }
+      },
+      "storeConfiguration": {
+        "journalMode": "WAL",
+        "synchronous": 2,
+        "busyTimeoutMs": 5000,
+        "foreignKeys": 1
+      },
+      "correctness": {
+        "firstClaimAccepted": true,
+        "replayLookupHit": true,
+        "replayRejected": true,
+        "injectedFailureObserved": true,
+        "rollbackLeftCountsUnchanged": true,
+        "rollbackKeyAbsent": true,
+        "noOrphans": true,
+        "beforeRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        },
+        "afterRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        }
+      },
+      "sizes": {
+        "nullifierBytes": 32,
+        "scopeHashBytes": 32,
+        "namespaceBytes": 32,
+        "logicalPrimaryKeyBytes": 96,
+        "expectedRowsPerTable": 2101,
+        "spentRowsAfterRun": 2101,
+        "acceptedClaimRowsAfterRun": 2101,
+        "physicalBeforeMeasuredBatch": {
+          "databaseFileBytes": 4096,
+          "walFileBytes": 939392,
+          "shmFileBytes": 32768
+        },
+        "physicalBeforeCheckpoint": {
+          "databaseFileBytes": 512000,
+          "walFileBytes": 4132392,
+          "shmFileBytes": 32768
+        },
+        "physicalAfterCheckpoint": {
+          "databaseFileBytes": 602112,
+          "walFileBytes": 0,
+          "shmFileBytes": 0
+        },
+        "physicalGrowthDuringMeasuredBatchBytes": 3700904
+      },
+      "processPeakRssBytes": 61980672
+    },
+    {
+      "run": 4,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeStateStoreSetup": {
+          "wallMsPerOperation": 13.778792,
+          "cpuMsPerOperation": 2.115,
+          "totalWallMs": 13.778792,
+          "totalCpuMs": 2.115
+        },
+        "lookupMiss": {
+          "wallMsPerOperation": 0.004644583,
+          "cpuMsPerOperation": 0.012018000000000001,
+          "totalWallMs": 4.644583,
+          "totalCpuMs": 12.018
+        },
+        "atomicClaimTransactionSuccess": {
+          "wallMsPerOperation": 0.771473708,
+          "cpuMsPerOperation": 0.14409899999999998,
+          "totalWallMs": 771.473708,
+          "totalCpuMs": 144.099
+        },
+        "lookupHit": {
+          "wallMsPerOperation": 0.004049958,
+          "cpuMsPerOperation": 0.004058,
+          "totalWallMs": 4.049958,
+          "totalCpuMs": 4.058
+        },
+        "atomicClaimTransactionConflict": {
+          "wallMsPerOperation": 0.0068363750000000004,
+          "cpuMsPerOperation": 0.0070810000000000005,
+          "totalWallMs": 6.836375,
+          "totalCpuMs": 7.081
+        },
+        "firstClaimStateTransition": {
+          "wallMsPerOperation": 0.437604126,
+          "cpuMsPerOperation": 0.102143,
+          "totalWallMs": 437.604126,
+          "totalCpuMs": 102.143
+        }
+      },
+      "storeConfiguration": {
+        "journalMode": "WAL",
+        "synchronous": 2,
+        "busyTimeoutMs": 5000,
+        "foreignKeys": 1
+      },
+      "correctness": {
+        "firstClaimAccepted": true,
+        "replayLookupHit": true,
+        "replayRejected": true,
+        "injectedFailureObserved": true,
+        "rollbackLeftCountsUnchanged": true,
+        "rollbackKeyAbsent": true,
+        "noOrphans": true,
+        "beforeRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        },
+        "afterRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        }
+      },
+      "sizes": {
+        "nullifierBytes": 32,
+        "scopeHashBytes": 32,
+        "namespaceBytes": 32,
+        "logicalPrimaryKeyBytes": 96,
+        "expectedRowsPerTable": 2101,
+        "spentRowsAfterRun": 2101,
+        "acceptedClaimRowsAfterRun": 2101,
+        "physicalBeforeMeasuredBatch": {
+          "databaseFileBytes": 4096,
+          "walFileBytes": 939392,
+          "shmFileBytes": 32768
+        },
+        "physicalBeforeCheckpoint": {
+          "databaseFileBytes": 512000,
+          "walFileBytes": 4132392,
+          "shmFileBytes": 32768
+        },
+        "physicalAfterCheckpoint": {
+          "databaseFileBytes": 602112,
+          "walFileBytes": 0,
+          "shmFileBytes": 0
+        },
+        "physicalGrowthDuringMeasuredBatchBytes": 3700904
+      },
+      "processPeakRssBytes": 62238720
+    },
+    {
+      "run": 5,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeStateStoreSetup": {
+          "wallMsPerOperation": 11.254542,
+          "cpuMsPerOperation": 1.618,
+          "totalWallMs": 11.254542,
+          "totalCpuMs": 1.618
+        },
+        "lookupMiss": {
+          "wallMsPerOperation": 0.0025954999999999997,
+          "cpuMsPerOperation": 0.010428000000000002,
+          "totalWallMs": 2.5955,
+          "totalCpuMs": 10.428
+        },
+        "atomicClaimTransactionSuccess": {
+          "wallMsPerOperation": 0.529187625,
+          "cpuMsPerOperation": 0.10062399999999999,
+          "totalWallMs": 529.187625,
+          "totalCpuMs": 100.624
+        },
+        "lookupHit": {
+          "wallMsPerOperation": 0.0045533330000000006,
+          "cpuMsPerOperation": 0.0045590000000000006,
+          "totalWallMs": 4.553333,
+          "totalCpuMs": 4.559
+        },
+        "atomicClaimTransactionConflict": {
+          "wallMsPerOperation": 0.005964333,
+          "cpuMsPerOperation": 0.006162,
+          "totalWallMs": 5.964333,
+          "totalCpuMs": 6.162
+        },
+        "firstClaimStateTransition": {
+          "wallMsPerOperation": 0.44335612500000005,
+          "cpuMsPerOperation": 0.10331900000000001,
+          "totalWallMs": 443.356125,
+          "totalCpuMs": 103.319
+        }
+      },
+      "storeConfiguration": {
+        "journalMode": "WAL",
+        "synchronous": 2,
+        "busyTimeoutMs": 5000,
+        "foreignKeys": 1
+      },
+      "correctness": {
+        "firstClaimAccepted": true,
+        "replayLookupHit": true,
+        "replayRejected": true,
+        "injectedFailureObserved": true,
+        "rollbackLeftCountsUnchanged": true,
+        "rollbackKeyAbsent": true,
+        "noOrphans": true,
+        "beforeRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        },
+        "afterRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        }
+      },
+      "sizes": {
+        "nullifierBytes": 32,
+        "scopeHashBytes": 32,
+        "namespaceBytes": 32,
+        "logicalPrimaryKeyBytes": 96,
+        "expectedRowsPerTable": 2101,
+        "spentRowsAfterRun": 2101,
+        "acceptedClaimRowsAfterRun": 2101,
+        "physicalBeforeMeasuredBatch": {
+          "databaseFileBytes": 4096,
+          "walFileBytes": 939392,
+          "shmFileBytes": 32768
+        },
+        "physicalBeforeCheckpoint": {
+          "databaseFileBytes": 512000,
+          "walFileBytes": 4132392,
+          "shmFileBytes": 32768
+        },
+        "physicalAfterCheckpoint": {
+          "databaseFileBytes": 602112,
+          "walFileBytes": 0,
+          "shmFileBytes": 0
+        },
+        "physicalGrowthDuringMeasuredBatchBytes": 3700904
+      },
+      "processPeakRssBytes": 63049728
+    },
+    {
+      "run": 6,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeStateStoreSetup": {
+          "wallMsPerOperation": 12.46625,
+          "cpuMsPerOperation": 1.498,
+          "totalWallMs": 12.46625,
+          "totalCpuMs": 1.498
+        },
+        "lookupMiss": {
+          "wallMsPerOperation": 0.002283583,
+          "cpuMsPerOperation": 0.008079000000000001,
+          "totalWallMs": 2.283583,
+          "totalCpuMs": 8.079
+        },
+        "atomicClaimTransactionSuccess": {
+          "wallMsPerOperation": 0.5399615,
+          "cpuMsPerOperation": 0.102908,
+          "totalWallMs": 539.9615,
+          "totalCpuMs": 102.908
+        },
+        "lookupHit": {
+          "wallMsPerOperation": 0.003942542,
+          "cpuMsPerOperation": 0.003947,
+          "totalWallMs": 3.942542,
+          "totalCpuMs": 3.947
+        },
+        "atomicClaimTransactionConflict": {
+          "wallMsPerOperation": 0.0069368749999999995,
+          "cpuMsPerOperation": 0.007141,
+          "totalWallMs": 6.936875,
+          "totalCpuMs": 7.141
+        },
+        "firstClaimStateTransition": {
+          "wallMsPerOperation": 0.45369241699999996,
+          "cpuMsPerOperation": 0.104802,
+          "totalWallMs": 453.692417,
+          "totalCpuMs": 104.802
+        }
+      },
+      "storeConfiguration": {
+        "journalMode": "WAL",
+        "synchronous": 2,
+        "busyTimeoutMs": 5000,
+        "foreignKeys": 1
+      },
+      "correctness": {
+        "firstClaimAccepted": true,
+        "replayLookupHit": true,
+        "replayRejected": true,
+        "injectedFailureObserved": true,
+        "rollbackLeftCountsUnchanged": true,
+        "rollbackKeyAbsent": true,
+        "noOrphans": true,
+        "beforeRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        },
+        "afterRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        }
+      },
+      "sizes": {
+        "nullifierBytes": 32,
+        "scopeHashBytes": 32,
+        "namespaceBytes": 32,
+        "logicalPrimaryKeyBytes": 96,
+        "expectedRowsPerTable": 2101,
+        "spentRowsAfterRun": 2101,
+        "acceptedClaimRowsAfterRun": 2101,
+        "physicalBeforeMeasuredBatch": {
+          "databaseFileBytes": 4096,
+          "walFileBytes": 939392,
+          "shmFileBytes": 32768
+        },
+        "physicalBeforeCheckpoint": {
+          "databaseFileBytes": 512000,
+          "walFileBytes": 4132392,
+          "shmFileBytes": 32768
+        },
+        "physicalAfterCheckpoint": {
+          "databaseFileBytes": 602112,
+          "walFileBytes": 0,
+          "shmFileBytes": 0
+        },
+        "physicalGrowthDuringMeasuredBatchBytes": 3700904
+      },
+      "processPeakRssBytes": 61628416
+    },
+    {
+      "run": 7,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeStateStoreSetup": {
+          "wallMsPerOperation": 12.946875,
+          "cpuMsPerOperation": 1.557,
+          "totalWallMs": 12.946875,
+          "totalCpuMs": 1.557
+        },
+        "lookupMiss": {
+          "wallMsPerOperation": 0.0024521250000000003,
+          "cpuMsPerOperation": 0.010166999999999999,
+          "totalWallMs": 2.452125,
+          "totalCpuMs": 10.167
+        },
+        "atomicClaimTransactionSuccess": {
+          "wallMsPerOperation": 0.5276795,
+          "cpuMsPerOperation": 0.098741,
+          "totalWallMs": 527.6795,
+          "totalCpuMs": 98.741
+        },
+        "lookupHit": {
+          "wallMsPerOperation": 0.003997125,
+          "cpuMsPerOperation": 0.00401,
+          "totalWallMs": 3.997125,
+          "totalCpuMs": 4.01
+        },
+        "atomicClaimTransactionConflict": {
+          "wallMsPerOperation": 0.006777666,
+          "cpuMsPerOperation": 0.006939,
+          "totalWallMs": 6.777666,
+          "totalCpuMs": 6.939
+        },
+        "firstClaimStateTransition": {
+          "wallMsPerOperation": 0.5799897089999999,
+          "cpuMsPerOperation": 0.120387,
+          "totalWallMs": 579.989709,
+          "totalCpuMs": 120.387
+        }
+      },
+      "storeConfiguration": {
+        "journalMode": "WAL",
+        "synchronous": 2,
+        "busyTimeoutMs": 5000,
+        "foreignKeys": 1
+      },
+      "correctness": {
+        "firstClaimAccepted": true,
+        "replayLookupHit": true,
+        "replayRejected": true,
+        "injectedFailureObserved": true,
+        "rollbackLeftCountsUnchanged": true,
+        "rollbackKeyAbsent": true,
+        "noOrphans": true,
+        "beforeRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        },
+        "afterRollback": {
+          "spentRows": 2101,
+          "claimRows": 2101,
+          "spentWithoutClaim": 0,
+          "claimsWithoutSpent": 0,
+          "noOrphans": true
+        }
+      },
+      "sizes": {
+        "nullifierBytes": 32,
+        "scopeHashBytes": 32,
+        "namespaceBytes": 32,
+        "logicalPrimaryKeyBytes": 96,
+        "expectedRowsPerTable": 2101,
+        "spentRowsAfterRun": 2101,
+        "acceptedClaimRowsAfterRun": 2101,
+        "physicalBeforeMeasuredBatch": {
+          "databaseFileBytes": 4096,
+          "walFileBytes": 939392,
+          "shmFileBytes": 32768
+        },
+        "physicalBeforeCheckpoint": {
+          "databaseFileBytes": 512000,
+          "walFileBytes": 4132392,
+          "shmFileBytes": 32768
+        },
+        "physicalAfterCheckpoint": {
+          "databaseFileBytes": 602112,
+          "walFileBytes": 0,
+          "shmFileBytes": 0
+        },
+        "physicalGrowthDuringMeasuredBatchBytes": 3700904
+      },
+      "processPeakRssBytes": 61952000
+    }
+  ],
+  "summary": {
+    "oneTimeStateStoreSetup": {
+      "wallMs": {
+        "min": 11.254542,
+        "median": 12.554208,
+        "max": 13.994416,
+        "mean": 12.694369,
+        "variance": 0.9602772863909989,
+        "standardDeviation": 0.9799373890157467,
+        "coefficientOfVariation": 0.07719465134625807,
+        "medianAbsoluteDeviation": 0.6887079999999983,
+        "raw": [
+          13.994416,
+          12.554208,
+          11.8655,
+          13.778792,
+          11.254542,
+          12.46625,
+          12.946875
+        ]
+      },
+      "cpuMs": {
+        "min": 1.498,
+        "median": 2.115,
+        "max": 4.479,
+        "mean": 2.2922857142857143,
+        "variance": 1.0839245714285715,
+        "standardDeviation": 1.041116982585805,
+        "coefficientOfVariation": 0.4541829040321972,
+        "medianAbsoluteDeviation": 0.4970000000000001,
+        "raw": [
+          4.479,
+          2.239,
+          2.54,
+          2.115,
+          1.618,
+          1.498,
+          1.557
+        ]
+      }
+    },
+    "lookupMiss": {
+      "wallMs": {
+        "min": 0.002187875,
+        "median": 0.002445208,
+        "max": 0.004644583,
+        "mean": 0.002706118857142857,
+        "variance": 7.480140115278094e-7,
+        "standardDeviation": 0.0008648780327467044,
+        "coefficientOfVariation": 0.31960090387894113,
+        "medianAbsoluteDeviation": 0.0001502919999999998,
+        "raw": [
+          0.002445208,
+          0.002187875,
+          0.002333958,
+          0.004644583,
+          0.0025954999999999997,
+          0.002283583,
+          0.0024521250000000003
+        ]
+      },
+      "cpuMs": {
+        "min": 0.008079000000000001,
+        "median": 0.01002,
+        "max": 0.012018000000000001,
+        "mean": 0.009708285714285714,
+        "variance": 0.000001930777571428572,
+        "standardDeviation": 0.0013895242248440909,
+        "coefficientOfVariation": 0.14312766081857375,
+        "medianAbsoluteDeviation": 0.0009420000000000001,
+        "raw": [
+          0.008168,
+          0.009078,
+          0.01002,
+          0.012018000000000001,
+          0.010428000000000002,
+          0.008079000000000001,
+          0.010166999999999999
+        ]
+      }
+    },
+    "atomicClaimTransactionSuccess": {
+      "wallMs": {
+        "min": 0.513486667,
+        "median": 0.5399615,
+        "max": 0.771473708,
+        "mean": 0.5705469167142857,
+        "variance": 0.008088944424082103,
+        "standardDeviation": 0.08993855916169718,
+        "coefficientOfVariation": 0.1576356939752528,
+        "medianAbsoluteDeviation": 0.015575875000000017,
+        "raw": [
+          0.513486667,
+          0.556502042,
+          0.555537375,
+          0.771473708,
+          0.529187625,
+          0.5399615,
+          0.5276795
+        ]
+      },
+      "cpuMs": {
+        "min": 0.098741,
+        "median": 0.103181,
+        "max": 0.14409899999999998,
+        "mean": 0.11006742857142857,
+        "variance": 0.00025395264961904746,
+        "standardDeviation": 0.01593589186770064,
+        "coefficientOfVariation": 0.1447829941567046,
+        "medianAbsoluteDeviation": 0.0025570000000000037,
+        "raw": [
+          0.103181,
+          0.105504,
+          0.115415,
+          0.14409899999999998,
+          0.10062399999999999,
+          0.102908,
+          0.098741
+        ]
+      }
+    },
+    "lookupHit": {
+      "wallMs": {
+        "min": 0.003942542,
+        "median": 0.004049958,
+        "max": 0.006575958,
+        "mean": 0.004552273714285715,
+        "variance": 8.907106212282379e-7,
+        "standardDeviation": 0.0009437746665535359,
+        "coefficientOfVariation": 0.20731940252007036,
+        "medianAbsoluteDeviation": 0.00010741599999999994,
+        "raw": [
+          0.004729,
+          0.004018,
+          0.006575958,
+          0.004049958,
+          0.0045533330000000006,
+          0.003942542,
+          0.003997125
+        ]
+      },
+      "cpuMs": {
+        "min": 0.003947,
+        "median": 0.004058,
+        "max": 0.006587,
+        "mean": 0.00456,
+        "variance": 8.928206666666667e-7,
+        "standardDeviation": 0.0009448918809401776,
+        "coefficientOfVariation": 0.20721313178512668,
+        "medianAbsoluteDeviation": 0.00011099999999999999,
+        "raw": [
+          0.0047350000000000005,
+          0.004024,
+          0.006587,
+          0.004058,
+          0.0045590000000000006,
+          0.003947,
+          0.00401
+        ]
+      }
+    },
+    "atomicClaimTransactionConflict": {
+      "wallMs": {
+        "min": 0.005964333,
+        "median": 0.0068363750000000004,
+        "max": 0.0069368749999999995,
+        "mean": 0.006622345142857144,
+        "variance": 1.7388099545314296e-7,
+        "standardDeviation": 0.00041699040211153895,
+        "coefficientOfVariation": 0.06296718052536185,
+        "medianAbsoluteDeviation": 0.00008666699999999947,
+        "raw": [
+          0.00607325,
+          0.006844875,
+          0.006923042,
+          0.0068363750000000004,
+          0.005964333,
+          0.0069368749999999995,
+          0.006777666
+        ]
+      },
+      "cpuMs": {
+        "min": 0.006162,
+        "median": 0.007041,
+        "max": 0.007410999999999999,
+        "mean": 0.006871285714285714,
+        "variance": 2.0733557142857136e-7,
+        "standardDeviation": 0.00045534115938334783,
+        "coefficientOfVariation": 0.06626724288828115,
+        "medianAbsoluteDeviation": 0.00010200000000000053,
+        "raw": [
+          0.006324,
+          0.007041,
+          0.007410999999999999,
+          0.0070810000000000005,
+          0.006162,
+          0.007141,
+          0.006939
+        ]
+      }
+    },
+    "firstClaimStateTransition": {
+      "wallMs": {
+        "min": 0.41978020800000004,
+        "median": 0.45369241699999996,
+        "max": 0.5799897089999999,
+        "mean": 0.4812273337142857,
+        "variance": 0.004161599755619866,
+        "standardDeviation": 0.06451046237332256,
+        "coefficientOfVariation": 0.13405402780305017,
+        "medianAbsoluteDeviation": 0.016088290999999977,
+        "raw": [
+          0.41978020800000004,
+          0.565936209,
+          0.46823254200000003,
+          0.437604126,
+          0.44335612500000005,
+          0.45369241699999996,
+          0.5799897089999999
+        ]
+      },
+      "cpuMs": {
+        "min": 0.099176,
+        "median": 0.104802,
+        "max": 0.12461,
+        "mean": 0.109232,
+        "variance": 0.00009463240999999993,
+        "standardDeviation": 0.009727919099170179,
+        "coefficientOfVariation": 0.08905741082439377,
+        "medianAbsoluteDeviation": 0.005384999999999987,
+        "raw": [
+          0.099176,
+          0.12461,
+          0.110187,
+          0.102143,
+          0.10331900000000001,
+          0.104802,
+          0.120387
+        ]
+      }
+    }
+  },
+  "concurrency": [
+    {
+      "mode": "same-nullifier",
+      "workers": 2,
+      "accepted": 1,
+      "rejected": 1,
+      "outcomes": 2,
+      "errors": [],
+      "finalCardinality": {
+        "spentRows": 1,
+        "claimRows": 1,
+        "spentWithoutClaim": 0,
+        "claimsWithoutSpent": 0,
+        "noOrphans": true
+      },
+      "overlap": {
+        "allWorkersOverlap": true,
+        "allWorkerOverlapMs": 32.644791,
+        "pairwiseOverlaps": 1,
+        "possibleWorkerPairs": 1,
+        "maxConcurrentWorkers": 2,
+        "operationWindowMs": 48.083792
+      },
+      "raceInstrumentation": {
+        "startGateLeadMs": 50,
+        "acceptedTransactionHoldMs": 25,
+        "note": "The accepted writer holds its transaction only in this correctness stress test; serial latency excludes this hold."
+      },
+      "wallMs": 102.227333,
+      "summedCpuMs": 1.046,
+      "maxWorkerRssBytes": 49950720,
+      "summedWorkerPeakRssUpperBoundBytes": 99708928,
+      "rawWorkers": [
+        {
+          "index": 0,
+          "accepted": true,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6927807397862",
+          "endedMonotonicNs": "6927842139070",
+          "wallMs": 34.802208,
+          "cpuMs": 0.656,
+          "processPeakRssBytes": 49758208,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 1,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6927809494279",
+          "endedMonotonicNs": "6927855481654",
+          "wallMs": 46.052333,
+          "cpuMs": 0.39,
+          "processPeakRssBytes": 49950720,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        }
+      ]
+    },
+    {
+      "mode": "distinct-nullifiers",
+      "workers": 2,
+      "accepted": 2,
+      "rejected": 0,
+      "outcomes": 2,
+      "errors": [],
+      "finalCardinality": {
+        "spentRows": 2,
+        "claimRows": 2,
+        "spentWithoutClaim": 0,
+        "claimsWithoutSpent": 0,
+        "noOrphans": true
+      },
+      "overlap": {
+        "allWorkersOverlap": true,
+        "allWorkerOverlapMs": 38.229791,
+        "pairwiseOverlaps": 1,
+        "possibleWorkerPairs": 1,
+        "maxConcurrentWorkers": 2,
+        "operationWindowMs": 85.808708
+      },
+      "raceInstrumentation": {
+        "startGateLeadMs": 50,
+        "acceptedTransactionHoldMs": 25,
+        "note": "The accepted writer holds its transaction only in this correctness stress test; serial latency excludes this hold."
+      },
+      "wallMs": 142.176584,
+      "summedCpuMs": 1.308,
+      "maxWorkerRssBytes": 49938432,
+      "summedWorkerPeakRssUpperBoundBytes": 99753984,
+      "rawWorkers": [
+        {
+          "index": 0,
+          "accepted": true,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6927974232154",
+          "endedMonotonicNs": "6928060040820",
+          "wallMs": 85.867583,
+          "cpuMs": 0.767,
+          "processPeakRssBytes": 49815552,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 1,
+          "accepted": true,
+          "keyDigest": "OHwxmNMKwLVkU-PyV5WB6zryrVcnF4iFcSpoFiDHpH4",
+          "startedMonotonicNs": "6927974232112",
+          "endedMonotonicNs": "6928012461945",
+          "wallMs": 38.279792,
+          "cpuMs": 0.541,
+          "processPeakRssBytes": 49938432,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        }
+      ]
+    },
+    {
+      "mode": "same-nullifier",
+      "workers": 4,
+      "accepted": 1,
+      "rejected": 3,
+      "outcomes": 4,
+      "errors": [],
+      "finalCardinality": {
+        "spentRows": 1,
+        "claimRows": 1,
+        "spentWithoutClaim": 0,
+        "claimsWithoutSpent": 0,
+        "noOrphans": true
+      },
+      "overlap": {
+        "allWorkersOverlap": true,
+        "allWorkerOverlapMs": 33.186875,
+        "pairwiseOverlaps": 6,
+        "possibleWorkerPairs": 6,
+        "maxConcurrentWorkers": 4,
+        "operationWindowMs": 98.009292
+      },
+      "raceInstrumentation": {
+        "startGateLeadMs": 50,
+        "acceptedTransactionHoldMs": 25,
+        "note": "The accepted writer holds its transaction only in this correctness stress test; serial latency excludes this hold."
+      },
+      "wallMs": 159.479792,
+      "summedCpuMs": 2.2070000000000003,
+      "maxWorkerRssBytes": 49876992,
+      "summedWorkerPeakRssUpperBoundBytes": 199147520,
+      "rawWorkers": [
+        {
+          "index": 0,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928186047821",
+          "endedMonotonicNs": "6928284026946",
+          "wallMs": 98.075416,
+          "cpuMs": 0.504,
+          "processPeakRssBytes": 49758208,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 1,
+          "accepted": true,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928186023987",
+          "endedMonotonicNs": "6928219327321",
+          "wallMs": 33.38975,
+          "cpuMs": 0.64,
+          "processPeakRssBytes": 49692672,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 2,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928186140446",
+          "endedMonotonicNs": "6928256576987",
+          "wallMs": 70.601666,
+          "cpuMs": 0.55,
+          "processPeakRssBytes": 49876992,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 3,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928186017654",
+          "endedMonotonicNs": "6928233217321",
+          "wallMs": 47.286917,
+          "cpuMs": 0.513,
+          "processPeakRssBytes": 49819648,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        }
+      ]
+    },
+    {
+      "mode": "distinct-nullifiers",
+      "workers": 4,
+      "accepted": 4,
+      "rejected": 0,
+      "outcomes": 4,
+      "errors": [],
+      "finalCardinality": {
+        "spentRows": 4,
+        "claimRows": 4,
+        "spentWithoutClaim": 0,
+        "claimsWithoutSpent": 0,
+        "noOrphans": true
+      },
+      "overlap": {
+        "allWorkersOverlap": true,
+        "allWorkerOverlapMs": 32.142416,
+        "pairwiseOverlaps": 6,
+        "possibleWorkerPairs": 6,
+        "maxConcurrentWorkers": 4,
+        "operationWindowMs": 190.034792
+      },
+      "raceInstrumentation": {
+        "startGateLeadMs": 50,
+        "acceptedTransactionHoldMs": 25,
+        "note": "The accepted writer holds its transaction only in this correctness stress test; serial latency excludes this hold."
+      },
+      "wallMs": 253.677959,
+      "summedCpuMs": 3.813,
+      "maxWorkerRssBytes": 49950720,
+      "summedWorkerPeakRssUpperBoundBytes": 199503872,
+      "rawWorkers": [
+        {
+          "index": 0,
+          "accepted": true,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928416437779",
+          "endedMonotonicNs": "6928544066612",
+          "wallMs": 127.687417,
+          "cpuMs": 0.848,
+          "processPeakRssBytes": 49938432,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 1,
+          "accepted": true,
+          "keyDigest": "OHwxmNMKwLVkU-PyV5WB6zryrVcnF4iFcSpoFiDHpH4",
+          "startedMonotonicNs": "6928416518696",
+          "endedMonotonicNs": "6928606469571",
+          "wallMs": 190.178416,
+          "cpuMs": 1.465,
+          "processPeakRssBytes": 49950720,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 2,
+          "accepted": true,
+          "keyDigest": "H_qBcyg3bsxp4pS7ui_xEHFIFv_GrcsC1JGWYRLCbaM",
+          "startedMonotonicNs": "6928416434779",
+          "endedMonotonicNs": "6928489073196",
+          "wallMs": 72.701125,
+          "cpuMs": 0.846,
+          "processPeakRssBytes": 49803264,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 3,
+          "accepted": true,
+          "keyDigest": "wCgNDEFPq5wIQFwklohw2WLPD3zhlnwq47D3RW-ApeE",
+          "startedMonotonicNs": "6928416437987",
+          "endedMonotonicNs": "6928448661112",
+          "wallMs": 32.28425,
+          "cpuMs": 0.654,
+          "processPeakRssBytes": 49811456,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        }
+      ]
+    },
+    {
+      "mode": "same-nullifier",
+      "workers": 8,
+      "accepted": 1,
+      "rejected": 7,
+      "outcomes": 8,
+      "errors": [],
+      "finalCardinality": {
+        "spentRows": 1,
+        "claimRows": 1,
+        "spentWithoutClaim": 0,
+        "claimsWithoutSpent": 0,
+        "noOrphans": true
+      },
+      "overlap": {
+        "allWorkersOverlap": true,
+        "allWorkerOverlapMs": 29.272375,
+        "pairwiseOverlaps": 28,
+        "possibleWorkerPairs": 28,
+        "maxConcurrentWorkers": 8,
+        "operationWindowMs": 91.423209
+      },
+      "raceInstrumentation": {
+        "startGateLeadMs": 50,
+        "acceptedTransactionHoldMs": 25,
+        "note": "The accepted writer holds its transaction only in this correctness stress test; serial latency excludes this hold."
+      },
+      "wallMs": 145.159334,
+      "summedCpuMs": 3.382,
+      "maxWorkerRssBytes": 49819648,
+      "summedWorkerPeakRssUpperBoundBytes": 397897728,
+      "rawWorkers": [
+        {
+          "index": 0,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928793526362",
+          "endedMonotonicNs": "6928857391071",
+          "wallMs": 63.960001,
+          "cpuMs": 0.447,
+          "processPeakRssBytes": 49627136,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 1,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928792723029",
+          "endedMonotonicNs": "6928858828946",
+          "wallMs": 66.163,
+          "cpuMs": 0.391,
+          "processPeakRssBytes": 49627136,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 2,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928792724737",
+          "endedMonotonicNs": "6928858891821",
+          "wallMs": 66.221417,
+          "cpuMs": 0.373,
+          "processPeakRssBytes": 49815552,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 3,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928794309196",
+          "endedMonotonicNs": "6928837307321",
+          "wallMs": 43.056375,
+          "cpuMs": 0.3,
+          "processPeakRssBytes": 49819648,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 4,
+          "accepted": true,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928792724612",
+          "endedMonotonicNs": "6928823581571",
+          "wallMs": 30.915167,
+          "cpuMs": 0.667,
+          "processPeakRssBytes": 49741824,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 5,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928794263112",
+          "endedMonotonicNs": "6928837229071",
+          "wallMs": 43.059917,
+          "cpuMs": 0.444,
+          "processPeakRssBytes": 49627136,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 6,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928793566112",
+          "endedMonotonicNs": "6928884146238",
+          "wallMs": 90.675709,
+          "cpuMs": 0.454,
+          "processPeakRssBytes": 49819648,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 7,
+          "accepted": false,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6928792746987",
+          "endedMonotonicNs": "6928838563238",
+          "wallMs": 45.870126,
+          "cpuMs": 0.306,
+          "processPeakRssBytes": 49819648,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        }
+      ]
+    },
+    {
+      "mode": "distinct-nullifiers",
+      "workers": 8,
+      "accepted": 8,
+      "rejected": 0,
+      "outcomes": 8,
+      "errors": [],
+      "finalCardinality": {
+        "spentRows": 8,
+        "claimRows": 8,
+        "spentWithoutClaim": 0,
+        "claimsWithoutSpent": 0,
+        "noOrphans": true
+      },
+      "overlap": {
+        "allWorkersOverlap": true,
+        "allWorkerOverlapMs": 30.396958,
+        "pairwiseOverlaps": 28,
+        "possibleWorkerPairs": 28,
+        "maxConcurrentWorkers": 8,
+        "operationWindowMs": 495.225708
+      },
+      "raceInstrumentation": {
+        "startGateLeadMs": 50,
+        "acceptedTransactionHoldMs": 25,
+        "note": "The accepted writer holds its transaction only in this correctness stress test; serial latency excludes this hold."
+      },
+      "wallMs": 553.906333,
+      "summedCpuMs": 13.186,
+      "maxWorkerRssBytes": 49819648,
+      "summedWorkerPeakRssUpperBoundBytes": 397971456,
+      "rawWorkers": [
+        {
+          "index": 0,
+          "accepted": true,
+          "keyDigest": "7RAv7Aq6lXIVS1hqhhT7LbUf9a69q5PmIVJO8JfGhhM",
+          "startedMonotonicNs": "6929112162238",
+          "endedMonotonicNs": "6929228244654",
+          "wallMs": 116.140375,
+          "cpuMs": 0.949,
+          "processPeakRssBytes": 49819648,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 1,
+          "accepted": true,
+          "keyDigest": "OHwxmNMKwLVkU-PyV5WB6zryrVcnF4iFcSpoFiDHpH4",
+          "startedMonotonicNs": "6929112236363",
+          "endedMonotonicNs": "6929178282363",
+          "wallMs": 66.121333,
+          "cpuMs": 0.896,
+          "processPeakRssBytes": 49741824,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 2,
+          "accepted": true,
+          "keyDigest": "H_qBcyg3bsxp4pS7ui_xEHFIFv_GrcsC1JGWYRLCbaM",
+          "startedMonotonicNs": "6929111234363",
+          "endedMonotonicNs": "6929292914029",
+          "wallMs": 181.854291,
+          "cpuMs": 1.344,
+          "processPeakRssBytes": 49745920,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 3,
+          "accepted": true,
+          "keyDigest": "wCgNDEFPq5wIQFwklohw2WLPD3zhlnwq47D3RW-ApeE",
+          "startedMonotonicNs": "6929111178988",
+          "endedMonotonicNs": "6929335827529",
+          "wallMs": 224.816833,
+          "cpuMs": 1.784,
+          "processPeakRssBytes": 49676288,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 4,
+          "accepted": true,
+          "keyDigest": "sU3-bZEWcT3IXf0APpnuKXmVSnlq_Liw4YgZehLgoMw",
+          "startedMonotonicNs": "6929111102863",
+          "endedMonotonicNs": "6929142633321",
+          "wallMs": 31.593833,
+          "cpuMs": 0.753,
+          "processPeakRssBytes": 49754112,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 5,
+          "accepted": true,
+          "keyDigest": "EYH1qNxCTzAkfNFSxxMHoJMJma2-mYNDKxgEfD81ksw",
+          "startedMonotonicNs": "6929112076446",
+          "endedMonotonicNs": "6929493367779",
+          "wallMs": 381.559,
+          "cpuMs": 2.091,
+          "processPeakRssBytes": 49819648,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 6,
+          "accepted": true,
+          "keyDigest": "MHpnaTOyKFQ4p_qzhqk3QYqL3D44IN7PfIEl-7dbNqg",
+          "startedMonotonicNs": "6929112173863",
+          "endedMonotonicNs": "6929606328571",
+          "wallMs": 494.525625,
+          "cpuMs": 3.28,
+          "processPeakRssBytes": 49655808,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        },
+        {
+          "index": 7,
+          "accepted": true,
+          "keyDigest": "XYcvwRYzTIp-h9o3ckh-9I1Bj6A_vynKCYXZTJLUX5o",
+          "startedMonotonicNs": "6929111127779",
+          "endedMonotonicNs": "6929386168029",
+          "wallMs": 275.295625,
+          "cpuMs": 2.089,
+          "processPeakRssBytes": 49758208,
+          "storeConfiguration": {
+            "journalMode": "WAL",
+            "synchronous": 2,
+            "busyTimeoutMs": 5000,
+            "foreignKeys": 1
+          }
+        }
+      ]
+    }
+  ],
+  "correctness": {
+    "sequentialReplay": true,
+    "injectedFailureRollsBackBothRows": true,
+    "sameNullifierRacesExactlyOneWinner": true,
+    "distinctNullifiersAllAccepted": true,
+    "everyRaceWorkerUsesFullSynchronous": true,
+    "everyRaceHasActualOverlap": true
+  }
+}

@@ -1,0 +1,332 @@
+{
+  "profile": "swiyu.age-over-18.packed-status-chunk.v2",
+  "prepare_circuit": "swiyu_age18_prepare_compact",
+  "show_circuit": "swiyu_age18_show_packed_chunk_v2",
+  "business_statement": "issuer-authenticated birthdate is on or before the verifier-selected age-18 cutoff and status is VALID",
+  "accepted_vct": "https://example.ch/vct/person",
+  "repetitions": 1,
+  "expanded_after_first_two": false,
+  "raw_runs": [
+    {
+      "run": 1,
+      "prepare": {
+        "witness_handoff_ms": 163.539042,
+        "setup_ms": 39585.702892999994,
+        "key_serialization_ms": 585.7145419999999,
+        "assignment_ms": 9285.276087,
+        "prepared_state_serialization_ms": 58.030166,
+        "final_proof_ms": 6333.150336,
+        "proof_serialization_ms": 30.933249999999997,
+        "proof_deserialization_ms": 98.89654200000001,
+        "verify_ms": 1366.2397509999998,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 124.667125,
+        "setup_ms": 7873.299754,
+        "key_serialization_ms": 97.98025,
+        "assignment_ms": 1545.926584,
+        "prepared_state_serialization_ms": 16.379792000000002,
+        "final_proof_ms": 1403.78475,
+        "proof_serialization_ms": 10.220291,
+        "proof_deserialization_ms": 32.283458,
+        "verify_ms": 232.31454100000002,
+        "verified": true
+      },
+      "link_randomness_ms": 0.0405,
+      "linked_commitments_equal": true
+    }
+  ],
+  "prepare_summary": {
+    "witness_handoff": {
+      "min_ms": 163.539042,
+      "median_ms": 163.539042,
+      "max_ms": 163.539042,
+      "mean_ms": 163.539042,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 39585.702892999994,
+      "median_ms": 39585.702892999994,
+      "max_ms": 39585.702892999994,
+      "mean_ms": 39585.702892999994,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 585.7145419999999,
+      "median_ms": 585.7145419999999,
+      "max_ms": 585.7145419999999,
+      "mean_ms": 585.7145419999999,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 9285.276087,
+      "median_ms": 9285.276087,
+      "max_ms": 9285.276087,
+      "mean_ms": 9285.276087,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 58.030166,
+      "median_ms": 58.030166,
+      "max_ms": 58.030166,
+      "mean_ms": 58.030166,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 6333.150336,
+      "median_ms": 6333.150336,
+      "max_ms": 6333.150336,
+      "mean_ms": 6333.150336,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 30.933249999999997,
+      "median_ms": 30.933249999999997,
+      "max_ms": 30.933249999999997,
+      "mean_ms": 30.933249999999997,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 98.89654200000001,
+      "median_ms": 98.89654200000001,
+      "max_ms": 98.89654200000001,
+      "mean_ms": 98.89654200000001,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 1366.2397509999998,
+      "median_ms": 1366.2397509999998,
+      "max_ms": 1366.2397509999998,
+      "mean_ms": 1366.2397509999998,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "show_summary": {
+    "witness_handoff": {
+      "min_ms": 124.667125,
+      "median_ms": 124.667125,
+      "max_ms": 124.667125,
+      "mean_ms": 124.667125,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 7873.299754,
+      "median_ms": 7873.299754,
+      "max_ms": 7873.299754,
+      "mean_ms": 7873.299754,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 97.98025,
+      "median_ms": 97.98025,
+      "max_ms": 97.98025,
+      "mean_ms": 97.98025,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 1545.926584,
+      "median_ms": 1545.926584,
+      "max_ms": 1545.926584,
+      "mean_ms": 1545.926584,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 16.379792000000002,
+      "median_ms": 16.379792000000002,
+      "max_ms": 16.379792000000002,
+      "mean_ms": 16.379792000000002,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 1403.78475,
+      "median_ms": 1403.78475,
+      "max_ms": 1403.78475,
+      "mean_ms": 1403.78475,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 10.220291,
+      "median_ms": 10.220291,
+      "max_ms": 10.220291,
+      "mean_ms": 10.220291,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 32.283458,
+      "median_ms": 32.283458,
+      "max_ms": 32.283458,
+      "mean_ms": 32.283458,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 232.31454100000002,
+      "median_ms": 232.31454100000002,
+      "max_ms": 232.31454100000002,
+      "mean_ms": 232.31454100000002,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "witness_generation": {
+    "policy": {
+      "cutoffDate": "2007-06-15",
+      "derivedClaim": [
+        "age_over_18",
+        true
+      ],
+      "packedStatusShow": {
+        "circuitId": "swiyu_age18_show_packed_chunk_v2",
+        "profile": "swiyu.age-over-18.packed-status-chunk.v2"
+      },
+      "packedStatusV2": {
+        "chunkBytes": 64,
+        "epoch": 172,
+        "listLength": 65536,
+        "snapshotRoot": "8931f6a85f7db62ba4d1546343c0f54e290c93197a8db2d4a54cb377e968a3ef",
+        "statusValue": 0,
+        "treeDepth": 6,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2"
+      },
+      "sourceClaim": [
+        "birthdate",
+        "2000-02-29"
+      ],
+      "statusRequired": "VALID (00)",
+      "statusSnapshot": {
+        "chunkBytes": 64,
+        "epoch": 172,
+        "index": 42,
+        "listLength": 65536,
+        "snapshotRoot": "8931f6a85f7db62ba4d1546343c0f54e290c93197a8db2d4a54cb377e968a3ef",
+        "statusValue": 0,
+        "treeDepth": 6,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "uri": "https://status.example.ch/lists/2026-07"
+      }
+    },
+    "processPeakRssBytes": 1320538112,
+    "public": {
+      "prepare": [
+        "82525907181626231287704157497068554142065671398564481235517318161144430297903",
+        "101343171759091355195749146932260733154839064181030610358538636521915650356933"
+      ],
+      "show": [
+        "24951136645275937359361987358989996905007680713764609787961811642635217123648",
+        "20070615",
+        "1750000000",
+        "313927688688669177223052119079645262283",
+        "338052470328626775642301851615909487025",
+        "209799587954403568442386823119399521719",
+        "319442307260500777320950761878611188998"
+      ],
+      "showPackedV2": [
+        "24951136645275937359361987358989996905007680713764609787961811642635217123648",
+        "20070615",
+        "1750000000",
+        "313927688688669177223052119079645262283",
+        "338052470328626775642301851615909487025",
+        "278865849740966750479638951304827096161",
+        "235568345709661124995395647962270782697"
+      ]
+    },
+    "shared": {
+      "birthdateNumeric": "20000229",
+      "credentialExp": "1800000000",
+      "credentialNbf": "1700000000",
+      "expressionResult": "1",
+      "holderKeyX": "49226676182069848156580334044765572833428250528931558546637271884398860598048",
+      "holderKeyY": "83075515058809820668660141895767598134050624995741154911533842436778653471195",
+      "lookupHashHi": "337616652340616765709413123571994562837",
+      "lookupHashLo": "259140651913422432570676909175008620912",
+      "statusIndex": 42,
+      "statusUriHashHi": "45567781746925399912114589800924482042",
+      "statusUriHashLo": "195967405013153578449867865253054386113"
+    },
+    "statusSnapshotStagesMs": {
+      "packedV2PathGeneration": [
+        0.2860419999997248
+      ],
+      "packedV2TreeBuild": [
+        23.130084000000352
+      ]
+    },
+    "witnessGenerationMs": {
+      "prepare": 7286.926712,
+      "show": 5916.109128,
+      "showPackedV2": 4423.032002,
+      "unlinkedShow": 6283.623462
+    }
+  },
+  "exact_sizes": {
+    "prepare": {
+      "constraints": 2455623,
+      "wires": 2352135,
+      "r1cs_bytes": 517356964,
+      "wasm_bytes": 10167142,
+      "witness_bytes": 75268396,
+      "proving_key_bytes": 621889042,
+      "verifying_key_bytes": 621889010,
+      "proof_bytes": 180055,
+      "pre_reblind_instance_bytes": 135471,
+      "assignment_bytes": 134348817,
+      "public_input_count": 2,
+      "hidden_shared_value_count": 11
+    },
+    "show": {
+      "constraints": 630088,
+      "wires": 622737,
+      "r1cs_bytes": 155004856,
+      "wasm_bytes": 2862789,
+      "witness_bytes": 19927660,
+      "proving_key_bytes": 183491010,
+      "verifying_key_bytes": 183490978,
+      "proof_bytes": 77847,
+      "pre_reblind_instance_bytes": 34255,
+      "assignment_bytes": 33587217,
+      "public_input_count": 7,
+      "hidden_shared_value_count": 11
+    }
+  },
+  "negative_linkage": {
+    "unlinked_show_verified_independently": true,
+    "unlinked_shared_commitment_rejected": true
+  },
+  "production_peak_rss_bytes": 4197924864,
+  "peak_rss_after_negative_control_bytes": 4197924864
+}

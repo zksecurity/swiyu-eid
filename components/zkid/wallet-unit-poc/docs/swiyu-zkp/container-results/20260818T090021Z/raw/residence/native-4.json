@@ -1,0 +1,426 @@
+{
+  "profile": "swiyu.residence-eligibility.combined-disclosure.v1",
+  "prepare_circuit": "swiyu_residence_combined_prepare_compact",
+  "show_circuit": "swiyu_residence_show_packed_chunk_v2",
+  "business_statement": "authoritative current main residence is in the accepted municipality set and began at least the required whole UTC days ago",
+  "accepted_vct": "urn:ch:swiyu-lab:residence-eligibility:v1",
+  "repetitions": 1,
+  "expanded_after_first_two": false,
+  "raw_runs": [
+    {
+      "run": 1,
+      "prepare": {
+        "witness_handoff_ms": 199.117041,
+        "setup_ms": 41599.168436,
+        "key_serialization_ms": 402.538501,
+        "assignment_ms": 8533.494544,
+        "prepared_state_serialization_ms": 58.173334,
+        "final_proof_ms": 8247.427629,
+        "proof_serialization_ms": 30.546541,
+        "proof_deserialization_ms": 107.13558300000001,
+        "verify_ms": 1344.205251,
+        "verified": true
+      },
+      "show": {
+        "witness_handoff_ms": 114.629708,
+        "setup_ms": 9692.374212,
+        "key_serialization_ms": 113.134958,
+        "assignment_ms": 2081.548209,
+        "prepared_state_serialization_ms": 17.886375,
+        "final_proof_ms": 1449.273042,
+        "proof_serialization_ms": 10.292417,
+        "proof_deserialization_ms": 32.278833,
+        "verify_ms": 214.802667,
+        "verified": true
+      },
+      "link_randomness_ms": 0.015792,
+      "linked_commitments_equal": true
+    }
+  ],
+  "prepare_summary": {
+    "witness_handoff": {
+      "min_ms": 199.117041,
+      "median_ms": 199.117041,
+      "max_ms": 199.117041,
+      "mean_ms": 199.117041,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 41599.168436,
+      "median_ms": 41599.168436,
+      "max_ms": 41599.168436,
+      "mean_ms": 41599.168436,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 402.538501,
+      "median_ms": 402.538501,
+      "max_ms": 402.538501,
+      "mean_ms": 402.538501,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 8533.494544,
+      "median_ms": 8533.494544,
+      "max_ms": 8533.494544,
+      "mean_ms": 8533.494544,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 58.173334,
+      "median_ms": 58.173334,
+      "max_ms": 58.173334,
+      "mean_ms": 58.173334,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 8247.427629,
+      "median_ms": 8247.427629,
+      "max_ms": 8247.427629,
+      "mean_ms": 8247.427629,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 30.546541,
+      "median_ms": 30.546541,
+      "max_ms": 30.546541,
+      "mean_ms": 30.546541,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 107.13558300000001,
+      "median_ms": 107.13558300000001,
+      "max_ms": 107.13558300000001,
+      "mean_ms": 107.13558300000001,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 1344.205251,
+      "median_ms": 1344.205251,
+      "max_ms": 1344.205251,
+      "mean_ms": 1344.205251,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "show_summary": {
+    "witness_handoff": {
+      "min_ms": 114.629708,
+      "median_ms": 114.629708,
+      "max_ms": 114.629708,
+      "mean_ms": 114.629708,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "setup": {
+      "min_ms": 9692.374212,
+      "median_ms": 9692.374212,
+      "max_ms": 9692.374212,
+      "mean_ms": 9692.374212,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "key_serialization": {
+      "min_ms": 113.134958,
+      "median_ms": 113.134958,
+      "max_ms": 113.134958,
+      "mean_ms": 113.134958,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "assignment": {
+      "min_ms": 2081.548209,
+      "median_ms": 2081.548209,
+      "max_ms": 2081.548209,
+      "mean_ms": 2081.548209,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "prepared_state_serialization": {
+      "min_ms": 17.886375,
+      "median_ms": 17.886375,
+      "max_ms": 17.886375,
+      "mean_ms": 17.886375,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "final_proof": {
+      "min_ms": 1449.273042,
+      "median_ms": 1449.273042,
+      "max_ms": 1449.273042,
+      "mean_ms": 1449.273042,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_serialization": {
+      "min_ms": 10.292417,
+      "median_ms": 10.292417,
+      "max_ms": 10.292417,
+      "mean_ms": 10.292417,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "proof_deserialization": {
+      "min_ms": 32.278833,
+      "median_ms": 32.278833,
+      "max_ms": 32.278833,
+      "mean_ms": 32.278833,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    },
+    "verify": {
+      "min_ms": 214.802667,
+      "median_ms": 214.802667,
+      "max_ms": 214.802667,
+      "mean_ms": 214.802667,
+      "sample_variance_ms2": 0.0,
+      "sample_standard_deviation_ms": 0.0,
+      "coefficient_of_variation": 0.0
+    }
+  },
+  "witness_generation": {
+    "abControl": {
+      "legacyShowCircuit": "swiyu_residence_show_split",
+      "legacyShowWitnessBytes": 28598060,
+      "legacyShowWitnessMs": [
+        5393.588545000002
+      ],
+      "legacyShowWitnessStats": {
+        "coefficientOfVariation": 0,
+        "max": 5393.588545000002,
+        "mean": 5393.588545000002,
+        "median": 5393.588545000002,
+        "min": 5393.588545000002,
+        "standardDeviation": 0
+      },
+      "prepareCircuit": "swiyu_residence_prepare_compact",
+      "prepareWitnessBytes": 82669036,
+      "prepareWitnessMs": [
+        7148.137461
+      ],
+      "prepareWitnessStats": {
+        "coefficientOfVariation": 0,
+        "max": 7148.137461,
+        "mean": 7148.137461,
+        "median": 7148.137461,
+        "min": 7148.137461,
+        "standardDeviation": 0
+      }
+    },
+    "bounds": {
+      "encodedHeaderBytes": 248,
+      "encodedPayloadBytes": 572,
+      "fixtureStatusUriBytes": 39,
+      "paddedSigningInputBytes": 832,
+      "portability": "bounded fixture/profile optimization; not a universal SD-JWT URI bound",
+      "statusUriCommitmentBytes": 160,
+      "statusUriParserBufferBytes": 120
+    },
+    "circuits": {
+      "prepare": "swiyu_residence_combined_prepare_compact",
+      "show": "swiyu_residence_show_packed_chunk_v2"
+    },
+    "controlProfile": "swiyu.residence-eligibility.prepare-show.v1",
+    "disclosure": {
+      "decodedBytes": 84,
+      "encodedBytes": 112,
+      "payloadDecodedBytes": 428,
+      "payloadEncodedBytes": 571,
+      "signingInputBytes": 818
+    },
+    "expandedAfterFirstTwo": false,
+    "fixtureIdentity": {
+      "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+      "disclosureSha256": [
+        "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+      ],
+      "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y"
+    },
+    "policy": {
+      "UTCWholeDaySemantics": true,
+      "allowedMunicipalityBfs": [
+        261,
+        351
+      ],
+      "currentTime": 1750000000,
+      "disclosureShape": "[salt,residence,{municipality_bfs,since}]",
+      "holderChallengeBinding": "swiyu-residence-policy-v1",
+      "minimumResidenceDays": 365,
+      "municipalityBfs": 261,
+      "municipalityDirectoryAsOf": "2025-01-01",
+      "municipalityDirectorySha256": "2a510d6f7de86e40a8d584daba5985422728317619f1e9225bf3c3e28c40905c",
+      "primaryStatusProfile": {
+        "chunkBytes": 64,
+        "circuitId": "swiyu_residence_show_packed_chunk_v2",
+        "profile": "swiyu.residence-eligibility.packed-status-chunk.v2",
+        "root": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeDepth": 6,
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2"
+      },
+      "residenceSince": "2023-01-01",
+      "statusRequired": "VALID (00)",
+      "statusSnapshot": {
+        "encoding": "packed two-bit statuses",
+        "epoch": 1749999970,
+        "listLength": 65536,
+        "packedV2": {
+          "chunkBytes": 64,
+          "circuitId": "swiyu_residence_show_packed_chunk_v2",
+          "profile": "swiyu.residence-eligibility.packed-status-chunk.v2",
+          "root": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+          "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+          "treeDepth": 6,
+          "treeProfile": "packed-status-chunk-ternary-merkle-v2"
+        },
+        "root": "0c5ff2d21a2425ba5f5497b19a04feace17592249fdb1902805a4829f0ea1162",
+        "sdkHostRootContract": "same all-VALID entries, list length, epoch, and ternary construction; exact root must match"
+      }
+    },
+    "predicate": "issuer-authenticated municipality is in a public 1..16 BFS allow-list and residence_since is at least the public duration",
+    "processPeakRssBytes": 1129738240,
+    "profile": "swiyu.residence-eligibility.combined-disclosure.v1",
+    "repetitions": 1,
+    "representation": "one object-valued SD-JWT disclosure",
+    "selectiveDisclosureTradeoff": "municipality_bfs and since cannot be released independently",
+    "statusSnapshotStagesMs": {
+      "expandedAfterFirstTwo": false,
+      "packedV2PathGeneration": [
+        0.2431249999999636
+      ],
+      "packedV2PathGenerationStats": {
+        "coefficientOfVariation": 0,
+        "max": 0.2431249999999636,
+        "mean": 0.2431249999999636,
+        "median": 0.2431249999999636,
+        "min": 0.2431249999999636,
+        "standardDeviation": 0
+      },
+      "packedV2TreeBuild": [
+        20.16870800000015
+      ],
+      "packedV2TreeBuildStats": {
+        "coefficientOfVariation": 0,
+        "max": 20.16870800000015,
+        "mean": 20.16870800000015,
+        "median": 20.16870800000015,
+        "min": 20.16870800000015,
+        "standardDeviation": 0
+      },
+      "repetitions": 1,
+      "statusPathGeneration": [
+        0.3064589999994496
+      ],
+      "statusPathGenerationStats": {
+        "coefficientOfVariation": 0,
+        "max": 0.3064589999994496,
+        "mean": 0.3064589999994496,
+        "median": 0.3064589999994496,
+        "min": 0.3064589999994496,
+        "standardDeviation": 0
+      },
+      "ternaryTreeBuild": [
+        4900.533252
+      ],
+      "ternaryTreeBuildStats": {
+        "coefficientOfVariation": 0,
+        "max": 4900.533252,
+        "mean": 4900.533252,
+        "median": 4900.533252,
+        "min": 4900.533252,
+        "standardDeviation": 0
+      }
+    },
+    "witnessBytes": {
+      "prepare": 72514988,
+      "show": 19937164
+    },
+    "witnessGenerationMs": {
+      "prepare": [
+        6650.620252999999
+      ],
+      "show": [
+        3361.1849189999994
+      ]
+    },
+    "witnessGenerationStats": {
+      "prepare": {
+        "coefficientOfVariation": 0,
+        "maximum": 6650.620252999999,
+        "mean": 6650.620252999999,
+        "median": 6650.620252999999,
+        "minimum": 6650.620252999999,
+        "standardDeviation": 0
+      },
+      "show": {
+        "coefficientOfVariation": 0,
+        "max": 3361.1849189999994,
+        "mean": 3361.1849189999994,
+        "median": 3361.1849189999994,
+        "min": 3361.1849189999994,
+        "standardDeviation": 0
+      }
+    }
+  },
+  "exact_sizes": {
+    "prepare": {
+      "constraints": 2364636,
+      "wires": 2266091,
+      "r1cs_bytes": 495486680,
+      "wasm_bytes": 9839681,
+      "witness_bytes": 72514988,
+      "proving_key_bytes": 599566722,
+      "verifying_key_bytes": 599566690,
+      "proof_bytes": 180055,
+      "pre_reblind_instance_bytes": 135471,
+      "assignment_bytes": 134348817,
+      "public_input_count": 2,
+      "hidden_shared_value_count": 11
+    },
+    "show": {
+      "constraints": 630413,
+      "wires": 623034,
+      "r1cs_bytes": 155065852,
+      "wasm_bytes": 2886046,
+      "witness_bytes": 19937164,
+      "proving_key_bytes": 183551810,
+      "verifying_key_bytes": 183551778,
+      "proof_bytes": 78391,
+      "pre_reblind_instance_bytes": 34799,
+      "assignment_bytes": 33587217,
+      "public_input_count": 24,
+      "hidden_shared_value_count": 11
+    }
+  },
+  "negative_linkage": {
+    "unlinked_show_verified_independently": true,
+    "unlinked_shared_commitment_rejected": true
+  },
+  "production_peak_rss_bytes": 4103446528,
+  "peak_rss_after_negative_control_bytes": 4103446528
+}

@@ -1,0 +1,1147 @@
+{
+  "schema": "swiyu.zk-overhead-benchmark.v1",
+  "generatedAt": "2026-08-18T00:33:19.158Z",
+  "methodology": {
+    "host": "same local arm64 macOS host",
+    "noZk": "3 fresh Node workers per profile, 1000 operations per worker; wall and process CPU measured",
+    "zk": "7 fresh native process runs; Circom witness wall time measured separately; native stage figures are wall-clock, not CPU time",
+    "varianceRule": "After two ZK runs, expand from 3 to 7 if any principal stage differs by more than 15% relative to their mean.",
+    "varianceRuleTriggeredBy": "Prepare witness generation differed by more than 15%; later Show/native variation independently confirmed expansion was appropriate.",
+    "excluded": [
+      "DID document and status-list network retrieval (trust material is preloaded for both paths)",
+      "Circom compilation, a developer/build-time artifact-generation step",
+      "application HTTP, JSON request routing, database, and UI overhead"
+    ]
+  },
+  "semanticComparison": {
+    "issuerAuthentication": {
+      "noZk": "Verifier checks issuer ES256 on each received SD-JWT presentation.",
+      "zk": "Prepare proves issuer ES256 and authenticated parsing; each presentation transmits a freshly linked Prepare proof."
+    },
+    "holderBinding": {
+      "noZk": "Standard ES256 kb+jwt binds nonce, audience, iat, and sd_hash.",
+      "zk": "Holder ES256 signature binds the canonical challenge digest; the Show relation binds challenge metadata.",
+      "caveat": "Both provide holder possession and replay/context binding, but the signed wire objects differ."
+    },
+    "status": {
+      "noZk": "Verifier performs an O(1) lookup in a preloaded status-list byte array.",
+      "zk": "Show verifies a Merkle authentication path and VALID value against a fresh public status commitment.",
+      "caveat": "Fetching and authenticating the upstream status object/root is excluded in both measurements."
+    },
+    "agePredicate": {
+      "noZk": "The standard control selectively discloses age_over_18=true.",
+      "zk": "The birthdate and cutoff comparison stay private; only successful proof verification is exposed."
+    }
+  },
+  "noZkControls": {
+    "age-over-18": {
+      "schema": "swiyu.no-zk-age-over-18-benchmark.v1",
+      "generatedAt": "2026-08-18T00:07:29.700Z",
+      "runtime": {
+        "node": "v25.6.1",
+        "platform": "darwin",
+        "arch": "arm64"
+      },
+      "semantics": {
+        "claim": "age_over_18=true is selectively disclosed",
+        "holderBinding": "ES256 kb+jwt binds nonce, audience, and sd_hash",
+        "status": "preloaded status-list byte lookup; network fetch and DID resolution excluded",
+        "privacyDifference": "The control reveals age_over_18=true; the ZK profile hides birthdate and predicate inputs."
+      },
+      "iterationsPerRun": 1000,
+      "rawRuns": [
+        {
+          "run": 1,
+          "iterations": 1000,
+          "timings": {
+            "oneTimeTrustMaterialSetup": {
+              "wallMsPerOperation": 0.007268375,
+              "cpuMsPerOperation": 0.009982,
+              "totalWallMs": 7.268375,
+              "totalCpuMs": 9.982
+            },
+            "perCredentialReusableWalletPreparation": {
+              "wallMsPerOperation": 4.860503291,
+              "cpuMsPerOperation": 4.898149,
+              "totalWallMs": 4860.503291,
+              "totalCpuMs": 4898.149
+            },
+            "perPresentationWallet": {
+              "wallMsPerOperation": 0.6486259169999999,
+              "cpuMsPerOperation": 0.7010789999999999,
+              "totalWallMs": 648.625917,
+              "totalCpuMs": 701.079
+            },
+            "perPresentationVerifier": {
+              "wallMsPerOperation": 10.293199916999999,
+              "cpuMsPerOperation": 10.120776,
+              "totalWallMs": 10293.199917,
+              "totalCpuMs": 10120.776
+            },
+            "perPresentationEndToEndWithUncachedCredentialValidation": {
+              "wallMsPerOperation": 15.540485875,
+              "cpuMsPerOperation": 15.437605,
+              "totalWallMs": 15540.485875,
+              "totalCpuMs": 15437.605
+            }
+          },
+          "sizes": {
+            "storedCredentialBytes": 785,
+            "preparedCredentialStorageBytes": 1137,
+            "transmittedPresentationBytes": 1105,
+            "issuerPublicJwkBytes": 159,
+            "holderPublicJwkBytes": 126
+          },
+          "processPeakRssBytes": 105496576
+        },
+        {
+          "run": 2,
+          "iterations": 1000,
+          "timings": {
+            "oneTimeTrustMaterialSetup": {
+              "wallMsPerOperation": 0.00764625,
+              "cpuMsPerOperation": 0.010376,
+              "totalWallMs": 7.64625,
+              "totalCpuMs": 10.376
+            },
+            "perCredentialReusableWalletPreparation": {
+              "wallMsPerOperation": 4.826245834,
+              "cpuMsPerOperation": 4.861451,
+              "totalWallMs": 4826.245834,
+              "totalCpuMs": 4861.451
+            },
+            "perPresentationWallet": {
+              "wallMsPerOperation": 0.635187917,
+              "cpuMsPerOperation": 0.685292,
+              "totalWallMs": 635.187917,
+              "totalCpuMs": 685.292
+            },
+            "perPresentationVerifier": {
+              "wallMsPerOperation": 10.590832583,
+              "cpuMsPerOperation": 10.406443999999999,
+              "totalWallMs": 10590.832583,
+              "totalCpuMs": 10406.444
+            },
+            "perPresentationEndToEndWithUncachedCredentialValidation": {
+              "wallMsPerOperation": 17.043878,
+              "cpuMsPerOperation": 16.848623,
+              "totalWallMs": 17043.878,
+              "totalCpuMs": 16848.623
+            }
+          },
+          "sizes": {
+            "storedCredentialBytes": 785,
+            "preparedCredentialStorageBytes": 1137,
+            "transmittedPresentationBytes": 1105,
+            "issuerPublicJwkBytes": 159,
+            "holderPublicJwkBytes": 126
+          },
+          "processPeakRssBytes": 105398272
+        },
+        {
+          "run": 3,
+          "iterations": 1000,
+          "timings": {
+            "oneTimeTrustMaterialSetup": {
+              "wallMsPerOperation": 0.008309292,
+              "cpuMsPerOperation": 0.011614000000000001,
+              "totalWallMs": 8.309292,
+              "totalCpuMs": 11.614
+            },
+            "perCredentialReusableWalletPreparation": {
+              "wallMsPerOperation": 4.867382042,
+              "cpuMsPerOperation": 4.901877000000001,
+              "totalWallMs": 4867.382042,
+              "totalCpuMs": 4901.877
+            },
+            "perPresentationWallet": {
+              "wallMsPerOperation": 0.637476583,
+              "cpuMsPerOperation": 0.689806,
+              "totalWallMs": 637.476583,
+              "totalCpuMs": 689.806
+            },
+            "perPresentationVerifier": {
+              "wallMsPerOperation": 9.835320583000001,
+              "cpuMsPerOperation": 9.797698,
+              "totalWallMs": 9835.320583,
+              "totalCpuMs": 9797.698
+            },
+            "perPresentationEndToEndWithUncachedCredentialValidation": {
+              "wallMsPerOperation": 17.193438209,
+              "cpuMsPerOperation": 16.93321,
+              "totalWallMs": 17193.438209,
+              "totalCpuMs": 16933.21
+            }
+          },
+          "sizes": {
+            "storedCredentialBytes": 785,
+            "preparedCredentialStorageBytes": 1137,
+            "transmittedPresentationBytes": 1105,
+            "issuerPublicJwkBytes": 159,
+            "holderPublicJwkBytes": 126
+          },
+          "processPeakRssBytes": 97255424
+        }
+      ],
+      "summary": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMs": {
+            "min": 0.007268375,
+            "median": 0.00764625,
+            "max": 0.008309292,
+            "mean": 0.007741305666666667,
+            "variance": 2.776537350463331e-7,
+            "standardDeviation": 0.000526928586286921,
+            "coefficientOfVariation": 0.06806714641895951
+          },
+          "cpuMs": {
+            "min": 0.009982,
+            "median": 0.010376,
+            "max": 0.011614000000000001,
+            "mean": 0.010657333333333333,
+            "variance": 7.252173333333347e-7,
+            "standardDeviation": 0.0008515969312611071,
+            "coefficientOfVariation": 0.07990713104539351
+          }
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMs": {
+            "min": 4.826245834,
+            "median": 4.860503291,
+            "max": 4.867382042,
+            "mean": 4.851377055666666,
+            "variance": 0.0004855130306743535,
+            "standardDeviation": 0.022034360228387697,
+            "coefficientOfVariation": 0.00454187748665101
+          },
+          "cpuMs": {
+            "min": 4.861451,
+            "median": 4.898149,
+            "max": 4.901877000000001,
+            "mean": 4.887159,
+            "variance": 0.0004991504440000179,
+            "standardDeviation": 0.022341675049109857,
+            "coefficientOfVariation": 0.004571505663947061
+          }
+        },
+        "perPresentationWallet": {
+          "wallMs": {
+            "min": 0.635187917,
+            "median": 0.637476583,
+            "max": 0.6486259169999999,
+            "mean": 0.640430139,
+            "variance": 0.0000516875807838516,
+            "standardDeviation": 0.0071894075405315285,
+            "coefficientOfVariation": 0.011225904439409165
+          },
+          "cpuMs": {
+            "min": 0.685292,
+            "median": 0.689806,
+            "max": 0.7010789999999999,
+            "mean": 0.692059,
+            "variance": 0.00006611434899999891,
+            "standardDeviation": 0.008131073053416683,
+            "coefficientOfVariation": 0.011749103838569665
+          }
+        },
+        "perPresentationVerifier": {
+          "wallMs": {
+            "min": 9.835320583000001,
+            "median": 10.293199916999999,
+            "max": 10.590832583,
+            "mean": 10.239784361,
+            "variance": 0.14483951175309093,
+            "standardDeviation": 0.3805778655585358,
+            "coefficientOfVariation": 0.03716658985593806
+          },
+          "cpuMs": {
+            "min": 9.797698,
+            "median": 10.120776,
+            "max": 10.406443999999999,
+            "mean": 10.108306,
+            "variance": 0.09275954880399946,
+            "standardDeviation": 0.30456452321962824,
+            "coefficientOfVariation": 0.03013012499024349
+          }
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMs": {
+            "min": 15.540485875,
+            "median": 17.043878,
+            "max": 17.193438209,
+            "mean": 16.592600694666668,
+            "variance": 0.8358012593506976,
+            "standardDeviation": 0.9142216686070712,
+            "coefficientOfVariation": 0.05509815401638201
+          },
+          "cpuMs": {
+            "min": 15.437605,
+            "median": 16.848623,
+            "max": 16.93321,
+            "mean": 16.406479333333333,
+            "variance": 0.7058268454863332,
+            "standardDeviation": 0.8401350162243765,
+            "coefficientOfVariation": 0.05120751376058234
+          }
+        }
+      }
+    }
+  },
+  "ageZk": {
+    "rawRuns": [
+      {
+        "run": 1,
+        "witnessGenerationWallMs": {
+          "prepare": 8969.465792,
+          "show": 6165.733041000003,
+          "unlinkedShow": 6086.487667000001
+        },
+        "native": {
+          "profile": "swiyu.age18-status.prepare-show.v1",
+          "generated_at_unix_seconds": 1787011783,
+          "prepare": {
+            "constraints": 2455623,
+            "wires": 2352135,
+            "r1cs_bytes": 517356964,
+            "wasm_bytes": 10167017,
+            "witness_bytes": 75268396,
+            "setup_ms": 22920,
+            "assignment_ms": 6894,
+            "final_proof_ms": 5908,
+            "verify_ms": 736,
+            "proving_key_bytes": 621889042,
+            "verifying_key_bytes": 621889010,
+            "final_proof_bytes": 180055,
+            "pre_reblind_instance_bytes": 135471,
+            "assignment_bytes": 134348817,
+            "public_input_count": 2,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "show": {
+            "constraints": 1271312,
+            "wires": 1256353,
+            "r1cs_bytes": 313443660,
+            "wasm_bytes": 5399160,
+            "witness_bytes": 40203372,
+            "setup_ms": 10467,
+            "assignment_ms": 2881,
+            "final_proof_ms": 2463,
+            "verify_ms": 414,
+            "proving_key_bytes": 370518154,
+            "verifying_key_bytes": 370518122,
+            "final_proof_bytes": 112135,
+            "pre_reblind_instance_bytes": 68047,
+            "assignment_bytes": 67174417,
+            "public_input_count": 7,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "linkage": {
+            "linked_outputs_identical": true,
+            "pre_reblind_commitments_differ": true,
+            "reblinded_commitments_equal": true,
+            "unlinked_show_assignment_ms": 2908,
+            "unlinked_show_final_proof_ms": 2429,
+            "unlinked_show_verified": true,
+            "unlinked_commitment_rejected": true
+          },
+          "process_peak_rss_bytes": 3367010304
+        },
+        "lifecycleWallMs": {
+          "oneTimeCircuitSetup": 33387,
+          "perCredentialReusableWork": 15863.465792,
+          "perPresentationWalletWork": 17417.733041000003,
+          "perPresentationVerifierWork": 1150,
+          "firstPresentationWalletWork": 33281.198833
+        }
+      },
+      {
+        "run": 2,
+        "witnessGenerationWallMs": {
+          "prepare": 7463.558040999999,
+          "show": 6030.096083,
+          "unlinkedShow": 6017.168792
+        },
+        "native": {
+          "profile": "swiyu.age18-status.prepare-show.v1",
+          "generated_at_unix_seconds": 1787011926,
+          "prepare": {
+            "constraints": 2455623,
+            "wires": 2352135,
+            "r1cs_bytes": 517356964,
+            "wasm_bytes": 10167017,
+            "witness_bytes": 75268396,
+            "setup_ms": 21473,
+            "assignment_ms": 6703,
+            "final_proof_ms": 5752,
+            "verify_ms": 833,
+            "proving_key_bytes": 621889042,
+            "verifying_key_bytes": 621889010,
+            "final_proof_bytes": 180055,
+            "pre_reblind_instance_bytes": 135471,
+            "assignment_bytes": 134348817,
+            "public_input_count": 2,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "show": {
+            "constraints": 1271312,
+            "wires": 1256353,
+            "r1cs_bytes": 313443660,
+            "wasm_bytes": 5399160,
+            "witness_bytes": 40203372,
+            "setup_ms": 9870,
+            "assignment_ms": 2969,
+            "final_proof_ms": 2619,
+            "verify_ms": 431,
+            "proving_key_bytes": 370518154,
+            "verifying_key_bytes": 370518122,
+            "final_proof_bytes": 112135,
+            "pre_reblind_instance_bytes": 68047,
+            "assignment_bytes": 67174417,
+            "public_input_count": 7,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "linkage": {
+            "linked_outputs_identical": true,
+            "pre_reblind_commitments_differ": true,
+            "reblinded_commitments_equal": true,
+            "unlinked_show_assignment_ms": 2910,
+            "unlinked_show_final_proof_ms": 3131,
+            "unlinked_show_verified": true,
+            "unlinked_commitment_rejected": true
+          },
+          "process_peak_rss_bytes": 3416276992
+        },
+        "lifecycleWallMs": {
+          "oneTimeCircuitSetup": 31343,
+          "perCredentialReusableWork": 14166.558041,
+          "perPresentationWalletWork": 17370.096083,
+          "perPresentationVerifierWork": 1264,
+          "firstPresentationWalletWork": 31536.654124
+        }
+      },
+      {
+        "run": 3,
+        "witnessGenerationWallMs": {
+          "prepare": 6553.487083,
+          "show": 5452.589707999998,
+          "unlinkedShow": 5895.596125
+        },
+        "native": {
+          "profile": "swiyu.age18-status.prepare-show.v1",
+          "generated_at_unix_seconds": 1787012042,
+          "prepare": {
+            "constraints": 2455623,
+            "wires": 2352135,
+            "r1cs_bytes": 517356964,
+            "wasm_bytes": 10167017,
+            "witness_bytes": 75268396,
+            "setup_ms": 20489,
+            "assignment_ms": 6434,
+            "final_proof_ms": 5967,
+            "verify_ms": 1035,
+            "proving_key_bytes": 621889042,
+            "verifying_key_bytes": 621889010,
+            "final_proof_bytes": 180055,
+            "pre_reblind_instance_bytes": 135471,
+            "assignment_bytes": 134348817,
+            "public_input_count": 2,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "show": {
+            "constraints": 1271312,
+            "wires": 1256353,
+            "r1cs_bytes": 313443660,
+            "wasm_bytes": 5399160,
+            "witness_bytes": 40203372,
+            "setup_ms": 11344,
+            "assignment_ms": 3486,
+            "final_proof_ms": 3455,
+            "verify_ms": 476,
+            "proving_key_bytes": 370518154,
+            "verifying_key_bytes": 370518122,
+            "final_proof_bytes": 112135,
+            "pre_reblind_instance_bytes": 68047,
+            "assignment_bytes": 67174417,
+            "public_input_count": 7,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "linkage": {
+            "linked_outputs_identical": true,
+            "pre_reblind_commitments_differ": true,
+            "reblinded_commitments_equal": true,
+            "unlinked_show_assignment_ms": 3808,
+            "unlinked_show_final_proof_ms": 2955,
+            "unlinked_show_verified": true,
+            "unlinked_commitment_rejected": true
+          },
+          "process_peak_rss_bytes": 3400433664
+        },
+        "lifecycleWallMs": {
+          "oneTimeCircuitSetup": 31833,
+          "perCredentialReusableWork": 12987.487083,
+          "perPresentationWalletWork": 18360.589708,
+          "perPresentationVerifierWork": 1511,
+          "firstPresentationWalletWork": 31348.076791
+        }
+      },
+      {
+        "run": 4,
+        "witnessGenerationWallMs": {
+          "prepare": 6606.753290999999,
+          "show": 5813.8697090000005,
+          "unlinkedShow": 6858.126790999999
+        },
+        "native": {
+          "profile": "swiyu.age18-status.prepare-show.v1",
+          "generated_at_unix_seconds": 1787012150,
+          "prepare": {
+            "constraints": 2455623,
+            "wires": 2352135,
+            "r1cs_bytes": 517356964,
+            "wasm_bytes": 10167017,
+            "witness_bytes": 75268396,
+            "setup_ms": 20751,
+            "assignment_ms": 6943,
+            "final_proof_ms": 5854,
+            "verify_ms": 707,
+            "proving_key_bytes": 621889042,
+            "verifying_key_bytes": 621889010,
+            "final_proof_bytes": 180055,
+            "pre_reblind_instance_bytes": 135471,
+            "assignment_bytes": 134348817,
+            "public_input_count": 2,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "show": {
+            "constraints": 1271312,
+            "wires": 1256353,
+            "r1cs_bytes": 313443660,
+            "wasm_bytes": 5399160,
+            "witness_bytes": 40203372,
+            "setup_ms": 10545,
+            "assignment_ms": 5244,
+            "final_proof_ms": 4031,
+            "verify_ms": 668,
+            "proving_key_bytes": 370518154,
+            "verifying_key_bytes": 370518122,
+            "final_proof_bytes": 112135,
+            "pre_reblind_instance_bytes": 68047,
+            "assignment_bytes": 67174417,
+            "public_input_count": 7,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "linkage": {
+            "linked_outputs_identical": true,
+            "pre_reblind_commitments_differ": true,
+            "reblinded_commitments_equal": true,
+            "unlinked_show_assignment_ms": 3723,
+            "unlinked_show_final_proof_ms": 3289,
+            "unlinked_show_verified": true,
+            "unlinked_commitment_rejected": true
+          },
+          "process_peak_rss_bytes": 3325952000
+        },
+        "lifecycleWallMs": {
+          "oneTimeCircuitSetup": 31296,
+          "perCredentialReusableWork": 13549.753290999999,
+          "perPresentationWalletWork": 20942.869709,
+          "perPresentationVerifierWork": 1375,
+          "firstPresentationWalletWork": 34492.623
+        }
+      },
+      {
+        "run": 5,
+        "witnessGenerationWallMs": {
+          "prepare": 7539.052417,
+          "show": 6505.919875000001,
+          "unlinkedShow": 6769.682041
+        },
+        "native": {
+          "profile": "swiyu.age18-status.prepare-show.v1",
+          "generated_at_unix_seconds": 1787012268,
+          "prepare": {
+            "constraints": 2455623,
+            "wires": 2352135,
+            "r1cs_bytes": 517356964,
+            "wasm_bytes": 10167017,
+            "witness_bytes": 75268396,
+            "setup_ms": 23024,
+            "assignment_ms": 9119,
+            "final_proof_ms": 6334,
+            "verify_ms": 1051,
+            "proving_key_bytes": 621889042,
+            "verifying_key_bytes": 621889010,
+            "final_proof_bytes": 180055,
+            "pre_reblind_instance_bytes": 135471,
+            "assignment_bytes": 134348817,
+            "public_input_count": 2,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "show": {
+            "constraints": 1271312,
+            "wires": 1256353,
+            "r1cs_bytes": 313443660,
+            "wasm_bytes": 5399160,
+            "witness_bytes": 40203372,
+            "setup_ms": 11264,
+            "assignment_ms": 3245,
+            "final_proof_ms": 5219,
+            "verify_ms": 677,
+            "proving_key_bytes": 370518154,
+            "verifying_key_bytes": 370518122,
+            "final_proof_bytes": 112135,
+            "pre_reblind_instance_bytes": 68047,
+            "assignment_bytes": 67174417,
+            "public_input_count": 7,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "linkage": {
+            "linked_outputs_identical": true,
+            "pre_reblind_commitments_differ": true,
+            "reblinded_commitments_equal": true,
+            "unlinked_show_assignment_ms": 3480,
+            "unlinked_show_final_proof_ms": 2562,
+            "unlinked_show_verified": true,
+            "unlinked_commitment_rejected": true
+          },
+          "process_peak_rss_bytes": 3559915520
+        },
+        "lifecycleWallMs": {
+          "oneTimeCircuitSetup": 34288,
+          "perCredentialReusableWork": 16658.052417,
+          "perPresentationWalletWork": 21303.919875,
+          "perPresentationVerifierWork": 1728,
+          "firstPresentationWalletWork": 37961.972292
+        }
+      },
+      {
+        "run": 6,
+        "witnessGenerationWallMs": {
+          "prepare": 7248.628875,
+          "show": 6107.730042000001,
+          "unlinkedShow": 5886.423167000001
+        },
+        "native": {
+          "profile": "swiyu.age18-status.prepare-show.v1",
+          "generated_at_unix_seconds": 1787012385,
+          "prepare": {
+            "constraints": 2455623,
+            "wires": 2352135,
+            "r1cs_bytes": 517356964,
+            "wasm_bytes": 10167017,
+            "witness_bytes": 75268396,
+            "setup_ms": 23531,
+            "assignment_ms": 8565,
+            "final_proof_ms": 7630,
+            "verify_ms": 1584,
+            "proving_key_bytes": 621889042,
+            "verifying_key_bytes": 621889010,
+            "final_proof_bytes": 180055,
+            "pre_reblind_instance_bytes": 135471,
+            "assignment_bytes": 134348817,
+            "public_input_count": 2,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "show": {
+            "constraints": 1271312,
+            "wires": 1256353,
+            "r1cs_bytes": 313443660,
+            "wasm_bytes": 5399160,
+            "witness_bytes": 40203372,
+            "setup_ms": 11995,
+            "assignment_ms": 3468,
+            "final_proof_ms": 2623,
+            "verify_ms": 431,
+            "proving_key_bytes": 370518154,
+            "verifying_key_bytes": 370518122,
+            "final_proof_bytes": 112135,
+            "pre_reblind_instance_bytes": 68047,
+            "assignment_bytes": 67174417,
+            "public_input_count": 7,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "linkage": {
+            "linked_outputs_identical": true,
+            "pre_reblind_commitments_differ": true,
+            "reblinded_commitments_equal": true,
+            "unlinked_show_assignment_ms": 2885,
+            "unlinked_show_final_proof_ms": 2464,
+            "unlinked_show_verified": true,
+            "unlinked_commitment_rejected": true
+          },
+          "process_peak_rss_bytes": 3172237312
+        },
+        "lifecycleWallMs": {
+          "oneTimeCircuitSetup": 35526,
+          "perCredentialReusableWork": 15813.628875,
+          "perPresentationWalletWork": 19828.730042000003,
+          "perPresentationVerifierWork": 2015,
+          "firstPresentationWalletWork": 35642.358917000005
+        }
+      },
+      {
+        "run": 7,
+        "witnessGenerationWallMs": {
+          "prepare": 8306.677417,
+          "show": 6910.889292,
+          "unlinkedShow": 6936.289124999999
+        },
+        "native": {
+          "profile": "swiyu.age18-status.prepare-show.v1",
+          "generated_at_unix_seconds": 1787012513,
+          "prepare": {
+            "constraints": 2455623,
+            "wires": 2352135,
+            "r1cs_bytes": 517356964,
+            "wasm_bytes": 10167017,
+            "witness_bytes": 75268396,
+            "setup_ms": 25169,
+            "assignment_ms": 7403,
+            "final_proof_ms": 5865,
+            "verify_ms": 1006,
+            "proving_key_bytes": 621889042,
+            "verifying_key_bytes": 621889010,
+            "final_proof_bytes": 180055,
+            "pre_reblind_instance_bytes": 135471,
+            "assignment_bytes": 134348817,
+            "public_input_count": 2,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "show": {
+            "constraints": 1271312,
+            "wires": 1256353,
+            "r1cs_bytes": 313443660,
+            "wasm_bytes": 5399160,
+            "witness_bytes": 40203372,
+            "setup_ms": 13798,
+            "assignment_ms": 4533,
+            "final_proof_ms": 3329,
+            "verify_ms": 612,
+            "proving_key_bytes": 370518154,
+            "verifying_key_bytes": 370518122,
+            "final_proof_bytes": 112135,
+            "pre_reblind_instance_bytes": 68047,
+            "assignment_bytes": 67174417,
+            "public_input_count": 7,
+            "hidden_shared_value_count": 11,
+            "verified": true
+          },
+          "linkage": {
+            "linked_outputs_identical": true,
+            "pre_reblind_commitments_differ": true,
+            "reblinded_commitments_equal": true,
+            "unlinked_show_assignment_ms": 3090,
+            "unlinked_show_final_proof_ms": 2953,
+            "unlinked_show_verified": true,
+            "unlinked_commitment_rejected": true
+          },
+          "process_peak_rss_bytes": 3112927232
+        },
+        "lifecycleWallMs": {
+          "oneTimeCircuitSetup": 38967,
+          "perCredentialReusableWork": 15709.677417,
+          "perPresentationWalletWork": 20637.889292,
+          "perPresentationVerifierWork": 1618,
+          "firstPresentationWalletWork": 36347.566709
+        }
+      }
+    ],
+    "summary": {
+      "prepareWitness": {
+        "samples": [
+          8969.465792,
+          7463.558040999999,
+          6553.487083,
+          6606.753290999999,
+          7539.052417,
+          7248.628875,
+          8306.677417
+        ],
+        "min": 6553.487083,
+        "median": 7463.558040999999,
+        "max": 8969.465792,
+        "mean": 7526.803273714286,
+        "variance": 760807.6993172681,
+        "standardDeviation": 872.242913022094,
+        "coefficientOfVariation": 0.11588490907796296
+      },
+      "showWitness": {
+        "samples": [
+          6165.733041000003,
+          6030.096083,
+          5452.589707999998,
+          5813.8697090000005,
+          6505.919875000001,
+          6107.730042000001,
+          6910.889292
+        ],
+        "min": 5452.589707999998,
+        "median": 6107.730042000001,
+        "max": 6910.889292,
+        "mean": 6140.975392857144,
+        "variance": 220139.54708622373,
+        "standardDeviation": 469.1903100941277,
+        "coefficientOfVariation": 0.07640322262809666
+      },
+      "prepareSetup": {
+        "samples": [
+          22920,
+          21473,
+          20489,
+          20751,
+          23024,
+          23531,
+          25169
+        ],
+        "min": 20489,
+        "median": 22920,
+        "max": 25169,
+        "mean": 22479.571428571428,
+        "variance": 2798737.952380953,
+        "standardDeviation": 1672.9429017097245,
+        "coefficientOfVariation": 0.07442058702166457
+      },
+      "showSetup": {
+        "samples": [
+          10467,
+          9870,
+          11344,
+          10545,
+          11264,
+          11995,
+          13798
+        ],
+        "min": 9870,
+        "median": 11264,
+        "max": 13798,
+        "mean": 11326.142857142857,
+        "variance": 1671715.142857143,
+        "standardDeviation": 1292.9482367276514,
+        "coefficientOfVariation": 0.11415609471253056
+      },
+      "prepareAssignment": {
+        "samples": [
+          6894,
+          6703,
+          6434,
+          6943,
+          9119,
+          8565,
+          7403
+        ],
+        "min": 6434,
+        "median": 6943,
+        "max": 9119,
+        "mean": 7437.285714285715,
+        "variance": 1031052.238095238,
+        "standardDeviation": 1015.4074246799843,
+        "coefficientOfVariation": 0.13652930164153376
+      },
+      "showAssignment": {
+        "samples": [
+          2881,
+          2969,
+          3486,
+          5244,
+          3245,
+          3468,
+          4533
+        ],
+        "min": 2881,
+        "median": 3468,
+        "max": 5244,
+        "mean": 3689.4285714285716,
+        "variance": 764801.619047619,
+        "standardDeviation": 874.5293700314581,
+        "coefficientOfVariation": 0.23703653644467618
+      },
+      "prepareFinalProof": {
+        "samples": [
+          5908,
+          5752,
+          5967,
+          5854,
+          6334,
+          7630,
+          5865
+        ],
+        "min": 5752,
+        "median": 5908,
+        "max": 7630,
+        "mean": 6187.142857142857,
+        "variance": 438982.8095238095,
+        "standardDeviation": 662.5577782531947,
+        "coefficientOfVariation": 0.10708622599335864
+      },
+      "showFinalProof": {
+        "samples": [
+          2463,
+          2619,
+          3455,
+          4031,
+          5219,
+          2623,
+          3329
+        ],
+        "min": 2463,
+        "median": 3329,
+        "max": 5219,
+        "mean": 3391.285714285714,
+        "variance": 967685.9047619047,
+        "standardDeviation": 983.7102748075292,
+        "coefficientOfVariation": 0.29007000815757633
+      },
+      "prepareVerify": {
+        "samples": [
+          736,
+          833,
+          1035,
+          707,
+          1051,
+          1584,
+          1006
+        ],
+        "min": 707,
+        "median": 1006,
+        "max": 1584,
+        "mean": 993.1428571428571,
+        "variance": 88003.80952380953,
+        "standardDeviation": 296.6543603654083,
+        "coefficientOfVariation": 0.29870260681212
+      },
+      "showVerify": {
+        "samples": [
+          414,
+          431,
+          476,
+          668,
+          677,
+          431,
+          612
+        ],
+        "min": 414,
+        "median": 476,
+        "max": 677,
+        "mean": 529.8571428571429,
+        "variance": 13891.809523809525,
+        "standardDeviation": 117.86352075094959,
+        "coefficientOfVariation": 0.22244395935741362
+      },
+      "oneTimeCircuitSetup": {
+        "samples": [
+          33387,
+          31343,
+          31833,
+          31296,
+          34288,
+          35526,
+          38967
+        ],
+        "min": 31296,
+        "median": 33387,
+        "max": 38967,
+        "mean": 33805.71428571428,
+        "variance": 7710233.904761906,
+        "standardDeviation": 2776.7307944346903,
+        "coefficientOfVariation": 0.08213791227621212
+      },
+      "perCredentialReusableWork": {
+        "samples": [
+          15863.465792,
+          14166.558041,
+          12987.487083,
+          13549.753290999999,
+          16658.052417,
+          15813.628875,
+          15709.677417
+        ],
+        "min": 12987.487083,
+        "median": 15709.677417,
+        "max": 16658.052417,
+        "mean": 14964.088988,
+        "variance": 1916561.1709176963,
+        "standardDeviation": 1384.3992093748452,
+        "coefficientOfVariation": 0.09251476721937583
+      },
+      "perPresentationWalletWork": {
+        "samples": [
+          17417.733041000003,
+          17370.096083,
+          18360.589708,
+          20942.869709,
+          21303.919875,
+          19828.730042000003,
+          20637.889292
+        ],
+        "min": 17370.096083,
+        "median": 19828.730042000003,
+        "max": 21303.919875,
+        "mean": 19408.83253571429,
+        "variance": 2808542.840971982,
+        "standardDeviation": 1675.8707709641524,
+        "coefficientOfVariation": 0.08634577931879077
+      },
+      "perPresentationVerifierWork": {
+        "samples": [
+          1150,
+          1264,
+          1511,
+          1375,
+          1728,
+          2015,
+          1618
+        ],
+        "min": 1150,
+        "median": 1511,
+        "max": 2015,
+        "mean": 1523,
+        "variance": 86895.33333333333,
+        "standardDeviation": 294.7801440622033,
+        "coefficientOfVariation": 0.19355229419711314
+      },
+      "firstPresentationWalletWork": {
+        "samples": [
+          33281.198833,
+          31536.654124,
+          31348.076791,
+          34492.623,
+          37961.972292,
+          35642.358917000005,
+          36347.566709
+        ],
+        "min": 31348.076791,
+        "median": 34492.623,
+        "max": 37961.972292,
+        "mean": 34372.921523714285,
+        "variance": 6132044.269522195,
+        "standardDeviation": 2476.296482556601,
+        "coefficientOfVariation": 0.07204207186311395
+      },
+      "processPeakRssBytes": {
+        "samples": [
+          3367010304,
+          3416276992,
+          3400433664,
+          3325952000,
+          3559915520,
+          3172237312,
+          3112927232
+        ],
+        "min": 3112927232,
+        "median": 3367010304,
+        "max": 3559915520,
+        "mean": 3336393289.142857,
+        "variance": 23062574820965620,
+        "standardDeviation": 151863671.82761523,
+        "coefficientOfVariation": 0.04551731725447454
+      }
+    },
+    "stableArtifactBytes": {
+      "prepare": {
+        "constraints": 2455623,
+        "wires": 2352135,
+        "r1cs": 517356964,
+        "wasm": 10167017,
+        "witness": 75268396,
+        "provingKey": 621889042,
+        "verifyingKey": 621889010,
+        "proof": 180055
+      },
+      "show": {
+        "constraints": 1271312,
+        "wires": 1256353,
+        "r1cs": 313443660,
+        "wasm": 5399160,
+        "witness": 40203372,
+        "provingKey": 370518154,
+        "verifyingKey": 370518122,
+        "proof": 112135
+      },
+      "combined": {
+        "r1cs": 830800624,
+        "wasm": 15566177,
+        "witness": 115471768,
+        "provingKeys": 992407196,
+        "verifyingKeys": 992407132,
+        "transmittedProofPair": 292190,
+        "reusablePrepareState": 134484288
+      }
+    }
+  },
+  "directAgeComparison": {
+    "noZk": {
+      "oneTimeSetupWallMs": 0.00764625,
+      "oneTimeSetupCpuMs": 0.010376,
+      "perCredentialWalletWallMs": 4.860503291,
+      "perCredentialWalletCpuMs": 4.898149,
+      "perPresentationWalletWallMs": 0.637476583,
+      "perPresentationWalletCpuMs": 0.689806,
+      "perPresentationVerifierWallMs": 10.293199916999999,
+      "perPresentationVerifierCpuMs": 10.120776,
+      "transmittedBytes": 1105,
+      "reusableCredentialStorageBytes": 1137,
+      "processPeakRssBytes": {
+        "samples": [
+          105496576,
+          105398272,
+          97255424
+        ],
+        "min": 97255424,
+        "median": 105398272,
+        "max": 105496576,
+        "mean": 102716757.33333333,
+        "variance": 22372037252437.332,
+        "standardDeviation": 4729908.799589832,
+        "coefficientOfVariation": 0.04604807358005349
+      }
+    },
+    "zk": {
+      "oneTimeSetupWallMs": 33387,
+      "perCredentialWalletWallMs": 15709.677417,
+      "perPresentationWalletWallMs": 19828.730042000003,
+      "perPresentationVerifierWallMs": 1511,
+      "transmittedBytes": 292190,
+      "reusableCredentialStorageBytes": 134484288,
+      "processPeakRssBytes": {
+        "samples": [
+          3367010304,
+          3416276992,
+          3400433664,
+          3325952000,
+          3559915520,
+          3172237312,
+          3112927232
+        ],
+        "min": 3112927232,
+        "median": 3367010304,
+        "max": 3559915520,
+        "mean": 3336393289.142857,
+        "variance": 23062574820965620,
+        "standardDeviation": 151863671.82761523,
+        "coefficientOfVariation": 0.04551731725447454
+      },
+      "cpuTiming": "not instrumented; native stage values are wall-clock"
+    },
+    "medianOverheadRatios": {
+      "oneTimeSetup": 4366454.144188328,
+      "perCredentialWallet": 3232.1092027833793,
+      "perPresentationWallet": 31105.03282910394,
+      "perPresentationVerifier": 146.79594413632918,
+      "transmittedBytes": 264.42533936651586,
+      "reusableCredentialStorage": 118279.93667546174
+    }
+  }
+}

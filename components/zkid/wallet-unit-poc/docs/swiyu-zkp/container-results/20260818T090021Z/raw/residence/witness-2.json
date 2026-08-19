@@ -1,0 +1,184 @@
+{
+  "profile": "swiyu.residence-eligibility.combined-disclosure.v1",
+  "controlProfile": "swiyu.residence-eligibility.prepare-show.v1",
+  "predicate": "issuer-authenticated municipality is in a public 1..16 BFS allow-list and residence_since is at least the public duration",
+  "representation": "one object-valued SD-JWT disclosure",
+  "bounds": {
+    "paddedSigningInputBytes": 832,
+    "encodedHeaderBytes": 248,
+    "encodedPayloadBytes": 572,
+    "statusUriCommitmentBytes": 160,
+    "statusUriParserBufferBytes": 120,
+    "fixtureStatusUriBytes": 39,
+    "portability": "bounded fixture/profile optimization; not a universal SD-JWT URI bound"
+  },
+  "selectiveDisclosureTradeoff": "municipality_bfs and since cannot be released independently",
+  "repetitions": 1,
+  "expandedAfterFirstTwo": false,
+  "processPeakRssBytes": 1132015616,
+  "statusSnapshotStagesMs": {
+    "repetitions": 1,
+    "expandedAfterFirstTwo": false,
+    "ternaryTreeBuild": [
+      4686.165878000001
+    ],
+    "statusPathGeneration": [
+      0.2899999999990541
+    ],
+    "ternaryTreeBuildStats": {
+      "min": 4686.165878000001,
+      "median": 4686.165878000001,
+      "max": 4686.165878000001,
+      "mean": 4686.165878000001,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "statusPathGenerationStats": {
+      "min": 0.2899999999990541,
+      "median": 0.2899999999990541,
+      "max": 0.2899999999990541,
+      "mean": 0.2899999999990541,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "packedV2TreeBuild": [
+      20.15124999999989
+    ],
+    "packedV2PathGeneration": [
+      0.21500000000014552
+    ],
+    "packedV2TreeBuildStats": {
+      "min": 20.15124999999989,
+      "median": 20.15124999999989,
+      "max": 20.15124999999989,
+      "mean": 20.15124999999989,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "packedV2PathGenerationStats": {
+      "min": 0.21500000000014552,
+      "median": 0.21500000000014552,
+      "max": 0.21500000000014552,
+      "mean": 0.21500000000014552,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    }
+  },
+  "policy": {
+    "municipalityBfs": 261,
+    "residenceSince": "2023-01-01",
+    "allowedMunicipalityBfs": [
+      261,
+      351
+    ],
+    "minimumResidenceDays": 365,
+    "currentTime": 1750000000,
+    "municipalityDirectoryAsOf": "2025-01-01",
+    "municipalityDirectorySha256": "2a510d6f7de86e40a8d584daba5985422728317619f1e9225bf3c3e28c40905c",
+    "holderChallengeBinding": "swiyu-residence-policy-v1",
+    "UTCWholeDaySemantics": true,
+    "statusRequired": "VALID (00)",
+    "statusSnapshot": {
+      "encoding": "packed two-bit statuses",
+      "listLength": 65536,
+      "epoch": 1749999970,
+      "root": "0c5ff2d21a2425ba5f5497b19a04feace17592249fdb1902805a4829f0ea1162",
+      "sdkHostRootContract": "same all-VALID entries, list length, epoch, and ternary construction; exact root must match",
+      "packedV2": {
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "chunkBytes": 64,
+        "treeDepth": 6,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "profile": "swiyu.residence-eligibility.packed-status-chunk.v2",
+        "circuitId": "swiyu_residence_show_packed_chunk_v2",
+        "root": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      }
+    },
+    "disclosureShape": "[salt,residence,{municipality_bfs,since}]",
+    "primaryStatusProfile": {
+      "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+      "chunkBytes": 64,
+      "treeDepth": 6,
+      "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+      "profile": "swiyu.residence-eligibility.packed-status-chunk.v2",
+      "circuitId": "swiyu_residence_show_packed_chunk_v2",
+      "root": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+    }
+  },
+  "disclosure": {
+    "decodedBytes": 84,
+    "encodedBytes": 112,
+    "payloadDecodedBytes": 428,
+    "payloadEncodedBytes": 571,
+    "signingInputBytes": 818
+  },
+  "fixtureIdentity": {
+    "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+    "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+    "disclosureSha256": [
+      "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+    ]
+  },
+  "witnessGenerationMs": {
+    "prepare": [
+      6626.627378000001
+    ],
+    "show": [
+      3122.1637100000007
+    ]
+  },
+  "witnessGenerationStats": {
+    "prepare": {
+      "median": 6626.627378000001,
+      "mean": 6626.627378000001,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0,
+      "minimum": 6626.627378000001,
+      "maximum": 6626.627378000001
+    },
+    "show": {
+      "min": 3122.1637100000007,
+      "median": 3122.1637100000007,
+      "max": 3122.1637100000007,
+      "mean": 3122.1637100000007,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    }
+  },
+  "witnessBytes": {
+    "prepare": 72514988,
+    "show": 19937164
+  },
+  "abControl": {
+    "prepareCircuit": "swiyu_residence_prepare_compact",
+    "prepareWitnessMs": [
+      7608.017044999999
+    ],
+    "prepareWitnessStats": {
+      "min": 7608.017044999999,
+      "median": 7608.017044999999,
+      "max": 7608.017044999999,
+      "mean": 7608.017044999999,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "prepareWitnessBytes": 82669036,
+    "legacyShowCircuit": "swiyu_residence_show_split",
+    "legacyShowWitnessMs": [
+      4155.436292999999
+    ],
+    "legacyShowWitnessStats": {
+      "min": 4155.436292999999,
+      "median": 4155.436292999999,
+      "max": 4155.436292999999,
+      "mean": 4155.436292999999,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "legacyShowWitnessBytes": 28598060
+  },
+  "circuits": {
+    "prepare": "swiyu_residence_combined_prepare_compact",
+    "show": "swiyu_residence_show_packed_chunk_v2"
+  }
+}

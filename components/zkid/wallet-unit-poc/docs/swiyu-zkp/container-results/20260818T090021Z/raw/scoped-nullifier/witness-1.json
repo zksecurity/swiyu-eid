@@ -1,0 +1,101 @@
+{
+  "profile": "swiyu.age-over-18.scoped-nullifier.v1",
+  "predicate": "age over 18 and at most one accepted claim per credential/nullifier attestation and verifier scope",
+  "repetitions": 1,
+  "expandedAfterFirstTwo": false,
+  "processPeakRssBytes": 996450304,
+  "policy": {
+    "sourceClaim": [
+      "birthdate",
+      "2000-02-29"
+    ],
+    "cutoffDate": "2007-06-15",
+    "currentTime": 1750000000,
+    "acceptedLookup": {
+      "issuer": "did:example:issuer",
+      "kid": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+      "vct": "https://example.ch/vct/person"
+    },
+    "profileVersion": "swiyu.age-over-18.scoped-nullifier.v1",
+    "epoch": "202603",
+    "statusRequired": "VALID (00)",
+    "packedStatusV2": {
+      "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+      "chunkBytes": 64,
+      "treeDepth": 6,
+      "listLength": 65536,
+      "epoch": 172,
+      "statusValue": 0,
+      "snapshotRoot": "8931f6a85f7db62ba4d1546343c0f54e290c93197a8db2d4a54cb377e968a3ef"
+    },
+    "packedStatusShow": {
+      "profile": "swiyu.age-over-18.scoped-nullifier.packed-status-chunk.v2",
+      "circuitId": "swiyu_nullifier_age18_show_packed_chunk_v2"
+    },
+    "statusSnapshot": {
+      "uri": "https://status.example.ch/lists/2026-07",
+      "index": 42,
+      "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+      "chunkBytes": 64,
+      "treeDepth": 6,
+      "listLength": 65536,
+      "epoch": 172,
+      "statusValue": 0,
+      "snapshotRoot": "8931f6a85f7db62ba4d1546343c0f54e290c93197a8db2d4a54cb377e968a3ef"
+    },
+    "guarantee": "one claim per credential/nullifier attestation, not one person",
+    "scopeDigestHex": "edbb6eda34ee604de9e235d440e4c36258a054239b68d3426792eb21f16a0d03",
+    "scopeDigestBase64url": "7btu2jTuYE3p4jXUQOTDYligVCObaNNCZ5LrIfFqDQM",
+    "holderAuthorizedChallengeScalar": "70855896898803977810361496661343956786006194737078359883742167851618636344823"
+  },
+  "witnessGenerationMs": {
+    "prepare": [
+      8336.885587
+    ],
+    "show": [
+      6281.284669000001
+    ],
+    "showPackedV2": [
+      3446.556001000001
+    ]
+  },
+  "witnessGenerationStats": {
+    "prepare": {
+      "min": 8336.885587,
+      "median": 8336.885587,
+      "max": 8336.885587,
+      "mean": 8336.885587,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "show": {
+      "min": 6281.284669000001,
+      "median": 6281.284669000001,
+      "max": 6281.284669000001,
+      "mean": 6281.284669000001,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "showPackedV2": {
+      "min": 3446.556001000001,
+      "median": 3446.556001000001,
+      "max": 3446.556001000001,
+      "mean": 3446.556001000001,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    }
+  },
+  "statusSnapshotStagesMs": {
+    "packedV2TreeBuild": [
+      20.33612500000072
+    ],
+    "packedV2PathGeneration": [
+      0.22612500000013824
+    ]
+  },
+  "witnessBytes": {
+    "prepare": 80584172,
+    "show": 42165644,
+    "showPackedV2": 21889932
+  }
+}

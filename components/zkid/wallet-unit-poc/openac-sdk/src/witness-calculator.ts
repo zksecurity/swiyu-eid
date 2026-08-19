@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { ProofError } from "./errors.js";
 import type { JwtCircuitInputs, ShowCircuitInputs } from "./types.js";
 import type { VcSize } from "./sizing.js";
+import type { SwiyuCircuitInputs } from "./swiyu-zkp/types.js";
 
 // Circom witness calculators accept any object with string keys
 type CircuitInput = Record<string, unknown>;
@@ -99,5 +100,12 @@ export class WitnessCalculator {
   async calculateMdocWitnessWtns(inputs: CircuitInput): Promise<Uint8Array> {
     const calc = await this.getCalculator("mdoc");
     return await calc.calculateWTNSBin(inputs, true);
+  }
+
+  async calculateSwiyuWitnessWtns(
+    inputs: SwiyuCircuitInputs | CircuitInput,
+  ): Promise<Uint8Array> {
+    const calc = await this.getCalculator("swiyu_age18_status_2k");
+    return await calc.calculateWTNSBin(inputs as CircuitInput, true);
   }
 }

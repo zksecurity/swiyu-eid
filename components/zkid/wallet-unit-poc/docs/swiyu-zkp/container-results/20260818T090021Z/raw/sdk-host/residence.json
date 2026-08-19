@@ -1,0 +1,799 @@
+{
+  "schema": "swiyu.zk-sdk-host-orchestration.v1",
+  "profile": "residence",
+  "generatedAt": "2026-08-18T11:03:32.192Z",
+  "runtime": {
+    "node": "v22.14.0",
+    "platform": "linux",
+    "arch": "arm64"
+  },
+  "runs": 7,
+  "repetitionRule": {
+    "adaptive": true,
+    "thresholdRelativeToFirstTwoMean": 0.15,
+    "firstTwoPrincipalStageVariationOver15Percent": true,
+    "requiredRuns": 7,
+    "satisfied": true
+  },
+  "iterationsPerRun": 1000,
+  "warmupsPerWorker": 100,
+  "implementation": {
+    "kind": "partial exact profile-specific split wallet and verifier adapter component",
+    "exactProfileAdapter": true
+  },
+  "boundary": {
+    "included": [
+      "SD-JWT parse and issuer verification through the current common parser",
+      "exact profile-specific verifier policy/public-context construction",
+      "exact profile-specific split adapter validation and dispatch",
+      "exact-sized Prepare/Show proof base64url envelope framing",
+      "exact profile-specific verifier context reconstruction with a fake proof verifier"
+    ],
+    "excluded": [
+      "predicate-specific private witness-input construction",
+      "holder signing and status Merkle-witness verification before the split adapter",
+      "Circom witness generation",
+      "Spartan assignment, proof, setup, proof serialization/deserialization, and verification",
+      "network and persistent storage I/O"
+    ],
+    "caveat": "partial adapter component only: exact profile policy/context/dispatch/framing, but missing private input, holder-signing, and status-witness orchestration must not be presented as full SDK overhead"
+  },
+  "syntheticProofPairBytes": 258446,
+  "prepareProofBytes": 180055,
+  "showProofBytes": 78391,
+  "exactProofFramingIncludedInShow": true,
+  "rawRuns": [
+    {
+      "profile": "residence",
+      "implementationProfile": "swiyu.residence-eligibility.combined-disclosure.v1",
+      "circuitIds": {
+        "prepare": "swiyu_residence_combined_prepare_compact",
+        "show": "swiyu_residence_show_packed_chunk_v2"
+      },
+      "run": 1,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 5.233835336,
+          "cpuMsPerOperation": 5.395513,
+          "totalWallMs": 5233.835336,
+          "totalCpuMs": 5395.513
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 15.918715964999999,
+          "cpuMsPerOperation": 16.242352,
+          "totalWallMs": 15918.715965,
+          "totalCpuMs": 16242.352
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 1.8140003340000002,
+          "cpuMsPerOperation": 1.814195,
+          "totalWallMs": 1814.000334,
+          "totalCpuMs": 1814.195
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 1.6191676259999999,
+          "cpuMsPerOperation": 1.619115,
+          "totalWallMs": 1619.167626,
+          "totalCpuMs": 1619.115
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 18.919384718,
+          "cpuMsPerOperation": 19.172007,
+          "totalWallMs": 18919.384718,
+          "totalCpuMs": 19172.007
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 345051,
+        "syntheticProofPairRawBytes": 258446,
+        "syntheticProofPairBase64urlBytes": 344596,
+        "syntheticProofPairFramedJsonBytes": 345051,
+        "transmittedEnvelopeJsonBytes": 345051
+      },
+      "authenticatedStatusBoundary": {
+        "classification": "untimed authenticated fixture setup",
+        "encoding": "statuslist+jwt with packed two-bit statuses",
+        "listLength": 65536,
+        "epoch": 1749999970,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "nativeWitnessRootContract": "same all-VALID packed bytes, list length, epoch, and packed-chunk v2 ternary construction; exact root must match"
+      },
+      "processPeakRssBytes": 391483392,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "1",
+        "--iterations",
+        "1000",
+        "--profile",
+        "residence",
+        "--proof-pair-bytes",
+        "258446",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "78391"
+      ],
+      "startedAt": "2026-08-18T10:57:02.999Z",
+      "endedAt": "2026-08-18T10:57:57.324Z"
+    },
+    {
+      "profile": "residence",
+      "implementationProfile": "swiyu.residence-eligibility.combined-disclosure.v1",
+      "circuitIds": {
+        "prepare": "swiyu_residence_combined_prepare_compact",
+        "show": "swiyu_residence_show_packed_chunk_v2"
+      },
+      "run": 2,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 5.262334627,
+          "cpuMsPerOperation": 5.422814000000001,
+          "totalWallMs": 5262.334627,
+          "totalCpuMs": 5422.814
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 17.652775675,
+          "cpuMsPerOperation": 18.051413,
+          "totalWallMs": 17652.775675,
+          "totalCpuMs": 18051.413
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 1.887815043,
+          "cpuMsPerOperation": 1.8879359999999998,
+          "totalWallMs": 1887.815043,
+          "totalCpuMs": 1887.936
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 2.4691567930000002,
+          "cpuMsPerOperation": 2.468988,
+          "totalWallMs": 2469.156793,
+          "totalCpuMs": 2468.988
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 19.245941009,
+          "cpuMsPerOperation": 19.494452000000003,
+          "totalWallMs": 19245.941009,
+          "totalCpuMs": 19494.452
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 345051,
+        "syntheticProofPairRawBytes": 258446,
+        "syntheticProofPairBase64urlBytes": 344596,
+        "syntheticProofPairFramedJsonBytes": 345051,
+        "transmittedEnvelopeJsonBytes": 345051
+      },
+      "authenticatedStatusBoundary": {
+        "classification": "untimed authenticated fixture setup",
+        "encoding": "statuslist+jwt with packed two-bit statuses",
+        "listLength": 65536,
+        "epoch": 1749999970,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "nativeWitnessRootContract": "same all-VALID packed bytes, list length, epoch, and packed-chunk v2 ternary construction; exact root must match"
+      },
+      "processPeakRssBytes": 393830400,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "2",
+        "--iterations",
+        "1000",
+        "--profile",
+        "residence",
+        "--proof-pair-bytes",
+        "258446",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "78391"
+      ],
+      "startedAt": "2026-08-18T10:57:57.324Z",
+      "endedAt": "2026-08-18T10:58:53.474Z"
+    },
+    {
+      "profile": "residence",
+      "implementationProfile": "swiyu.residence-eligibility.combined-disclosure.v1",
+      "circuitIds": {
+        "prepare": "swiyu_residence_combined_prepare_compact",
+        "show": "swiyu_residence_show_packed_chunk_v2"
+      },
+      "run": 3,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 5.586889295,
+          "cpuMsPerOperation": 5.766774000000001,
+          "totalWallMs": 5586.889295,
+          "totalCpuMs": 5766.774
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 15.696441549,
+          "cpuMsPerOperation": 15.993818,
+          "totalWallMs": 15696.441549,
+          "totalCpuMs": 15993.818
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 1.656001792,
+          "cpuMsPerOperation": 1.655996,
+          "totalWallMs": 1656.001792,
+          "totalCpuMs": 1655.996
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 1.6773989169999999,
+          "cpuMsPerOperation": 1.6772539999999998,
+          "totalWallMs": 1677.398917,
+          "totalCpuMs": 1677.254
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 20.353820218,
+          "cpuMsPerOperation": 20.625664,
+          "totalWallMs": 20353.820218,
+          "totalCpuMs": 20625.664
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 345051,
+        "syntheticProofPairRawBytes": 258446,
+        "syntheticProofPairBase64urlBytes": 344596,
+        "syntheticProofPairFramedJsonBytes": 345051,
+        "transmittedEnvelopeJsonBytes": 345051
+      },
+      "authenticatedStatusBoundary": {
+        "classification": "untimed authenticated fixture setup",
+        "encoding": "statuslist+jwt with packed two-bit statuses",
+        "listLength": 65536,
+        "epoch": 1749999970,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "nativeWitnessRootContract": "same all-VALID packed bytes, list length, epoch, and packed-chunk v2 ternary construction; exact root must match"
+      },
+      "processPeakRssBytes": 386408448,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "3",
+        "--iterations",
+        "1000",
+        "--profile",
+        "residence",
+        "--proof-pair-bytes",
+        "258446",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "78391"
+      ],
+      "startedAt": "2026-08-18T10:58:53.475Z",
+      "endedAt": "2026-08-18T10:59:48.143Z"
+    },
+    {
+      "profile": "residence",
+      "implementationProfile": "swiyu.residence-eligibility.combined-disclosure.v1",
+      "circuitIds": {
+        "prepare": "swiyu_residence_combined_prepare_compact",
+        "show": "swiyu_residence_show_packed_chunk_v2"
+      },
+      "run": 4,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 5.425793211,
+          "cpuMsPerOperation": 5.611274000000001,
+          "totalWallMs": 5425.793211,
+          "totalCpuMs": 5611.274
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 15.986175799,
+          "cpuMsPerOperation": 16.335519,
+          "totalWallMs": 15986.175799,
+          "totalCpuMs": 16335.519
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 1.710987335,
+          "cpuMsPerOperation": 1.710906,
+          "totalWallMs": 1710.987335,
+          "totalCpuMs": 1710.906
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 1.654607584,
+          "cpuMsPerOperation": 1.654483,
+          "totalWallMs": 1654.607584,
+          "totalCpuMs": 1654.483
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 18.443050924999998,
+          "cpuMsPerOperation": 18.648606,
+          "totalWallMs": 18443.050925,
+          "totalCpuMs": 18648.606
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 345051,
+        "syntheticProofPairRawBytes": 258446,
+        "syntheticProofPairBase64urlBytes": 344596,
+        "syntheticProofPairFramedJsonBytes": 345051,
+        "transmittedEnvelopeJsonBytes": 345051
+      },
+      "authenticatedStatusBoundary": {
+        "classification": "untimed authenticated fixture setup",
+        "encoding": "statuslist+jwt with packed two-bit statuses",
+        "listLength": 65536,
+        "epoch": 1749999970,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "nativeWitnessRootContract": "same all-VALID packed bytes, list length, epoch, and packed-chunk v2 ternary construction; exact root must match"
+      },
+      "processPeakRssBytes": 381243392,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "4",
+        "--iterations",
+        "1000",
+        "--profile",
+        "residence",
+        "--proof-pair-bytes",
+        "258446",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "78391"
+      ],
+      "startedAt": "2026-08-18T10:59:48.144Z",
+      "endedAt": "2026-08-18T11:00:41.947Z"
+    },
+    {
+      "profile": "residence",
+      "implementationProfile": "swiyu.residence-eligibility.combined-disclosure.v1",
+      "circuitIds": {
+        "prepare": "swiyu_residence_combined_prepare_compact",
+        "show": "swiyu_residence_show_packed_chunk_v2"
+      },
+      "run": 5,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 6.694882503,
+          "cpuMsPerOperation": 6.893717,
+          "totalWallMs": 6694.882503,
+          "totalCpuMs": 6893.717
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 18.053941717,
+          "cpuMsPerOperation": 18.414287,
+          "totalWallMs": 18053.941717,
+          "totalCpuMs": 18414.287
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 2.0958208760000003,
+          "cpuMsPerOperation": 2.0958780000000004,
+          "totalWallMs": 2095.820876,
+          "totalCpuMs": 2095.878
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 2.258450793,
+          "cpuMsPerOperation": 2.258247,
+          "totalWallMs": 2258.450793,
+          "totalCpuMs": 2258.247
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 18.693452467,
+          "cpuMsPerOperation": 19.053099999999997,
+          "totalWallMs": 18693.452467,
+          "totalCpuMs": 19053.1
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 345051,
+        "syntheticProofPairRawBytes": 258446,
+        "syntheticProofPairBase64urlBytes": 344596,
+        "syntheticProofPairFramedJsonBytes": 345051,
+        "transmittedEnvelopeJsonBytes": 345051
+      },
+      "authenticatedStatusBoundary": {
+        "classification": "untimed authenticated fixture setup",
+        "encoding": "statuslist+jwt with packed two-bit statuses",
+        "listLength": 65536,
+        "epoch": 1749999970,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "nativeWitnessRootContract": "same all-VALID packed bytes, list length, epoch, and packed-chunk v2 ternary construction; exact root must match"
+      },
+      "processPeakRssBytes": 369786880,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "5",
+        "--iterations",
+        "1000",
+        "--profile",
+        "residence",
+        "--proof-pair-bytes",
+        "258446",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "78391"
+      ],
+      "startedAt": "2026-08-18T11:00:41.948Z",
+      "endedAt": "2026-08-18T11:01:38.975Z"
+    },
+    {
+      "profile": "residence",
+      "implementationProfile": "swiyu.residence-eligibility.combined-disclosure.v1",
+      "circuitIds": {
+        "prepare": "swiyu_residence_combined_prepare_compact",
+        "show": "swiyu_residence_show_packed_chunk_v2"
+      },
+      "run": 6,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 5.239882003,
+          "cpuMsPerOperation": 5.403848,
+          "totalWallMs": 5239.882003,
+          "totalCpuMs": 5403.848
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 17.695535174,
+          "cpuMsPerOperation": 18.087605,
+          "totalWallMs": 17695.535174,
+          "totalCpuMs": 18087.605
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 1.776566168,
+          "cpuMsPerOperation": 1.776335,
+          "totalWallMs": 1776.566168,
+          "totalCpuMs": 1776.335
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 2.005766334,
+          "cpuMsPerOperation": 2.0056089999999998,
+          "totalWallMs": 2005.766334,
+          "totalCpuMs": 2005.609
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 21.603519885,
+          "cpuMsPerOperation": 21.891079,
+          "totalWallMs": 21603.519885,
+          "totalCpuMs": 21891.079
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 345051,
+        "syntheticProofPairRawBytes": 258446,
+        "syntheticProofPairBase64urlBytes": 344596,
+        "syntheticProofPairFramedJsonBytes": 345051,
+        "transmittedEnvelopeJsonBytes": 345051
+      },
+      "authenticatedStatusBoundary": {
+        "classification": "untimed authenticated fixture setup",
+        "encoding": "statuslist+jwt with packed two-bit statuses",
+        "listLength": 65536,
+        "epoch": 1749999970,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "nativeWitnessRootContract": "same all-VALID packed bytes, list length, epoch, and packed-chunk v2 ternary construction; exact root must match"
+      },
+      "processPeakRssBytes": 394264576,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "6",
+        "--iterations",
+        "1000",
+        "--profile",
+        "residence",
+        "--proof-pair-bytes",
+        "258446",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "78391"
+      ],
+      "startedAt": "2026-08-18T11:01:38.975Z",
+      "endedAt": "2026-08-18T11:02:36.489Z"
+    },
+    {
+      "profile": "residence",
+      "implementationProfile": "swiyu.residence-eligibility.combined-disclosure.v1",
+      "circuitIds": {
+        "prepare": "swiyu_residence_combined_prepare_compact",
+        "show": "swiyu_residence_show_packed_chunk_v2"
+      },
+      "run": 7,
+      "iterations": 1000,
+      "timings": {
+        "perCredentialPrepareSdk": {
+          "wallMsPerOperation": 5.924324919,
+          "cpuMsPerOperation": 6.098831000000001,
+          "totalWallMs": 5924.324919,
+          "totalCpuMs": 6098.831
+        },
+        "perPresentationShowSdkWithFakeBoundaries": {
+          "wallMsPerOperation": 17.351364091,
+          "cpuMsPerOperation": 17.892523,
+          "totalWallMs": 17351.364091,
+          "totalCpuMs": 17892.523
+        },
+        "perPresentationEnvelopeObjectJson": {
+          "wallMsPerOperation": 1.771215542,
+          "cpuMsPerOperation": 1.771232,
+          "totalWallMs": 1771.215542,
+          "totalCpuMs": 1771.232
+        },
+        "exactSizedProofPairFraming": {
+          "wallMsPerOperation": 1.670048334,
+          "cpuMsPerOperation": 1.669954,
+          "totalWallMs": 1670.048334,
+          "totalCpuMs": 1669.954
+        },
+        "perPresentationVerifierSdkWithFakeBoundary": {
+          "wallMsPerOperation": 19.752787218,
+          "cpuMsPerOperation": 20.188629000000002,
+          "totalWallMs": 19752.787218,
+          "totalCpuMs": 20188.629
+        }
+      },
+      "sizes": {
+        "sdkEnvelopeObjectJsonBytes": 345051,
+        "syntheticProofPairRawBytes": 258446,
+        "syntheticProofPairBase64urlBytes": 344596,
+        "syntheticProofPairFramedJsonBytes": 345051,
+        "transmittedEnvelopeJsonBytes": 345051
+      },
+      "authenticatedStatusBoundary": {
+        "classification": "untimed authenticated fixture setup",
+        "encoding": "statuslist+jwt with packed two-bit statuses",
+        "listLength": 65536,
+        "epoch": 1749999970,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "nativeWitnessRootContract": "same all-VALID packed bytes, list length, epoch, and packed-chunk v2 ternary construction; exact root must match"
+      },
+      "processPeakRssBytes": 401612800,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--import",
+        "/workspace/circom/node_modules/tsx/dist/loader.mjs",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-zk-host.ts",
+        "--worker",
+        "--run",
+        "7",
+        "--iterations",
+        "1000",
+        "--profile",
+        "residence",
+        "--proof-pair-bytes",
+        "258446",
+        "--prepare-proof-bytes",
+        "180055",
+        "--show-proof-bytes",
+        "78391"
+      ],
+      "startedAt": "2026-08-18T11:02:36.489Z",
+      "endedAt": "2026-08-18T11:03:32.191Z"
+    }
+  ],
+  "summary": {
+    "perCredentialPrepareSdk": {
+      "wallMs": {
+        "samples": [
+          5.233835336,
+          5.262334627,
+          5.586889295,
+          5.425793211,
+          6.694882503,
+          5.239882003,
+          5.924324919
+        ],
+        "min": 5.233835336,
+        "median": 5.425793211,
+        "max": 6.694882503,
+        "mean": 5.623991699142857,
+        "variance": 0.28470407833893535,
+        "standardDeviation": 0.5335766845908237,
+        "coefficientOfVariation": 0.09487508395009639
+      },
+      "cpuMs": {
+        "samples": [
+          5.395513,
+          5.422814000000001,
+          5.766774000000001,
+          5.611274000000001,
+          6.893717,
+          5.403848,
+          6.098831000000001
+        ],
+        "min": 5.395513,
+        "median": 5.611274000000001,
+        "max": 6.893717,
+        "mean": 5.798967285714285,
+        "variance": 0.29750771102990453,
+        "standardDeviation": 0.5454426743755062,
+        "coefficientOfVariation": 0.09405858793499325
+      }
+    },
+    "perPresentationShowSdkWithFakeBoundaries": {
+      "wallMs": {
+        "samples": [
+          15.918715964999999,
+          17.652775675,
+          15.696441549,
+          15.986175799,
+          18.053941717,
+          17.695535174,
+          17.351364091
+        ],
+        "min": 15.696441549,
+        "median": 17.351364091,
+        "max": 18.053941717,
+        "mean": 16.907849995714287,
+        "variance": 0.9968288457406295,
+        "standardDeviation": 0.9984131638458247,
+        "coefficientOfVariation": 0.05905027334042455
+      },
+      "cpuMs": {
+        "samples": [
+          16.242352,
+          18.051413,
+          15.993818,
+          16.335519,
+          18.414287,
+          18.087605,
+          17.892523
+        ],
+        "min": 15.993818,
+        "median": 17.892523,
+        "max": 18.414287,
+        "mean": 17.288216714285713,
+        "variance": 1.0886074240209054,
+        "standardDeviation": 1.0433635148024418,
+        "coefficientOfVariation": 0.06035113580802598
+      }
+    },
+    "perPresentationEnvelopeObjectJson": {
+      "wallMs": {
+        "samples": [
+          1.8140003340000002,
+          1.887815043,
+          1.656001792,
+          1.710987335,
+          2.0958208760000003,
+          1.776566168,
+          1.771215542
+        ],
+        "min": 1.656001792,
+        "median": 1.776566168,
+        "max": 2.0958208760000003,
+        "mean": 1.8160581557142859,
+        "variance": 0.020608143199028782,
+        "standardDeviation": 0.14355536631916196,
+        "coefficientOfVariation": 0.07904778041796753
+      },
+      "cpuMs": {
+        "samples": [
+          1.814195,
+          1.8879359999999998,
+          1.655996,
+          1.710906,
+          2.0958780000000004,
+          1.776335,
+          1.771232
+        ],
+        "min": 1.655996,
+        "median": 1.776335,
+        "max": 2.0958780000000004,
+        "mean": 1.8160682857142856,
+        "variance": 0.020622203877571455,
+        "standardDeviation": 0.1436043309847285,
+        "coefficientOfVariation": 0.07907430139844486
+      }
+    },
+    "exactSizedProofPairFraming": {
+      "wallMs": {
+        "samples": [
+          1.6191676259999999,
+          2.4691567930000002,
+          1.6773989169999999,
+          1.654607584,
+          2.258450793,
+          2.005766334,
+          1.670048334
+        ],
+        "min": 1.6191676259999999,
+        "median": 1.6773989169999999,
+        "max": 2.4691567930000002,
+        "mean": 1.907799483,
+        "variance": 0.11745006514140734,
+        "standardDeviation": 0.3427098848025941,
+        "coefficientOfVariation": 0.1796362185105981
+      },
+      "cpuMs": {
+        "samples": [
+          1.619115,
+          2.468988,
+          1.6772539999999998,
+          1.654483,
+          2.258247,
+          2.0056089999999998,
+          1.669954
+        ],
+        "min": 1.619115,
+        "median": 1.6772539999999998,
+        "max": 2.468988,
+        "mean": 1.9076642857142858,
+        "variance": 0.11742370870857144,
+        "standardDeviation": 0.342671429664878,
+        "coefficientOfVariation": 0.17962879120346467
+      }
+    },
+    "perPresentationVerifierSdkWithFakeBoundary": {
+      "wallMs": {
+        "samples": [
+          18.919384718,
+          19.245941009,
+          20.353820218,
+          18.443050924999998,
+          18.693452467,
+          21.603519885,
+          19.752787218
+        ],
+        "min": 18.443050924999998,
+        "median": 19.245941009,
+        "max": 21.603519885,
+        "mean": 19.57313663428571,
+        "variance": 1.2249306374415483,
+        "standardDeviation": 1.106765845805493,
+        "coefficientOfVariation": 0.0565451448321677
+      },
+      "cpuMs": {
+        "samples": [
+          19.172007,
+          19.494452000000003,
+          20.625664,
+          18.648606,
+          19.053099999999997,
+          21.891079,
+          20.188629000000002
+        ],
+        "min": 18.648606,
+        "median": 19.494452000000003,
+        "max": 21.891079,
+        "mean": 19.867648142857146,
+        "variance": 1.2574389279571438,
+        "standardDeviation": 1.1213558435916513,
+        "coefficientOfVariation": 0.056441297708143844
+      }
+    }
+  }
+}

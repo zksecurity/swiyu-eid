@@ -1,0 +1,552 @@
+{
+  "schema": "swiyu.no-zk-sd-jwt-control-benchmark.v1",
+  "profile": "age-over-18",
+  "generatedAt": "2026-08-18T03:18:50.240Z",
+  "runtime": {
+    "node": "v22.14.0",
+    "platform": "linux",
+    "arch": "arm64"
+  },
+  "semantics": {
+    "predicate": "selectively disclose age_over_18=true",
+    "authoritativeLookup": {
+      "issuer": "did:example:issuer",
+      "kid": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+      "vct": "https://example.ch/vct/person"
+    },
+    "holderBinding": "ES256 kb+jwt binds nonce, audience, and sd_hash",
+    "status": "preloaded authoritative status-list byte lookup bound to signed URI https://status.example.ch/lists/2026-07 and index 42; network fetch and DID resolution excluded",
+    "privacyDifference": "The control reveals the selected claim value; the ZK profile reveals only predicate success."
+  },
+  "policy": {
+    "disclosedClaim": [
+      "age_over_18",
+      true
+    ]
+  },
+  "iterationsPerRun": 1000,
+  "repetitionRule": {
+    "adaptive": true,
+    "thresholdRelativeToFirstTwoMean": 0.15,
+    "principalStages": [
+      "oneTimeTrustMaterialSetup",
+      "perCredentialReusableWalletPreparation",
+      "perPresentationWallet",
+      "perPresentationVerifier",
+      "perPresentationEndToEndWithUncachedCredentialValidation"
+    ],
+    "firstTwoPrincipalStageVariationOver15Percent": true,
+    "requiredRuns": 7,
+    "satisfied": true
+  },
+  "rawRuns": [
+    {
+      "run": 1,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.015536833,
+          "cpuMsPerOperation": 0.036862,
+          "totalWallMs": 15.536833,
+          "totalCpuMs": 36.862
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 4.3313926689999995,
+          "cpuMsPerOperation": 4.390401,
+          "totalWallMs": 4331.392669,
+          "totalCpuMs": 4390.401
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.593887876,
+          "cpuMsPerOperation": 0.659694,
+          "totalWallMs": 593.887876,
+          "totalCpuMs": 659.694
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 7.780486251999999,
+          "cpuMsPerOperation": 7.888598,
+          "totalWallMs": 7780.486252,
+          "totalCpuMs": 7888.598
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 11.873527589,
+          "cpuMsPerOperation": 11.97342,
+          "totalWallMs": 11873.527589,
+          "totalCpuMs": 11973.42
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 885,
+        "preparedCredentialStorageBytes": 1312,
+        "transmittedPresentationBytes": 1205,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "processPeakRssBytes": 136241152,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--experimental-strip-types",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-no-zk.ts",
+        "--worker",
+        "--iterations",
+        "1000",
+        "--run",
+        "1",
+        "--profile",
+        "age-over-18"
+      ],
+      "startedAt": "2026-08-18T03:15:59.824Z",
+      "endedAt": "2026-08-18T03:16:26.188Z"
+    },
+    {
+      "run": 2,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.012298624999999999,
+          "cpuMsPerOperation": 0.029321,
+          "totalWallMs": 12.298625,
+          "totalCpuMs": 29.321
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 3.888880627,
+          "cpuMsPerOperation": 3.943117,
+          "totalWallMs": 3888.880627,
+          "totalCpuMs": 3943.117
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.590430625,
+          "cpuMsPerOperation": 0.657532,
+          "totalWallMs": 590.430625,
+          "totalCpuMs": 657.532
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 7.508001586000001,
+          "cpuMsPerOperation": 7.622172,
+          "totalWallMs": 7508.001586,
+          "totalCpuMs": 7622.172
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 11.396015172,
+          "cpuMsPerOperation": 11.484615,
+          "totalWallMs": 11396.015172,
+          "totalCpuMs": 11484.615
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 885,
+        "preparedCredentialStorageBytes": 1312,
+        "transmittedPresentationBytes": 1205,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "processPeakRssBytes": 136323072,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--experimental-strip-types",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-no-zk.ts",
+        "--worker",
+        "--iterations",
+        "1000",
+        "--run",
+        "2",
+        "--profile",
+        "age-over-18"
+      ],
+      "startedAt": "2026-08-18T03:16:26.189Z",
+      "endedAt": "2026-08-18T03:16:51.057Z"
+    },
+    {
+      "run": 3,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.010450458,
+          "cpuMsPerOperation": 0.025169,
+          "totalWallMs": 10.450458,
+          "totalCpuMs": 25.169
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 3.6729055429999997,
+          "cpuMsPerOperation": 3.720808,
+          "totalWallMs": 3672.905543,
+          "totalCpuMs": 3720.808
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.519134417,
+          "cpuMsPerOperation": 0.5842630000000001,
+          "totalWallMs": 519.134417,
+          "totalCpuMs": 584.263
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 7.164014628,
+          "cpuMsPerOperation": 7.269010000000001,
+          "totalWallMs": 7164.014628,
+          "totalCpuMs": 7269.01
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 11.141143838,
+          "cpuMsPerOperation": 11.227217000000001,
+          "totalWallMs": 11141.143838,
+          "totalCpuMs": 11227.217
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 885,
+        "preparedCredentialStorageBytes": 1312,
+        "transmittedPresentationBytes": 1205,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "processPeakRssBytes": 136347648,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--experimental-strip-types",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-no-zk.ts",
+        "--worker",
+        "--iterations",
+        "1000",
+        "--run",
+        "3",
+        "--profile",
+        "age-over-18"
+      ],
+      "startedAt": "2026-08-18T03:16:51.057Z",
+      "endedAt": "2026-08-18T03:17:15.033Z"
+    },
+    {
+      "run": 4,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.009657708,
+          "cpuMsPerOperation": 0.022458,
+          "totalWallMs": 9.657708,
+          "totalCpuMs": 22.458
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 3.581325127,
+          "cpuMsPerOperation": 3.627234,
+          "totalWallMs": 3581.325127,
+          "totalCpuMs": 3627.234
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.471316917,
+          "cpuMsPerOperation": 0.520765,
+          "totalWallMs": 471.316917,
+          "totalCpuMs": 520.765
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 7.165439462,
+          "cpuMsPerOperation": 7.263747,
+          "totalWallMs": 7165.439462,
+          "totalCpuMs": 7263.747
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 11.486266171999999,
+          "cpuMsPerOperation": 11.570915000000001,
+          "totalWallMs": 11486.266172,
+          "totalCpuMs": 11570.915
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 885,
+        "preparedCredentialStorageBytes": 1312,
+        "transmittedPresentationBytes": 1205,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "processPeakRssBytes": 137510912,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--experimental-strip-types",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-no-zk.ts",
+        "--worker",
+        "--iterations",
+        "1000",
+        "--run",
+        "4",
+        "--profile",
+        "age-over-18"
+      ],
+      "startedAt": "2026-08-18T03:17:15.033Z",
+      "endedAt": "2026-08-18T03:17:39.191Z"
+    },
+    {
+      "run": 5,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.010369666999999999,
+          "cpuMsPerOperation": 0.024895,
+          "totalWallMs": 10.369667,
+          "totalCpuMs": 24.895
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 3.5854259600000002,
+          "cpuMsPerOperation": 3.630376,
+          "totalWallMs": 3585.42596,
+          "totalCpuMs": 3630.376
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.474792417,
+          "cpuMsPerOperation": 0.524514,
+          "totalWallMs": 474.792417,
+          "totalCpuMs": 524.514
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 7.0545660859999995,
+          "cpuMsPerOperation": 7.149991,
+          "totalWallMs": 7054.566086,
+          "totalCpuMs": 7149.991
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 11.343129214000001,
+          "cpuMsPerOperation": 11.437385,
+          "totalWallMs": 11343.129214,
+          "totalCpuMs": 11437.385
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 885,
+        "preparedCredentialStorageBytes": 1312,
+        "transmittedPresentationBytes": 1205,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "processPeakRssBytes": 137875456,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--experimental-strip-types",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-no-zk.ts",
+        "--worker",
+        "--iterations",
+        "1000",
+        "--run",
+        "5",
+        "--profile",
+        "age-over-18"
+      ],
+      "startedAt": "2026-08-18T03:17:39.192Z",
+      "endedAt": "2026-08-18T03:18:03.081Z"
+    },
+    {
+      "run": 6,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.011518625,
+          "cpuMsPerOperation": 0.029001000000000002,
+          "totalWallMs": 11.518625,
+          "totalCpuMs": 29.001
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 3.573516502,
+          "cpuMsPerOperation": 3.6201790000000003,
+          "totalWallMs": 3573.516502,
+          "totalCpuMs": 3620.179
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.472209958,
+          "cpuMsPerOperation": 0.526359,
+          "totalWallMs": 472.209958,
+          "totalCpuMs": 526.359
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 7.020184086,
+          "cpuMsPerOperation": 7.121412,
+          "totalWallMs": 7020.184086,
+          "totalCpuMs": 7121.412
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 11.008295297,
+          "cpuMsPerOperation": 11.091128000000001,
+          "totalWallMs": 11008.295297,
+          "totalCpuMs": 11091.128
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 885,
+        "preparedCredentialStorageBytes": 1312,
+        "transmittedPresentationBytes": 1205,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "processPeakRssBytes": 136232960,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--experimental-strip-types",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-no-zk.ts",
+        "--worker",
+        "--iterations",
+        "1000",
+        "--run",
+        "6",
+        "--profile",
+        "age-over-18"
+      ],
+      "startedAt": "2026-08-18T03:18:03.081Z",
+      "endedAt": "2026-08-18T03:18:26.558Z"
+    },
+    {
+      "run": 7,
+      "iterations": 1000,
+      "timings": {
+        "oneTimeTrustMaterialSetup": {
+          "wallMsPerOperation": 0.010151375,
+          "cpuMsPerOperation": 0.024024999999999998,
+          "totalWallMs": 10.151375,
+          "totalCpuMs": 24.025
+        },
+        "perCredentialReusableWalletPreparation": {
+          "wallMsPerOperation": 3.55497721,
+          "cpuMsPerOperation": 3.600797,
+          "totalWallMs": 3554.97721,
+          "totalCpuMs": 3600.797
+        },
+        "perPresentationWallet": {
+          "wallMsPerOperation": 0.48129120799999997,
+          "cpuMsPerOperation": 0.529455,
+          "totalWallMs": 481.291208,
+          "totalCpuMs": 529.455
+        },
+        "perPresentationVerifier": {
+          "wallMsPerOperation": 7.233464711,
+          "cpuMsPerOperation": 7.343511,
+          "totalWallMs": 7233.464711,
+          "totalCpuMs": 7343.511
+        },
+        "perPresentationEndToEndWithUncachedCredentialValidation": {
+          "wallMsPerOperation": 11.014844047,
+          "cpuMsPerOperation": 11.098205,
+          "totalWallMs": 11014.844047,
+          "totalCpuMs": 11098.205
+        }
+      },
+      "sizes": {
+        "storedCredentialBytes": 885,
+        "preparedCredentialStorageBytes": 1312,
+        "transmittedPresentationBytes": 1205,
+        "issuerPublicJwkBytes": 234,
+        "holderPublicJwkBytes": 126
+      },
+      "processPeakRssBytes": 136159232,
+      "processArgv": [
+        "/usr/local/bin/node",
+        "--experimental-strip-types",
+        "/workspace/openac-sdk/scripts/benchmark-swiyu-no-zk.ts",
+        "--worker",
+        "--iterations",
+        "1000",
+        "--run",
+        "7",
+        "--profile",
+        "age-over-18"
+      ],
+      "startedAt": "2026-08-18T03:18:26.558Z",
+      "endedAt": "2026-08-18T03:18:50.240Z"
+    }
+  ],
+  "summary": {
+    "oneTimeTrustMaterialSetup": {
+      "wallMs": {
+        "min": 0.009657708,
+        "median": 0.010450458,
+        "max": 0.015536833,
+        "mean": 0.01142618442857143,
+        "variance": 0.000004081341430930618,
+        "standardDeviation": 0.0020202330140185855,
+        "coefficientOfVariation": 0.1768073171449034
+      },
+      "cpuMs": {
+        "min": 0.022458,
+        "median": 0.025169,
+        "max": 0.036862,
+        "mean": 0.027390142857142856,
+        "variance": 0.000023808096809523813,
+        "standardDeviation": 0.004879354138564223,
+        "coefficientOfVariation": 0.1781427049874541
+      }
+    },
+    "perCredentialReusableWalletPreparation": {
+      "wallMs": {
+        "min": 3.55497721,
+        "median": 3.5854259600000002,
+        "max": 4.3313926689999995,
+        "mean": 3.7412033768571424,
+        "variance": 0.08123721608019109,
+        "standardDeviation": 0.28502143091387194,
+        "coefficientOfVariation": 0.07618442575910127
+      },
+      "cpuMs": {
+        "min": 3.600797,
+        "median": 3.630376,
+        "max": 4.390401,
+        "mean": 3.790416,
+        "variance": 0.08422033955733327,
+        "standardDeviation": 0.2902074078264255,
+        "coefficientOfVariation": 0.07656347161536504
+      }
+    },
+    "perPresentationWallet": {
+      "wallMs": {
+        "min": 0.471316917,
+        "median": 0.48129120799999997,
+        "max": 0.593887876,
+        "mean": 0.5147233454285715,
+        "variance": 0.0030702942718160756,
+        "standardDeviation": 0.05541023616459395,
+        "coefficientOfVariation": 0.10765052072479442
+      },
+      "cpuMs": {
+        "min": 0.520765,
+        "median": 0.529455,
+        "max": 0.659694,
+        "mean": 0.5717974285714286,
+        "variance": 0.003988196318285713,
+        "standardDeviation": 0.06315216796188167,
+        "coefficientOfVariation": 0.11044500168470545
+      }
+    },
+    "perPresentationVerifier": {
+      "wallMs": {
+        "min": 7.020184086,
+        "median": 7.165439462,
+        "max": 7.780486251999999,
+        "mean": 7.275165258714286,
+        "variance": 0.07489576730876334,
+        "standardDeviation": 0.2736709106002378,
+        "coefficientOfVariation": 0.03761714007423148
+      },
+      "cpuMs": {
+        "min": 7.121412,
+        "median": 7.269010000000001,
+        "max": 7.888598,
+        "mean": 7.379777285714286,
+        "variance": 0.07737595617190468,
+        "standardDeviation": 0.2781653396307755,
+        "coefficientOfVariation": 0.03769291793794994
+      }
+    },
+    "perPresentationEndToEndWithUncachedCredentialValidation": {
+      "wallMs": {
+        "min": 11.008295297,
+        "median": 11.343129214000001,
+        "max": 11.873527589,
+        "mean": 11.323317332714286,
+        "variance": 0.09375716166413318,
+        "standardDeviation": 0.30619791257311535,
+        "coefficientOfVariation": 0.027041361076093534
+      },
+      "cpuMs": {
+        "min": 11.091128000000001,
+        "median": 11.437385,
+        "max": 11.97342,
+        "mean": 11.411840714285717,
+        "variance": 0.09698907532823808,
+        "standardDeviation": 0.311430691050574,
+        "coefficientOfVariation": 0.027290136521158664
+      }
+    }
+  }
+}

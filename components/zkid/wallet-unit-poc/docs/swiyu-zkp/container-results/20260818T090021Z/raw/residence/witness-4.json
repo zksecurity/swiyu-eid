@@ -1,0 +1,184 @@
+{
+  "profile": "swiyu.residence-eligibility.combined-disclosure.v1",
+  "controlProfile": "swiyu.residence-eligibility.prepare-show.v1",
+  "predicate": "issuer-authenticated municipality is in a public 1..16 BFS allow-list and residence_since is at least the public duration",
+  "representation": "one object-valued SD-JWT disclosure",
+  "bounds": {
+    "paddedSigningInputBytes": 832,
+    "encodedHeaderBytes": 248,
+    "encodedPayloadBytes": 572,
+    "statusUriCommitmentBytes": 160,
+    "statusUriParserBufferBytes": 120,
+    "fixtureStatusUriBytes": 39,
+    "portability": "bounded fixture/profile optimization; not a universal SD-JWT URI bound"
+  },
+  "selectiveDisclosureTradeoff": "municipality_bfs and since cannot be released independently",
+  "repetitions": 1,
+  "expandedAfterFirstTwo": false,
+  "processPeakRssBytes": 1129738240,
+  "statusSnapshotStagesMs": {
+    "repetitions": 1,
+    "expandedAfterFirstTwo": false,
+    "ternaryTreeBuild": [
+      4900.533252
+    ],
+    "statusPathGeneration": [
+      0.3064589999994496
+    ],
+    "ternaryTreeBuildStats": {
+      "min": 4900.533252,
+      "median": 4900.533252,
+      "max": 4900.533252,
+      "mean": 4900.533252,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "statusPathGenerationStats": {
+      "min": 0.3064589999994496,
+      "median": 0.3064589999994496,
+      "max": 0.3064589999994496,
+      "mean": 0.3064589999994496,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "packedV2TreeBuild": [
+      20.16870800000015
+    ],
+    "packedV2PathGeneration": [
+      0.24312499999996362
+    ],
+    "packedV2TreeBuildStats": {
+      "min": 20.16870800000015,
+      "median": 20.16870800000015,
+      "max": 20.16870800000015,
+      "mean": 20.16870800000015,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "packedV2PathGenerationStats": {
+      "min": 0.24312499999996362,
+      "median": 0.24312499999996362,
+      "max": 0.24312499999996362,
+      "mean": 0.24312499999996362,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    }
+  },
+  "policy": {
+    "municipalityBfs": 261,
+    "residenceSince": "2023-01-01",
+    "allowedMunicipalityBfs": [
+      261,
+      351
+    ],
+    "minimumResidenceDays": 365,
+    "currentTime": 1750000000,
+    "municipalityDirectoryAsOf": "2025-01-01",
+    "municipalityDirectorySha256": "2a510d6f7de86e40a8d584daba5985422728317619f1e9225bf3c3e28c40905c",
+    "holderChallengeBinding": "swiyu-residence-policy-v1",
+    "UTCWholeDaySemantics": true,
+    "statusRequired": "VALID (00)",
+    "statusSnapshot": {
+      "encoding": "packed two-bit statuses",
+      "listLength": 65536,
+      "epoch": 1749999970,
+      "root": "0c5ff2d21a2425ba5f5497b19a04feace17592249fdb1902805a4829f0ea1162",
+      "sdkHostRootContract": "same all-VALID entries, list length, epoch, and ternary construction; exact root must match",
+      "packedV2": {
+        "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+        "chunkBytes": 64,
+        "treeDepth": 6,
+        "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+        "profile": "swiyu.residence-eligibility.packed-status-chunk.v2",
+        "circuitId": "swiyu_residence_show_packed_chunk_v2",
+        "root": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+      }
+    },
+    "disclosureShape": "[salt,residence,{municipality_bfs,since}]",
+    "primaryStatusProfile": {
+      "treeProfile": "packed-status-chunk-ternary-merkle-v2",
+      "chunkBytes": 64,
+      "treeDepth": 6,
+      "snapshotRoot": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2",
+      "profile": "swiyu.residence-eligibility.packed-status-chunk.v2",
+      "circuitId": "swiyu_residence_show_packed_chunk_v2",
+      "root": "8c9b118e9feea73867dfe6bf8e28bb19acacfe5da1d45961b5691993019035c2"
+    }
+  },
+  "disclosure": {
+    "decodedBytes": 84,
+    "encodedBytes": 112,
+    "payloadDecodedBytes": 428,
+    "payloadEncodedBytes": 571,
+    "signingInputBytes": 818
+  },
+  "fixtureIdentity": {
+    "compactCredentialSha256": "cnZ7d6X3B37REAho8Zp3QLXs__DNt4D3UbriMs7dNIw",
+    "issuerJwtSha256": "SaYLuWjzFVsGEK40BWKxWxelCgsNGYsGLaE2sNryz7Y",
+    "disclosureSha256": [
+      "SZLgaTXSmbACj94HEPxmmRmWvpYrU2MiISWSrP-MN0s"
+    ]
+  },
+  "witnessGenerationMs": {
+    "prepare": [
+      6650.620252999999
+    ],
+    "show": [
+      3361.1849189999994
+    ]
+  },
+  "witnessGenerationStats": {
+    "prepare": {
+      "median": 6650.620252999999,
+      "mean": 6650.620252999999,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0,
+      "minimum": 6650.620252999999,
+      "maximum": 6650.620252999999
+    },
+    "show": {
+      "min": 3361.1849189999994,
+      "median": 3361.1849189999994,
+      "max": 3361.1849189999994,
+      "mean": 3361.1849189999994,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    }
+  },
+  "witnessBytes": {
+    "prepare": 72514988,
+    "show": 19937164
+  },
+  "abControl": {
+    "prepareCircuit": "swiyu_residence_prepare_compact",
+    "prepareWitnessMs": [
+      7148.137461
+    ],
+    "prepareWitnessStats": {
+      "min": 7148.137461,
+      "median": 7148.137461,
+      "max": 7148.137461,
+      "mean": 7148.137461,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "prepareWitnessBytes": 82669036,
+    "legacyShowCircuit": "swiyu_residence_show_split",
+    "legacyShowWitnessMs": [
+      5393.588545000002
+    ],
+    "legacyShowWitnessStats": {
+      "min": 5393.588545000002,
+      "median": 5393.588545000002,
+      "max": 5393.588545000002,
+      "mean": 5393.588545000002,
+      "standardDeviation": 0,
+      "coefficientOfVariation": 0
+    },
+    "legacyShowWitnessBytes": 28598060
+  },
+  "circuits": {
+    "prepare": "swiyu_residence_combined_prepare_compact",
+    "show": "swiyu_residence_show_packed_chunk_v2"
+  }
+}

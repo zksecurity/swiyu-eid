@@ -1,0 +1,10 @@
+
+ RUN  v1.6.1 /workspace/openac-sdk
+
+ ✓ tests/swiyu-zkp/canton-benchmark-witness.test.ts  (1 test) 26088ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  03:47:32
+   Duration  26.75s (transform 218ms, setup 0ms, collect 268ms, tests 26.09s, environment 0ms, prepare 80ms)
+
