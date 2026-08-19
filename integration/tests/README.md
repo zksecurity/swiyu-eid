@@ -1,9 +1,3 @@
 # Integration tests
 
-Component-local coverage currently includes Circom witness tests, TypeScript
-profile and sidecar tests, native Spartan tests, Java sidecar-adapter tests,
-matched no-ZK controls, and nullifier-registry concurrency tests.
-
-The cross-component Android-to-verifier ZK test is not implemented yet. It
-belongs here once the shared Prepare/Show wire contract is connected to both
-applications.
+Component tests cover the circuits, TypeScript profiles, Spartan backend, Java sidecar adapter, baseline controls, and nullifier concurrency. The Android-to-verifier ZK test is not implemented yet.
