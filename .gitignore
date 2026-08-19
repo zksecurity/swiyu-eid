@@ -1,0 +1,9 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Integration outputs generated locally.
+/artifacts/
+/benchmark/results/
+/integration/docker/volumes/

@@ -1,0 +1,23 @@
+schema: swiyu-eid.upstreams.v1
+recorded_at: 2026-08-19
+
+components:
+  swiyu-issuer:
+    repository: https://github.com/swiyu-admin-ch/swiyu-issuer.git
+    branch: main
+    commit: 44cd6f66967e650bf96c35fccb0d80e2ed543641
+
+  swiyu-verifier:
+    repository: https://github.com/swiyu-admin-ch/swiyu-verifier.git
+    branch: main
+    commit: 0d0ba1113437ce3a122b3f73c3259130b4b566b7
+
+  eidch-android-wallet:
+    repository: https://github.com/swiyu-admin-ch/eidch-android-wallet.git
+    branch: main
+    commit: 82c2df64d6a66170c205465708776af0c130c21f
+
+  zkid:
+    repository: https://github.com/privacy-ethereum/zkID.git
+    branch: main
+    commit: b395e09c225ff45b003f0087c28e2e208e22f944
