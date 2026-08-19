@@ -1,8 +1,6 @@
-> [!NOTE]
-> The `prototype/swiyu-zk-a-b` branch extends the upstream zkID wallet proof of
-> concept with a swiyu-specific age-over-18 and credential-status proof profile,
-> verifier-sidecar contract, and reproducible baseline benchmarks. Start with
-> [`wallet-unit-poc/docs/swiyu-zkp/README.md`](wallet-unit-poc/docs/swiyu-zkp/README.md).
+This copy adds four swiyu experiments under `wallet-unit-poc`: age, canton,
+residence, and scoped nullifier. Consolidated measurements are in
+`wallet-unit-poc/benchmark/results`.
 
 zkID is a team within Privacy Stewards of Ethereum (PSE) at the Ethereum Foundation, focused on advancing the use of Zero Knowledge Proofs (ZKPs) in digital identity systems. We work on research, coordination, education, and development of privacy-preserving, interoperable, and standards-aligned identity infrastructure. 
 

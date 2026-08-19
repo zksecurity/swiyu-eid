@@ -21,9 +21,10 @@ Matched first-operation no-ZK controls:
 
 - Runner: [`run-final-benchmarks.sh`](../components/zkid/wallet-unit-poc/benchmark/docker/run-final-benchmarks.sh)
 - Image definition: [`Dockerfile`](../components/zkid/wallet-unit-poc/benchmark/docker/Dockerfile)
-- Machine-readable aggregate: [`zk-overhead-results.json`](../components/zkid/wallet-unit-poc/docs/swiyu-zkp/container-results/20260818T090021Z/zk-overhead-results.json)
-- Residence and nullifier summary: [`residence-nullifier-benchmark-summary.json`](../components/zkid/wallet-unit-poc/docs/swiyu-zkp/residence-nullifier-benchmark-summary.json)
-- Raw samples and run metadata: [`20260818T090021Z`](../components/zkid/wallet-unit-poc/docs/swiyu-zkp/container-results/20260818T090021Z)
+- Final container aggregate: [`final-container.json`](../components/zkid/wallet-unit-poc/benchmark/results/final-container.json)
+- Age optimization: [`age-optimization.json`](../components/zkid/wallet-unit-poc/benchmark/results/age-optimization.json)
+- Canton profile: [`canton.json`](../components/zkid/wallet-unit-poc/benchmark/results/canton.json)
+- Residence and nullifier profiles: [`residence-nullifier.json`](../components/zkid/wallet-unit-poc/benchmark/results/residence-nullifier.json)
 
 The authoritative container used Linux/ARM64, CPU set `0-3`, a four-CPU quota,
 12 GiB memory, no network, no swap expansion, and a 4,096-task limit. Stages
