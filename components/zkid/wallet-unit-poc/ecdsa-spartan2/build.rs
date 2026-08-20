@@ -7,6 +7,14 @@ fn main() {
         .expect("Failed to get parent directory")
         .join("circom/build/cpp");
 
+    // The unsuffixed legacy JWT circuit is still referenced by the prepare
+    // wrapper's `has_circuit_base` gate. Declare and emit it just like the
+    // size-specific variants so rustc's cfg checking remains accurate.
+    println!("cargo::rustc-check-cfg=cfg(has_circuit_base)");
+    if circuits_dir.join("jwt.cpp").exists() {
+        println!("cargo:rustc-cfg=has_circuit_base");
+    }
+
     // Emit cfg flags for each JWT circuit size variant that has been compiled.
     // The witness!() macro in prepare_circuit.rs uses these flags to conditionally
     // include the witness-generation function for each compiled size.
@@ -30,6 +38,19 @@ fn main() {
         println!("cargo:rustc-cfg=has_circuit_mdoc");
         println!("cargo:warning=Found compiled circuit: mdoc.cpp — enabling mdoc support");
     }
+
+    // Fixed swiyu profile. Keep this separate from the generic JWT size flags:
+    // the `2k` suffix is part of the circuit/profile identifier, not a runtime
+    // size selection.
+    println!("cargo::rustc-check-cfg=cfg(has_circuit_swiyu_age18_status_2k)");
+    let swiyu_cpp = circuits_dir.join("swiyu_age18_status_2k.cpp");
+    if swiyu_cpp.exists() {
+        println!("cargo:rustc-cfg=has_circuit_swiyu_age18_status_2k");
+        println!(
+            "cargo:warning=Found compiled circuit: swiyu_age18_status_2k.cpp — enabling native swiyu witness support"
+        );
+    }
+    println!("cargo:rerun-if-changed={}", swiyu_cpp.display());
 
     // Only run witnesscalc build when the native-witness feature is enabled.
     // WASM builds use JavaScript witness generation instead.

@@ -1,4 +1,3 @@
 # Integration tests
 
-Cross-component contract, protocol, negative, and end-to-end tests belong
-here. Unit tests remain with their respective components.
+Component tests cover the circuits, TypeScript profiles, Spartan backend, Java sidecar adapter, baseline controls, and nullifier concurrency. The Android-to-verifier ZK test is not implemented yet.

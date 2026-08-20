@@ -1,0 +1,50 @@
+{
+  "measured_at": "2026-08-17",
+  "baseline": {
+    "tag": "swiyu-zkp-baseline-v1",
+    "commit": "edd16d4"
+  },
+  "compiler": {
+    "circom": "2.2.3",
+    "optimization": "O2",
+    "prime": "secq256r1"
+  },
+  "experiments": [
+    {
+      "id": "ecdsa-shared-s-inverse-decomposition",
+      "classification": "relation-preserving-reusable",
+      "baseline": { "constraints": 12892, "r1cs_bytes": 2560072 },
+      "optimized": { "constraints": 11592, "r1cs_bytes": 2300512 },
+      "delta": { "constraints": -1300, "r1cs_bytes": -259560 }
+    },
+    {
+      "id": "swiyu-age18-status-compact-envelope",
+      "classification": "versioned-profile-specific",
+      "parameters": {
+        "message_bytes": 896,
+        "max_b64_header_bytes": 256,
+        "max_b64_payload_bytes": 600,
+        "status_depth": 17
+      },
+      "baseline": { "constraints": 6461360, "r1cs_bytes": 1389199932 },
+      "optimized": { "constraints": 3727383, "r1cs_bytes": 831970724 },
+      "delta": { "constraints": -2733977, "r1cs_bytes": -557229208 }
+    },
+    {
+      "id": "swiyu-status-ternary-11",
+      "classification": "versioned-status-design-reusable",
+      "capacity": { "binary_17": 131072, "ternary_11": 177147 },
+      "baseline": { "constraints": 1136267, "r1cs_bytes": 280458936 },
+      "optimized": { "constraints": 768607, "r1cs_bytes": 189422760 },
+      "delta": { "constraints": -367660, "r1cs_bytes": -91036176 }
+    },
+    {
+      "id": "fixed-block-sha-known-padding",
+      "classification": "rejected",
+      "baseline": { "constraints": 1197925, "r1cs_bytes": 295742696 },
+      "optimized": { "constraints": 1197726, "r1cs_bytes": 296116480 },
+      "delta": { "constraints": -199, "r1cs_bytes": 373784 },
+      "reason": "Serialized R1CS grew despite a small constraint reduction."
+    }
+  ]
+}

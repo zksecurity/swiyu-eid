@@ -32,16 +32,23 @@ template HeaderPayloadExtractor(
     // Assert message data after messageLength are zeros
     AssertZeroPadding(maxMessageLength)(message, messageLength);
 
+    // Find the signed prefix before inspecting compact-JWS syntax.  SHA-256's
+    // marker and length word are not part of the header.payload string.
+    signal realMessageLength <== FindRealMessageLength(maxMessageLength)(message);
+
+    component periodBeforeEnd = LessThan(log2Ceil(maxMessageLength + 1));
+    periodBeforeEnd.in[0] <== periodIndex;
+    periodBeforeEnd.in[1] <== realMessageLength;
+    periodBeforeEnd.out === 1;
+
     // Assert that period exists at periodIndex
     signal period <== ItemAtIndex(maxMessageLength)(message, periodIndex);
     period === 46;
 
-    // Assert that period is unique
-    signal periodCount <== CountCharOccurrences(maxMessageLength)(message, 46);
+    // Assert that period is unique inside the signed prefix.  In particular,
+    // do not count a 0x2e byte in SHA-256's final bit-length word.
+    signal periodCount <== CountCharOccurrencesBefore(maxMessageLength)(message, 46, realMessageLength);
     periodCount === 1;
-
-    // Find the real message length
-    signal realMessageLength <== FindRealMessageLength(maxMessageLength)(message);
 
     // Calculate the length of the Base64 encoded header and payload
     signal b64HeaderLength <== periodIndex;
@@ -77,16 +84,21 @@ template PayloadExtractor(
     // Assert message data after messageLength are zeros
     AssertZeroPadding(maxMessageLength)(message, messageLength);
 
+    // Find the signed prefix before inspecting compact-JWS syntax.
+    signal realMessageLength <== FindRealMessageLength(maxMessageLength)(message);
+
+    component periodBeforeEnd = LessThan(log2Ceil(maxMessageLength + 1));
+    periodBeforeEnd.in[0] <== periodIndex;
+    periodBeforeEnd.in[1] <== realMessageLength;
+    periodBeforeEnd.out === 1;
+
     // Assert that period exists at periodIndex
     signal period <== ItemAtIndex(maxMessageLength)(message, periodIndex);
     period === 46;
 
-    // Assert that period is unique
-    signal periodCount <== CountCharOccurrences(maxMessageLength)(message, 46);
+    // Assert that period is unique inside the signed prefix.
+    signal periodCount <== CountCharOccurrencesBefore(maxMessageLength)(message, 46, realMessageLength);
     periodCount === 1;
-
-    // Find the real message length
-    signal realMessageLength <== FindRealMessageLength(maxMessageLength)(message);
 
     // Calculate the length of the Base64 encoded payload
     signal b64PayloadLength <== realMessageLength - periodIndex - 1;
@@ -97,4 +109,3 @@ template PayloadExtractor(
     // Decode the Base64 encoded payload
     payload <== Base64Decode(maxPayloadLength)(b64Payload);
 }
-

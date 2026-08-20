@@ -13,7 +13,26 @@
     "./testing": {
       "import": "./dist/testing/index.js",
       "types": "./dist/testing/index.d.ts"
+    },
+    "./status-designs": {
+      "import": "./dist/status-designs/index.js",
+      "types": "./dist/status-designs/index.d.ts"
+    },
+    "./swiyu-zkp": {
+      "import": "./dist/swiyu-zkp/index.js",
+      "types": "./dist/swiyu-zkp/index.d.ts"
+    },
+    "./sidecar-node": {
+      "import": "./dist/swiyu-zkp/sidecar-node.js",
+      "types": "./dist/swiyu-zkp/sidecar-node.d.ts"
+    },
+    "./native-backend-node": {
+      "import": "./dist/swiyu-zkp/native-backend-node.js",
+      "types": "./dist/swiyu-zkp/native-backend-node.d.ts"
     }
+  },
+  "bin": {
+    "openac-swiyu-sidecar": "./dist/swiyu-zkp/sidecar-node.js"
   },
   "files": [
     "dist",
@@ -28,6 +47,8 @@
     "build:all": "npm run build:wasm && npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "benchmark:status-designs": "STATUS_DESIGN_BENCHMARK=1 vitest run tests/status-designs.benchmark.test.ts --reporter=verbose",
+    "benchmark:swiyu-canton-witness": "SWIYU_CANTON_BENCHMARK=1 vitest run tests/swiyu-zkp/canton-benchmark-witness.test.ts --reporter=verbose",
     "lint": "tsc --noEmit",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build:all"

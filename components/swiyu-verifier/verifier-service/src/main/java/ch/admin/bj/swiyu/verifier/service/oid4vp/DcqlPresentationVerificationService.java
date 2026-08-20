@@ -6,18 +6,23 @@ import ch.admin.bj.swiyu.verifier.common.exception.VerificationErrorResponseCode
 import ch.admin.bj.swiyu.verifier.common.exception.VerificationException;
 import ch.admin.bj.swiyu.verifier.domain.SdJwt;
 import ch.admin.bj.swiyu.verifier.domain.management.Management;
+import ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy;
 import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.DcqlEvaluator;
 import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.PresentationVerifier;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.ZkPresentationVerificationResult;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.ZkPresentationVerifier;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static ch.admin.bj.swiyu.verifier.common.exception.VerificationException.submissionError;
 
@@ -29,13 +34,39 @@ import static ch.admin.bj.swiyu.verifier.common.exception.VerificationException.
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class DcqlPresentationVerificationService {
 
     private final PresentationVerifier presentationVerifier;
     private final DcqlEvaluator dcqlEvaluator;
     private final ObjectMapper objectMapper;
     private final ApplicationProperties applicationProperties;
+    private final Optional<ZkPresentationVerifier> zkPresentationVerifier;
+
+    /** Ordinary swiyu constructor: ZK remains disabled. */
+    public DcqlPresentationVerificationService(
+            PresentationVerifier presentationVerifier,
+            DcqlEvaluator dcqlEvaluator,
+            ObjectMapper objectMapper,
+            ApplicationProperties applicationProperties
+    ) {
+        this(presentationVerifier, dcqlEvaluator, objectMapper, applicationProperties, Optional.empty());
+    }
+
+    /** Spring injects the optional sidecar adapter when it is configured. */
+    @Autowired
+    public DcqlPresentationVerificationService(
+            PresentationVerifier presentationVerifier,
+            DcqlEvaluator dcqlEvaluator,
+            ObjectMapper objectMapper,
+            ApplicationProperties applicationProperties,
+            Optional<ZkPresentationVerifier> zkPresentationVerifier
+    ) {
+        this.presentationVerifier = presentationVerifier;
+        this.dcqlEvaluator = dcqlEvaluator;
+        this.objectMapper = objectMapper;
+        this.applicationProperties = applicationProperties;
+        this.zkPresentationVerifier = zkPresentationVerifier;
+    }
 
     /**
      * Processes the DCQL presentation request and returns the validated claims per credential as JSON.
@@ -79,6 +110,21 @@ public class DcqlPresentationVerificationService {
                 throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION, "Vp token list for requested credential id " + requestedCredential.getId() + " must not contain null entries");
             }
 
+            var zkPolicy = requestedCredential.getZkPresentationPolicy();
+            if (zkPolicy != null) {
+                if (requestedVpTokens.size() != 1) {
+                    throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
+                            "Expected exactly 1 ZK presentation for " + requestedCredential.getId());
+                }
+                var verifier = zkPresentationVerifier.orElseThrow(() ->
+                        submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
+                                "ZK presentation verification is not configured"));
+                var result = verifier.verify(requestedVpTokens.getFirst(), entity, requestedCredential);
+                validateZkResult(zkPolicy, result);
+                verifiedResponses.put(requestedCredential.getId(), List.of(toResponseMap(zkPolicy, result)));
+                continue;
+            }
+
             var sdJwts = requestedVpTokens.stream()
                     .map(token -> presentationVerifier.verify(token, entity, requestedCredential))
                     .toList();
@@ -94,6 +140,43 @@ public class DcqlPresentationVerificationService {
             verifiedResponses.put(requestedCredential.getId(), List.of(sdjwt.getResolvedClaims()));
         }
         return writeAsString(verifiedResponses);
+    }
+
+    private void validateZkResult(ZkPresentationPolicy policy, ZkPresentationVerificationResult result) {
+        if (result == null
+                || !policy.profile().equals(result.profile())
+                || !policy.circuitId().equals(result.circuitId())
+                || !Objects.equals(policy.statusListSnapshot(), result.statusListSnapshot())) {
+            throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
+                    "ZK presentation result does not match the signed policy");
+        }
+        if (!result.predicateSatisfied()) {
+            throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
+                    "ZK presentation predicate was not satisfied");
+        }
+        if (!result.statusValid()) {
+            throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
+                    "ZK presentation status was not valid");
+        }
+    }
+
+    private Map<String, Object> toResponseMap(
+            ZkPresentationPolicy policy,
+            ZkPresentationVerificationResult result
+    ) {
+        var response = new LinkedHashMap<String, Object>();
+        response.put("profile", result.profile());
+        response.put("circuit_id", result.circuitId());
+        response.put("cutoff_date", policy.cutoffDate());
+        response.put("current_time", policy.currentTime());
+        response.put("predicate_satisfied", true);
+
+        var status = new LinkedHashMap<String, Object>();
+        status.put("valid", true);
+        status.put("mode", "snapshot");
+        status.put("status_list_snapshot", result.statusListSnapshot());
+        response.put("status", status);
+        return response;
     }
 
     private String writeAsString(Object object) {

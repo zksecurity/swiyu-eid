@@ -18,17 +18,13 @@ include "../../../node_modules/circomlib/circuits/gates.circom";
  *
  *  Modified from https://github.com/personaelabs/spartan-ecdsa/blob/main/packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom
  */
-template Secp256r1Mul() {
+template Secp256r1MulBits() {
     var bits = 256;
-    // A scalar field element fits in the base field
-    signal input scalar;
+    signal input scalarBits[bits];
     signal input xP; 
     signal input yP;
     signal output outX;
     signal output outY;
-
-    component kBits = K_add();
-    kBits.s <== scalar;
 
     component acc0 = Secp256r1Double();
     acc0.xP <== xP;
@@ -54,7 +50,7 @@ template Secp256r1Mul() {
         } else {
             PIncomplete[i] = Secp256r1AddIncomplete(); // (Acc + P)
             PIncomplete[i].xP <== xP; // k_i ? xP : -xP;
-            PIncomplete[i].yP <== (2 * kBits.out[bits-i] - 1) * yP;// k_i ? xP : -xP;
+            PIncomplete[i].yP <== (2 * scalarBits[bits-i] - 1) * yP;// k_i ? xP : -xP;
             PIncomplete[i].xQ <== accIncomplete[i-1].outX;
             PIncomplete[i].yQ <== accIncomplete[i-1].outY;
 
@@ -73,7 +69,7 @@ template Secp256r1Mul() {
         PComplete[i] = Secp256r1AddComplete(); // (Acc + P)
 
         PComplete[i].xP <== xP; // k_i ? xP : -xP;
-        PComplete[i].yP <== (2 * kBits.out[3 - i] - 1) * yP;// k_i ? xP : -xP;
+        PComplete[i].yP <== (2 * scalarBits[3 - i] - 1) * yP;// k_i ? xP : -xP;
         if (i == 0) {
             PComplete[i].xQ <== accIncomplete[252].outX;
             PComplete[i].yQ <== accIncomplete[252].outY;
@@ -98,11 +94,32 @@ template Secp256r1Mul() {
     component out = Secp256r1AddComplete();
     out.xP <== accComplete[2].outX;
     out.yP <== accComplete[2].outY;
-    out.xQ <== (1 - kBits.out[0]) * xP;
-    out.yQ <== (1 - kBits.out[0]) * -yP;
+    out.xQ <== (1 - scalarBits[0]) * xP;
+    out.yQ <== (1 - scalarBits[0]) * -yP;
 
     outX <== out.outX;
     outY <== out.outY;
+}
+
+/// Variable-base multiplication from one canonical scalar field element.
+/// Callers that multiply more than one point by the same scalar can instantiate
+/// `K_add` once and reuse `Secp256r1MulBits` directly.
+template Secp256r1Mul() {
+    signal input scalar;
+    signal input xP;
+    signal input yP;
+    signal output outX;
+    signal output outY;
+
+    component scalarBits = K_add();
+    scalarBits.s <== scalar;
+
+    component mul = Secp256r1MulBits();
+    mul.scalarBits <== scalarBits.out;
+    mul.xP <== xP;
+    mul.yP <== yP;
+    outX <== mul.outX;
+    outY <== mul.outY;
 }
 
 // Calculate k = (s + tQ) % q as follows:
@@ -125,7 +142,6 @@ template K_add() {
     var tQhi = tQ >> 128;
     signal slo <-- s & (2 ** (128) - 1);
     signal shi <-- s >> 128;
-
 
     component sloBits = Num2Bits(128);
     sloBits.in <== slo;

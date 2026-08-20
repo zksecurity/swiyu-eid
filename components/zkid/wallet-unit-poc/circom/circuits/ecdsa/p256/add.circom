@@ -94,6 +94,7 @@ template Secp256r1AddComplete() {
     signal dy <== (yQ - yP) * (1 - isXEqual.out);
     signal lambdaA <-- ((yQ - yP) / dx) * (1 - isXEqual.out);
     dx * lambdaA === dy;
+    isXEqual.out * lambdaA === 0;
 
     // lambdaB = (3 * xP^2) / (2 * yP)
     signal lambdaB <-- ((3 * xPSquared - 3) / (2 * yP));

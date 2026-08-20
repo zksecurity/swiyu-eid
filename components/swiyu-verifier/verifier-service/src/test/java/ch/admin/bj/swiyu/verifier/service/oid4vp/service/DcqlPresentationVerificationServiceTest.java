@@ -10,9 +10,12 @@ import ch.admin.bj.swiyu.verifier.domain.management.dcql.DcqlClaim;
 import ch.admin.bj.swiyu.verifier.domain.management.dcql.DcqlCredential;
 import ch.admin.bj.swiyu.verifier.domain.management.dcql.DcqlCredentialMeta;
 import ch.admin.bj.swiyu.verifier.domain.management.dcql.DcqlQuery;
+import ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy;
 import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.DcqlEvaluator;
 import ch.admin.bj.swiyu.verifier.service.oid4vp.DcqlPresentationVerificationService;
 import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.PresentationVerifier;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.ZkPresentationVerificationResult;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.ZkPresentationVerifier;
 import tools.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +27,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static ch.admin.bj.swiyu.verifier.common.DcqlTestHelper.DC_SD_JWT_CREDENTIAL_FORMAT;
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,6 +39,7 @@ class DcqlPresentationVerificationServiceTest {
     private DcqlEvaluator dcqlEvaluator;
     private DcqlPresentationVerificationService dcqlPresentationVerificationService;
     private ApplicationProperties applicationProperties;
+    private ZkPresentationVerifier zkPresentationVerifier;
 
     @BeforeEach
     void setUp() {
@@ -42,9 +47,15 @@ class DcqlPresentationVerificationServiceTest {
         dcqlEvaluator = mock(DcqlEvaluator.class);
         ObjectMapper objectMapper = new ObjectMapper();
         applicationProperties = mock(ApplicationProperties.class);
+        zkPresentationVerifier = mock(ZkPresentationVerifier.class);
 
         when(applicationProperties.getMaxVcsAccepted()).thenReturn(2);
-        dcqlPresentationVerificationService = new DcqlPresentationVerificationService(sdJwtLegacyPresentationVerifier, dcqlEvaluator, objectMapper, applicationProperties);
+        dcqlPresentationVerificationService = new DcqlPresentationVerificationService(
+                sdJwtLegacyPresentationVerifier,
+                dcqlEvaluator,
+                objectMapper,
+                applicationProperties,
+                Optional.of(zkPresentationVerifier));
     }
 
     @Test
@@ -223,5 +234,97 @@ class DcqlPresentationVerificationServiceTest {
         assertEquals(VerificationError.INVALID_REQUEST, ex.getErrorType());
         assertEquals("No matching SD-JWT for requested credential id " + credentialId, ex.getErrorDescription());
         verify(dcqlEvaluator, never()).validateRequestedClaims(any(), any());
+    }
+
+    @Test
+    void process_zkPresentation_routesToVerifierAndReturnsOnlyPredicateResult() {
+        var management = mock(Management.class);
+        var policy = zkPolicy();
+        var credential = zkCredential(policy);
+        when(management.getDcqlQuery()).thenReturn(new DcqlQuery(List.of(credential), null));
+        var request = new VerificationPresentationDCQLRequestDto(Map.of("age", List.of("proof-envelope")));
+        when(zkPresentationVerifier.verify("proof-envelope", management, credential))
+                .thenReturn(new ZkPresentationVerificationResult(
+                        policy.profile(), policy.circuitId(), true, true, policy.statusListSnapshot()));
+
+        var result = dcqlPresentationVerificationService.process(management, request);
+
+        assertTrue(result.contains("\"predicate_satisfied\":true"));
+        assertTrue(result.contains("\"status_list_snapshot\":\"snapshot-2026-07-15\""));
+        assertTrue(result.contains("\"current_time\":1784092800"));
+        assertFalse(result.contains("birthdate"));
+        verify(zkPresentationVerifier).verify("proof-envelope", management, credential);
+        verifyNoInteractions(sdJwtLegacyPresentationVerifier, dcqlEvaluator);
+    }
+
+    @Test
+    void process_zkPresentationFailsClosedWithoutConfiguredVerifier() {
+        var service = new DcqlPresentationVerificationService(
+                sdJwtLegacyPresentationVerifier,
+                dcqlEvaluator,
+                new ObjectMapper(),
+                applicationProperties,
+                Optional.empty());
+        var management = mock(Management.class);
+        var credential = zkCredential(zkPolicy());
+        when(management.getDcqlQuery()).thenReturn(new DcqlQuery(List.of(credential), null));
+        var request = new VerificationPresentationDCQLRequestDto(Map.of("age", List.of("proof-envelope")));
+
+        var exception = assertThrows(VerificationException.class, () -> service.process(management, request));
+
+        assertEquals("ZK presentation verification is not configured", exception.getErrorDescription());
+        verifyNoInteractions(sdJwtLegacyPresentationVerifier, dcqlEvaluator);
+    }
+
+    @Test
+    void process_zkPresentationRejectsWrongProfileCircuitOrSnapshot() {
+        var management = mock(Management.class);
+        var policy = zkPolicy();
+        var credential = zkCredential(policy);
+        when(management.getDcqlQuery()).thenReturn(new DcqlQuery(List.of(credential), null));
+        var request = new VerificationPresentationDCQLRequestDto(Map.of("age", List.of("proof-envelope")));
+        when(zkPresentationVerifier.verify("proof-envelope", management, credential))
+                .thenReturn(new ZkPresentationVerificationResult(
+                        "wrong-profile", "wrong-circuit", true, true, "wrong-snapshot"));
+
+        var exception = assertThrows(VerificationException.class,
+                () -> dcqlPresentationVerificationService.process(management, request));
+
+        assertEquals("ZK presentation result does not match the signed policy", exception.getErrorDescription());
+    }
+
+    @Test
+    void process_zkPresentationNeverAcceptsSidecarAssertedFalsePredicateOrStatus() {
+        var management = mock(Management.class);
+        var policy = zkPolicy();
+        var credential = zkCredential(policy);
+        when(management.getDcqlQuery()).thenReturn(new DcqlQuery(List.of(credential), null));
+        var request = new VerificationPresentationDCQLRequestDto(Map.of("age", List.of("proof-envelope")));
+        when(zkPresentationVerifier.verify("proof-envelope", management, credential))
+                .thenReturn(new ZkPresentationVerificationResult(
+                        policy.profile(), policy.circuitId(), false, true, policy.statusListSnapshot()));
+
+        assertThrows(VerificationException.class,
+                () -> dcqlPresentationVerificationService.process(management, request));
+    }
+
+    private static ZkPresentationPolicy zkPolicy() {
+        return new ZkPresentationPolicy(
+                "swiyu-age18-status-2k-v0",
+                "swiyu_age18_status_2k",
+                "2008-07-15",
+                "snapshot-2026-07-15",
+                1_784_092_800L);
+    }
+
+    private static DcqlCredential zkCredential(ZkPresentationPolicy policy) {
+        return new DcqlCredential(
+                "age",
+                DC_SD_JWT_CREDENTIAL_FORMAT,
+                new DcqlCredentialMeta(null, List.of("urn:example:identity"), null),
+                List.of(new DcqlClaim("birthdate", List.of("birthdate"), null)),
+                true,
+                false,
+                policy);
     }
 }

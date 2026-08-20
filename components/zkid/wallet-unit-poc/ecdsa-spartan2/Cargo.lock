@@ -523,6 +523,7 @@ dependencies = [
  "bincode",
  "circom-scotia",
  "ff",
+ "libc",
  "memmap2",
  "num-bigint 0.4.6",
  "serde",

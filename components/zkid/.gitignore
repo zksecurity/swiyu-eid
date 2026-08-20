@@ -1,29 +1,41 @@
-# Rust build artifacts
-/target/
-
-# IDE files
-.vscode/
-.idea/
-
-# OS files
+# Local operating-system and editor files
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
 
-# Circuit artifacts (generated files)
+# Local environment and diagnostic files
+.env
+.env.*
+!.env.example
+*.log
+coverage/
+
+# Generated zero-knowledge circuit artifacts
 *.r1cs
 *.wasm
 *.wtns
 *.sym
 *.zkey
 *.vkey
+*.ptau
+*.key
 
-# OpenAC SDK build artifacts
+# Component build and dependency directories
+/target/
+wallet-unit-poc/circom/build/
+wallet-unit-poc/docs/swiyu-zkp/container-results/
+wallet-unit-poc/circom/node_modules/
+wallet-unit-poc/ecdsa-spartan2/keys/
+wallet-unit-poc/ecdsa-spartan2/target/
+wallet-unit-poc/openac-sdk/dist/
+wallet-unit-poc/openac-sdk/node_modules/
+wallet-unit-poc/openac-sdk/wasm/target/
 wallet-unit-poc/openac-sdk/assets/*.r1cs
 wallet-unit-poc/openac-sdk/assets/*.wasm
 wallet-unit-poc/openac-sdk/assets/keys/
-*.key
-
-# Web demo build artifacts
 wallet-unit-poc/web-demo/dist/
 wallet-unit-poc/web-demo/public/*.wasm
 wallet-unit-poc/web-demo/node_modules/
-

@@ -4,6 +4,7 @@ import ch.admin.bj.swiyu.verifier.domain.SdJwt;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -65,7 +66,31 @@ public class DcqlCredential {
     @JsonProperty("multiple")
     @Nullable
     private Boolean multiple;
-    
+
+    /**
+     * Experimental swiyu ZK policy. Because the complete credential query is
+     * stored as JSONB, this field is persisted without a schema migration.
+     */
+    @JsonProperty("x_swiyu_zkp")
+    @Nullable
+    @Valid
+    private ZkPresentationPolicy zkPresentationPolicy;
+
+    /**
+     * Compatibility constructor for the ordinary SD-JWT path. The experimental
+     * ZK policy remains absent unless a verifier explicitly opts into it.
+     */
+    public DcqlCredential(
+            String id,
+            String format,
+            DcqlCredentialMeta meta,
+            List<DcqlClaim> claims,
+            Boolean requireCryptographicHolderBinding,
+            Boolean multiple
+    ) {
+        this(id, format, meta, claims, requireCryptographicHolderBinding, multiple, null);
+    }
+
     @JsonIgnore
     public boolean isCryptographicHolderBindingRequired() {
         return requireCryptographicHolderBinding == null || Boolean.TRUE.equals(requireCryptographicHolderBinding);

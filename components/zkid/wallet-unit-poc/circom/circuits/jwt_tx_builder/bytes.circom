@@ -69,3 +69,36 @@ template CountCharOccurrences(maxLength) {
 
     count <== counter[maxLength-1];
 }
+
+/// Count a character only in the declared prefix.  This is required for
+/// SHA-256-padded messages: the final bit-length word is authenticated padding,
+/// not compact-JWS syntax, and may itself contain the byte being counted.
+template CountCharOccurrencesBefore(maxLength) {
+    signal input in[maxLength];
+    signal input char;
+    signal input length;
+    signal output count;
+
+    var LEN_BITS = log2Ceil(maxLength + 1);
+    component lengthBits = Num2Bits(LEN_BITS);
+    lengthBits.in <== length;
+
+    component before[maxLength];
+    component equal[maxLength];
+    signal match[maxLength];
+    signal counter[maxLength + 1];
+    counter[0] <== 0;
+
+    for (var i = 0; i < maxLength; i++) {
+        before[i] = GreaterThan(LEN_BITS);
+        before[i].in[0] <== length;
+        before[i].in[1] <== i;
+        equal[i] = IsEqual();
+        equal[i].in[0] <== in[i];
+        equal[i].in[1] <== char;
+        match[i] <== before[i].out * equal[i].out;
+        counter[i + 1] <== counter[i] + match[i];
+    }
+
+    count <== counter[maxLength];
+}

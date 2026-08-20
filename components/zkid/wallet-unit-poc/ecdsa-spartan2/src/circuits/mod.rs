@@ -1,6 +1,7 @@
 pub mod mdoc_circuit;
 pub mod prepare_circuit;
 pub mod show_circuit;
+pub mod swiyu_circuit;
 
 use bellpepper_core::{num::AllocatedNum, ConstraintSystem, LinearCombination, SynthesisError};
 use circom_scotia::r1cs::R1CS;

@@ -1,5 +1,3 @@
 # Integration environment
 
-Container definitions for the issuer, verifier, supporting services, and ZK
-verification sidecar belong here. The first environment should reproduce an
-ordinary non-ZK swiyu flow before ZK services are enabled.
+The reproducible benchmark container is in `components/zkid/wallet-unit-poc/benchmark/docker`. A full issuer-wallet-verifier demo environment is not implemented yet.

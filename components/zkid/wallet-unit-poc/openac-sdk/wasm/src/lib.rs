@@ -5,6 +5,9 @@ use ecdsa_spartan2::{
     circuit_size::CircuitSize, parse_witness, prove_circuit_in_memory, reblind_in_memory,
     PrepareCircuit, ShowCircuit,
 };
+use ecdsa_spartan2::{
+    prove_swiyu_from_wtns as prove_swiyu_from_wtns_core, verify_swiyu as verify_swiyu_core,
+};
 use ecdsa_spartan2::{Scalar, E};
 
 use spartan2::{traits::snark::R1CSSNARKTrait, zk_spartan::R1CSSNARK};
@@ -102,6 +105,43 @@ pub fn setup() -> Result<JsValue, JsError> {
 
     serde_wasm_bindgen::to_value(&result)
         .map_err(|e| JsError::new(&format!("JS conversion failed: {}", e)))
+}
+
+// ==========================================================================
+// SWIYU FIXED PROFILE — One session-bound proof, no shared witness
+// ==========================================================================
+
+/// Produce one swiyu proof from an externally generated Circom `.wtns`.
+///
+/// Returns `{ proof, public_values }`; no reusable Spartan witness or shared
+/// commitment is exported. Each `show()` session must calculate a fresh,
+/// challenge-bound witness and call this function once.
+#[wasm_bindgen]
+pub fn swiyu_prove_from_witness(
+    pk_bytes: &[u8],
+    witness_wtns_bytes: &[u8],
+) -> Result<JsValue, JsError> {
+    let result = prove_swiyu_from_wtns_core(pk_bytes, witness_wtns_bytes)
+        .map_err(|error| JsError::new(&error))?;
+    serde_wasm_bindgen::to_value(&result)
+        .map_err(|error| JsError::new(&format!("JS conversion failed: {error}")))
+}
+
+/// Verify one proof against the complete verifier-supplied public context.
+///
+/// `expected_public_context` must contain exactly ten canonical 32-byte
+/// little-endian scalars (320 bytes), in circuit witness order. The first is
+/// `expressionResult` and must equal one. Malformed proofs and context
+/// mismatches return `{ valid: false, error }` instead of throwing.
+#[wasm_bindgen]
+pub fn swiyu_verify(
+    proof_bytes: &[u8],
+    vk_bytes: &[u8],
+    expected_public_context: &[u8],
+) -> Result<JsValue, JsError> {
+    let result = verify_swiyu_core(proof_bytes, vk_bytes, expected_public_context);
+    serde_wasm_bindgen::to_value(&result)
+        .map_err(|error| JsError::new(&format!("JS conversion failed: {error}")))
 }
 
 // ==========================================================================

@@ -1,0 +1,153 @@
+{
+  "schema": "swiyu.residence-nullifier-benchmark-summary.v1",
+  "source": {
+    "commit": "6e2464dcee8ee3129737694ddda2681e8fef09e3",
+    "dirty": false,
+    "imageDigest": "sha256:c201b0ab1a15ee35eb195d0959f6fbbada6d5f849da9f780cfd8cdca1673f488",
+    "platform": "linux/arm64",
+    "cpuset": "0-3",
+    "cpuQuota": 4,
+    "memoryBytes": 12884901888,
+    "network": "none",
+    "rawReport": "container-results/20260818T090021Z/zk-overhead-results.json"
+  },
+  "method": {
+    "initialRuns": 2,
+    "stableTotalRuns": 3,
+    "expandedTotalRuns": 7,
+    "expansionThresholdRelativeToFirstTwoMean": 0.15,
+    "execution": "fresh serial workers, interleaved rotating profile order, recorded 30-second cooldowns",
+    "controlFirstOperation": "first measured operation in a fresh worker with prematerialized and potentially page-cached artifacts",
+    "controlSteadyState": "100 warm-ups followed by 1000 measured operations",
+    "allPrimaryProfilesExpanded": true,
+    "discardedSamples": 0
+  },
+  "profiles": {
+    "residenceEligibility": {
+      "statement": "issuer-signed private residence municipality belongs to the verifier set and the canonical residence start date satisfies the verifier duration threshold",
+      "repetitions": 7,
+      "optimizedArtifacts": {
+        "constraints": 2995049,
+        "r1csBytes": 650552532,
+        "witnessWasmBytes": 12725727,
+        "provingKeyBytes": 783118532,
+        "verifyingKeyBytes": 783118468,
+        "rawProofPairBytes": 258446,
+        "sdkFramedProofPairBytes": 345051,
+        "reusablePrepareStateBytes": 134484288
+      },
+      "optimizationAgainstCombinedDisclosureLegacyStatus": {
+        "constraintsBefore": 3597121,
+        "constraintsAfter": 2995049,
+        "constraintsReductionPercent": 16.7376,
+        "r1csBytesBefore": 787664004,
+        "r1csBytesAfter": 650552532,
+        "r1csReductionPercent": 17.4074,
+        "witnessWasmBytesBefore": 15084373,
+        "witnessWasmBytesAfter": 12725727,
+        "witnessWasmReductionPercent": 15.6364
+      },
+      "zkLifecycleWallMs": {
+        "oneTimeSetupAndKeySerialization": { "min": 49550.702065, "median": 51807.216107, "max": 60246.60532 },
+        "perCredentialReusable": { "min": 15179.213589, "median": 15431.61838, "max": 17024.650632 },
+        "perPresentationWallet": { "min": 13483.305381, "median": 14769.700925, "max": 15306.87309 },
+        "perPresentationVerifier": { "min": 1437.97629, "median": 1698.422334, "max": 2264.161169 },
+        "firstPresentationWallet": { "min": 29209.939471, "median": 30437.614848, "max": 31326.323472 }
+      },
+      "sdkComposedMedianWallMs": {
+        "perCredentialReusable": 15437.290548211,
+        "perPresentationWallet": 14787.052289091,
+        "perPresentationVerifier": 1717.668275009
+      },
+      "noZkFirstMeasuredMedianWallMs": {
+        "oneTimeTrustSetup": 0.556917,
+        "perCredentialReusable": 10.441167,
+        "perPresentationWallet": 5.124875,
+        "perPresentationVerifier": 15.901375
+      },
+      "noZkWarmedMedianWallMs": {
+        "oneTimeTrustSetup": 0.009657375,
+        "perCredentialReusable": 4.813921377,
+        "perPresentationWallet": 0.617949167,
+        "perPresentationVerifier": 9.193298004
+      },
+      "noZkTransmittedBytes": 1339,
+      "nativePeakRssBytes": { "min": 4103258112, "median": 4103446528, "max": 4106051584 },
+      "packedStatusWallMs": {
+        "perSnapshotTreeBuildMedian": 20.15125,
+        "perCredentialPathMedian": 0.246375
+      }
+    },
+    "oneClaimPerCredential": {
+      "statement": "at most one accepted claim for the exact issuer-authenticated credential/nullifier attestation in the canonical verifier scope",
+      "repetitions": 7,
+      "optimizedArtifacts": {
+        "constraints": 3316270,
+        "r1csBytes": 728951156,
+        "witnessWasmBytes": 13984238,
+        "provingKeyBytes": 863161292,
+        "verifyingKeyBytes": 863161228,
+        "rawProofPairBytes": 258030,
+        "sdkFramedProofPairBytes": 344524,
+        "reusablePrepareStateBytes": 134484288
+      },
+      "optimizationAgainstLegacyStatusNullifier": {
+        "constraintsBefore": 3957494,
+        "constraintsAfter": 3316270,
+        "constraintsReductionPercent": 16.2028,
+        "r1csBytesBefore": 887389960,
+        "r1csBytesAfter": 728951156,
+        "r1csReductionPercent": 17.8545,
+        "witnessWasmBytesBefore": 16520438,
+        "witnessWasmBytesAfter": 13984238,
+        "witnessWasmReductionPercent": 15.3519
+      },
+      "marginalAgainstPackedAge": {
+        "constraintsDelta": 230559,
+        "constraintsIncreasePercent": 7.4718,
+        "r1csBytesDelta": 56589336,
+        "r1csIncreasePercent": 8.4165,
+        "rawProofPairBytesDelta": 128
+      },
+      "zkLifecycleWallMs": {
+        "oneTimeSetupAndKeySerialization": { "min": 55250.766483, "median": 61039.326111, "max": 76846.672535 },
+        "perCredentialReusable": { "min": 16362.079674, "median": 17684.024923, "max": 18726.692175 },
+        "perPresentationWallet": { "min": 14539.927047, "median": 15729.262925, "max": 17119.10884 },
+        "perPresentationVerifier": { "min": 1683.427709, "median": 1798.12325, "max": 2781.074334 },
+        "firstPresentationWallet": { "min": 31862.248555, "median": 32525.723097, "max": 35394.39714 }
+      },
+      "sdkComposedMedianWallMs": {
+        "perCredentialReusable": 17689.572717294,
+        "perPresentationWallet": 15745.746526465,
+        "perPresentationVerifier": 1841.483856603
+      },
+      "noZkFirstMeasuredMedianWallMs": {
+        "oneTimeTrustSetup": 0.325334,
+        "perCredentialReusable": 9.501166,
+        "perPresentationWallet": 5.281708,
+        "perPresentationVerifier": 13.133375
+      },
+      "noZkWarmedMedianWallMs": {
+        "oneTimeTrustSetup": 0.008561792,
+        "perCredentialReusable": 4.519503794,
+        "perPresentationWallet": 0.635747625,
+        "perPresentationVerifier": 9.474540754
+      },
+      "noZkTransmittedBytes": 1818,
+      "nativePeakRssBytes": { "min": 4144771072, "median": 4382019584, "max": 4384141312 },
+      "durableRegistryWallMs": {
+        "oneTimeSetupMedian": 12.554208,
+        "firstAcceptedClaimMedian": 0.453692417,
+        "successfulAtomicTransactionMedian": 0.5399615,
+        "conflictMedian": 0.006836375
+      },
+      "concurrencyCorrectness": {
+        "sameNullifierWorkers": [2, 4, 8],
+        "exactlyOneWinner": true,
+        "distinctNullifiersAllAccepted": true,
+        "injectedFailureRolledBackBothRows": true,
+        "actualWorkerOverlapAsserted": true
+      }
+    }
+  }
+}

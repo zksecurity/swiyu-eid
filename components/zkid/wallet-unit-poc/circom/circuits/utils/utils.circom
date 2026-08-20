@@ -236,44 +236,18 @@ template HashModScalarField() {
     var qlo = q & ((2 ** 128) - 1);
     var qhi = q >> 128;
     
-    // 128 bit each
-    signal hashLo <-- hashNum.out & (2 ** (128) - 1);
-    signal hashHi <-- hashNum.out >> 128;
-    
-    component verifyLo = Num2Bits(128);
-    verifyLo.in <== hashLo;
-    component verifyHi = Num2Bits(128);
-    verifyHi.in <== hashHi;
+    // Derive both 128-bit limbs directly from the SHA-256 bits. `hashNum.out`
+    // is the 256-bit value reduced modulo the circuit field and therefore
+    // cannot soundly be split back into the original hash limbs.
+    component hashLoBits = Bits2Num(128);
+    component hashHiBits = Bits2Num(128);
+    for (var i = 0; i < 128; i++) {
+        hashLoBits.in[i] <== hash[255 - i];
+        hashHiBits.in[i] <== hash[127 - i];
+    }
 
-    // checks above only range-check each limb; without this recomposition
-    hashNum.out === hashLo + hashHi * (2 ** 128);
-
-    // Recomposition alone is mod P, so hashLo + hashHi*2^128 = hashNum.out + P
-    // also satisfies it whenever that stays under 2^256, shifting the reduced
-    // hash by (P mod q). Pin the recomposed integer to the canonical range.
-    var plo = 0x00000000ffffffffffffffffffffffff;
-    var phi = 0xffffffff000000010000000000000000;
-
-    component canonHi = LessThan(129);
-    canonHi.in[0] <== hashHi;
-    canonHi.in[1] <== phi;
-
-    component canonHiEq = IsEqual();
-    canonHiEq.in[0] <== hashHi;
-    canonHiEq.in[1] <== phi;
-
-    component canonLo = LessThan(129);
-    canonLo.in[0] <== hashLo;
-    canonLo.in[1] <== plo;
-
-    component canonTie = AND();
-    canonTie.a <== canonHiEq.out;
-    canonTie.b <== canonLo.out;
-
-    component isCanonical = OR();
-    isCanonical.a <== canonHi.out;
-    isCanonical.b <== canonTie.out;
-    isCanonical.out === 1;
+    signal hashLo <== hashLoBits.out;
+    signal hashHi <== hashHiBits.out;
 
     // hash >= q
     component alpha = GreaterThan(129);

@@ -11,6 +11,26 @@ path = "src/lib.rs"
 name = "ecdsa-spartan2"
 path = "src/main.rs"
 
+[[bin]]
+name = "swiyu-profile"
+path = "src/bin/swiyu-profile.rs"
+
+[[bin]]
+name = "status-proof-benchmark"
+path = "src/bin/status-proof-benchmark.rs"
+
+[[bin]]
+name = "swiyu-split-benchmark"
+path = "src/bin/swiyu-split-benchmark.rs"
+
+[[bin]]
+name = "swiyu-canton-benchmark"
+path = "src/bin/swiyu-canton-benchmark.rs"
+
+[[bin]]
+name = "swiyu-profile-benchmark"
+path = "src/bin/swiyu-profile-benchmark.rs"
+
 [features]
 default = ["native-witness"]
 # Enable native witness calculation via witnesscalc_adapter (requires C++ toolchain).
@@ -34,6 +54,7 @@ memmap2 = "0.9.8"
 witnesscalc-adapter = { git = "https://github.com/zkmopro/witnesscalc_adapter.git", branch = "secq256r1-support", optional = true }
 num-bigint = "0.4.6"
 base64 = "0.22"
+libc = "0.2"
 
 [build-dependencies]
 witnesscalc-adapter = { git = "https://github.com/zkmopro/witnesscalc_adapter.git", branch = "secq256r1-support", optional = true }

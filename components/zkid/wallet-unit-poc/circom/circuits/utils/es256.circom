@@ -20,10 +20,15 @@ template ES256(
     signal input pubKeyX;
     signal input pubKeyY;
 
-    signal sha[256];
+    // Expose the already-computed digest so enclosing, versioned profiles can
+    // bind auxiliary issuer data to this exact protected-header/payload JWS
+    // without hashing the 896-byte signing input a second time.
+    signal output sha[256];
 
-    // Assert message length fits in ceil(log2(maxMessageLength))
-    component n2bMessageLength = Num2Bits(log2Ceil(maxMessageLength));
+    // Include the exact upper bound. For power-of-two buffers (for example the
+    // 128-byte auxiliary attestation), log2Ceil(maxMessageLength) cannot encode
+    // maxMessageLength itself.
+    component n2bMessageLength = Num2Bits(log2Ceil(maxMessageLength + 1));
     n2bMessageLength.in <== messageLength;
 
     // Assert message data after messageLength are zeros

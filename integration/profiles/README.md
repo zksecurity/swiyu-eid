@@ -1,5 +1,8 @@
 # Profiles
 
-Versioned manifests for supported predicates belong here. A profile will pin
-credential requirements, predicate semantics, circuit identifiers, public
-inputs, status construction, artifact hashes, and resource limits.
+- Age over 18
+- Private canton membership
+- Private residence eligibility
+- One accepted claim per credential and verifier scope
+
+Profile identifiers and circuit mappings are defined in `components/zkid/wallet-unit-poc/openac-sdk/src/swiyu-zkp`.

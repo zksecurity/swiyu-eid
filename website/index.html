@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>swiyu project overview</title>
+  <style>
+    :root {
+      --ink: #182230;
+      --muted: #52606d;
+      --faint: #f5f7f9;
+      --paper: #ffffff;
+      --line: #d8dee5;
+      --line-strong: #aeb8c2;
+      --blue: #075ea8;
+      --blue-soft: #eaf4fc;
+      --green: #176b4d;
+      --green-soft: #eaf7f1;
+      --amber: #8a5700;
+      --amber-soft: #fff6df;
+      --red: #a12b2b;
+      --red-soft: #fff0f0;
+      --code: #1d232a;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 16px/1.62 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: var(--blue); text-underline-offset: 2px; }
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: .9em; }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+
+    header { padding: 54px 0 34px; border-bottom: 1px solid var(--line); }
+    h1 { max-width: 850px; margin: 0; font-size: clamp(36px, 5vw, 60px); line-height: 1.02; letter-spacing: -.045em; }
+    h2 { margin: 0; font-size: clamp(25px, 3vw, 34px); line-height: 1.15; letter-spacing: -.025em; }
+    h3 { margin: 0 0 7px; font-size: 17px; line-height: 1.3; }
+    h4 { margin: 0 0 4px; font-size: 14px; }
+    .lede { max-width: 820px; margin: 0; color: var(--muted); font-size: 19px; }
+
+    nav { position: sticky; z-index: 10; top: 0; background: rgba(255,255,255,.96); border-bottom: 1px solid var(--line); }
+    nav .wrap { display: flex; gap: 24px; overflow-x: auto; }
+    nav a { padding: 12px 0; color: #344250; text-decoration: none; white-space: nowrap; font-size: 13px; font-weight: 650; }
+    nav a:hover { color: var(--blue); }
+
+    section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+    .section-head { margin-bottom: 24px; }
+    .prose { max-width: 820px; }
+    .prose p { color: var(--muted); }
+
+    .bottom-line { max-width: 970px; padding: 24px 26px; background: var(--blue-soft); border-left: 4px solid var(--blue); }
+    .bottom-line h2 { margin-bottom: 8px; font-size: 24px; }
+    .bottom-line p { margin: 0; color: #304458; }
+
+    .role-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+    .role { padding: 20px; background: var(--paper); border: 1px solid var(--line); }
+    .role .number { display: block; margin-bottom: 12px; color: var(--blue); font: 700 12px/1 "SFMono-Regular", Consolas, monospace; }
+    .role p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .glossary { display: block; border: 1px solid var(--line); }
+    .term { display: grid; grid-template-columns: 155px 1fr; gap: 18px; padding: 17px 18px; border-bottom: 1px solid var(--line); }
+    .term:last-child { border-bottom: 0; }
+    .term dt { font-weight: 750; }
+    .term dt span { display: block; color: var(--muted); font-size: 11px; font-weight: 500; }
+    .term dd { margin: 0; color: var(--muted); font-size: 14px; }
+    .tech-details { grid-column: 1 / -1; margin-top: 4px; border-top: 1px solid var(--line); }
+    .tech-details summary { padding: 11px 0 2px; color: var(--blue); cursor: pointer; font-size: 13px; font-weight: 720; list-style-position: outside; }
+    .tech-details summary:hover { text-decoration: underline; text-underline-offset: 2px; }
+    .tech-details[open] summary { margin-bottom: 12px; }
+    .tech-body { padding: 16px; background: var(--faint); border: 1px solid var(--line); }
+    .tech-body p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+    .tech-body p:last-child { margin-bottom: 0; }
+    .tech-body ol, .tech-body ul { margin: 0 0 14px; padding-left: 22px; color: var(--muted); font-size: 14px; }
+    .tech-body li + li { margin-top: 4px; }
+    .tech-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .tech-panel { min-width: 0; padding: 13px; background: var(--paper); border: 1px solid var(--line); }
+    .tech-panel h4 { margin-bottom: 7px; }
+    .tech-code { margin: 0; padding: 13px; color: #e8edf2; background: var(--code); overflow: auto; font: 12px/1.5 "SFMono-Regular", Consolas, monospace; white-space: pre; }
+    .technical-note { margin-top: 10px !important; padding-left: 11px; border-left: 3px solid var(--blue); }
+
+    .diagram { padding: 24px; background: var(--faint); border: 1px solid var(--line); overflow-x: auto; }
+    .diagram + .diagram { margin-top: 18px; }
+    .diagram-title { margin-bottom: 18px; }
+    .diagram-title p { margin: 3px 0 0; color: var(--muted); font-size: 14px; }
+    .flow { display: grid; grid-template-columns: 1fr 42px 1.15fr 42px 1.15fr 42px 1.2fr; align-items: stretch; min-width: 920px; }
+    .flow-card { position: relative; min-height: 156px; padding: 17px; background: var(--paper); border: 1px solid var(--line-strong); }
+    .flow-card.core { border-top: 4px solid var(--blue); }
+    .flow-card.wallet { border-top: 4px solid var(--green); }
+    .flow-card.experimental { border-top: 4px solid var(--amber); }
+    .flow-card .label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .flow-card b { display: block; margin: 6px 0 7px; font-size: 16px; }
+    .flow-card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .flow-card code { display: inline-block; margin-top: 8px; color: #314456; }
+    .arrow { display: grid; place-items: center; color: #6d7a86; font-size: 24px; font-weight: 300; }
+    .edge-note { align-self: center; margin: 0 -8px; padding: 5px 2px; color: var(--muted); background: var(--faint); font-size: 10px; line-height: 1.2; text-align: center; transform: translateY(44px); }
+
+    .branch { display: grid; grid-template-columns: minmax(170px, .8fr) 42px minmax(230px, 1fr) 42px minmax(230px, 1fr); align-items: stretch; min-width: 780px; }
+    .fork { display: grid; gap: 10px; }
+    .fork .flow-card { min-height: 113px; }
+    .path-label { display: inline-block; margin-bottom: 6px; padding: 2px 6px; color: var(--green); background: var(--green-soft); border: 1px solid #b9ddce; font-size: 11px; font-weight: 750; }
+    .path-label.exp { color: var(--amber); background: var(--amber-soft); border-color: #ead39d; }
+
+    .repo-map { display: grid; grid-template-columns: 1fr 62px 1fr 62px 1fr; grid-template-areas:
+      "standards standards standards standards standards"
+      "issuer a wallet b verifier"
+      "refs refs zk c sidecar";
+      gap: 16px; align-items: center; min-width: 920px;
+    }
+    .map-card { min-height: 122px; padding: 17px; background: var(--paper); border: 1px solid var(--line-strong); }
+    .map-card strong { display: block; margin-bottom: 4px; }
+    .map-card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .map-card small { display: block; margin-top: 8px; color: #657380; font-family: monospace; }
+    .map-card.standards { grid-area: standards; min-height: auto; background: var(--amber-soft); border-color: #ead39d; }
+    .map-card.issuer { grid-area: issuer; border-top: 4px solid var(--blue); }
+    .map-card.wallet { grid-area: wallet; border-top: 4px solid var(--green); }
+    .map-card.verifier { grid-area: verifier; border-top: 4px solid var(--blue); }
+    .map-card.refs { grid-area: refs; background: #f8f9fa; }
+    .map-card.zk { grid-area: zk; border-top: 4px solid var(--amber); }
+    .map-card.sidecar { grid-area: sidecar; border-top: 4px solid var(--amber); }
+    .map-arrow { display: grid; place-items: center; color: #60707d; font-size: 25px; }
+    .map-arrow.a { grid-area: a; }.map-arrow.b { grid-area: b; }.map-arrow.c { grid-area: c; }
+    .map-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; color: var(--muted); font-size: 12px; }
+    .swatch { display: inline-block; width: 11px; height: 3px; margin-right: 5px; vertical-align: middle; }
+
+    .object-lanes { display: grid; gap: 16px; }
+    .lane { display: grid; grid-template-columns: 128px 1fr; border: 1px solid var(--line); }
+    .lane-title { padding: 17px; color: #fff; background: #344250; font-weight: 700; }
+    .lane-body { display: flex; align-items: center; gap: 0; padding: 14px; overflow-x: auto; background: var(--paper); }
+    .object { min-width: 185px; padding: 12px; background: var(--faint); border: 1px solid var(--line); }
+    .object b { display: block; font: 650 12px/1.35 "SFMono-Regular", Consolas, monospace; overflow-wrap: anywhere; }
+    .object span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .object-arrow { min-width: 34px; color: #6d7a86; text-align: center; }
+
+    .implementation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .implementation-card { min-width: 0; padding: 20px; border: 1px solid var(--line); background: var(--paper); }
+    .implementation-card.wide { grid-column: 1 / -1; }
+    .implementation-card h3 { margin-bottom: 10px; }
+    .implementation-card ul { margin: 0; padding-left: 20px; color: var(--muted); }
+    .implementation-card li + li { margin-top: 7px; }
+    .implementation-card code { color: #314456; overflow-wrap: anywhere; word-break: break-word; }
+    .profile-statement { margin-bottom: 18px; padding: 20px; background: var(--green-soft); border: 1px solid #b9ddce; }
+    .profile-statement p { margin: 6px 0 0; color: #385c4d; }
+    .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 16px; }
+    .metric { padding: 12px; background: var(--faint); border: 1px solid var(--line); }
+    .metric strong { display: block; font-size: 18px; }
+    .metric span { color: var(--muted); font-size: 11px; }
+
+    .benchmark-intro { max-width: 820px; margin: 0 0 20px; color: var(--muted); }
+    .benchmark-intro code { overflow-wrap: anywhere; word-break: break-all; }
+    .benchmark-table { width: 100%; margin-bottom: 18px; border-collapse: collapse; font-size: 13px; }
+    .benchmark-table th { padding: 10px; color: var(--muted); border-bottom: 2px solid var(--line); text-align: right; white-space: nowrap; }
+    .benchmark-table th:first-child { text-align: left; }
+    .benchmark-table td { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+    .benchmark-table td:first-child { color: var(--ink); text-align: left; white-space: normal; }
+    .benchmark-value { display: block; }
+    .benchmark-ratio { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .benchmark-profiles { display: grid; gap: 10px; }
+    .benchmark-profile { background: var(--paper); border: 1px solid var(--line-strong); }
+    .benchmark-profile summary { display: grid; grid-template-columns: minmax(180px, .8fr) 1.2fr auto; gap: 18px; align-items: center; padding: 16px 18px; cursor: pointer; list-style: none; }
+    .benchmark-profile summary::-webkit-details-marker { display: none; }
+    .benchmark-profile summary::after { content: "+"; color: var(--blue); font-size: 24px; line-height: 1; }
+    .benchmark-profile[open] summary::after { content: "−"; }
+    .benchmark-profile summary:hover { background: var(--blue-soft); }
+    .benchmark-profile summary h3 { margin: 0; }
+    .benchmark-profile summary p { margin: 0; color: var(--muted); font-size: 13px; }
+    .benchmark-detail { display: grid; grid-template-columns: 230px 1fr; gap: 28px; align-items: center; padding: 22px; border-top: 1px solid var(--line); background: var(--faint); }
+    .donut { position: relative; width: 210px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(var(--blue) 0 var(--p1), var(--green) var(--p1) var(--p2), var(--amber) var(--p2) var(--p3), #8a96a2 var(--p3) 100%); }
+    .donut::after { content: ""; position: absolute; inset: 38px; background: var(--paper); border-radius: 50%; }
+    .donut-center { position: absolute; z-index: 1; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; }
+    .donut-center strong { font-size: 24px; line-height: 1; }
+    .donut-center span { max-width: 105px; margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.25; }
+    .breakdown-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; margin: 0; padding: 0; list-style: none; }
+    .breakdown-list li { display: grid; grid-template-columns: 10px 1fr auto; gap: 8px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .breakdown-list span { color: var(--muted); font-size: 13px; }
+    .breakdown-list strong { font-size: 13px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .dot.setup { background: var(--blue); }
+    .dot.prepare { background: var(--green); }
+    .dot.wallet { background: var(--amber); }
+    .dot.verify { background: #8a96a2; }
+    .benchmark-note { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 12px; }
+
+    .repo-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .repo-table th { padding: 10px 12px; color: var(--muted); border-bottom: 2px solid var(--line); text-align: left; }
+    .repo-table td { padding: 13px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .repo-table td:nth-child(2), .repo-table td:nth-child(3) { color: var(--muted); }
+    .status { display: inline-block; padding: 2px 6px; border-radius: 2px; font-size: 10px; font-weight: 750; letter-spacing: .05em; text-transform: uppercase; }
+    .status.core { color: var(--blue); background: var(--blue-soft); }
+    .status.plan { color: var(--green); background: var(--green-soft); }
+    .status.wip { color: var(--amber); background: var(--amber-soft); }
+    .status.ref { color: #58636e; background: #edf0f2; }
+
+    .code-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+    .code-tabs button { padding: 7px 10px; color: #344250; background: var(--paper); border: 1px solid var(--line-strong); cursor: pointer; font: 12px "SFMono-Regular", Consolas, monospace; }
+    .code-tabs button:hover { border-color: var(--blue); }
+    .code-tabs button.active { color: #fff; background: var(--blue); border-color: var(--blue); }
+    .code-item { display: none; }
+    .code-item.active { display: block; }
+    .source { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--muted); font-size: 12px; }
+    .source a { overflow-wrap: anywhere; }
+    .lang { flex: 0 0 auto; font-weight: 700; }
+    .snippet { margin: 0; padding: 17px; color: #e8edf2; background: var(--code); border: 1px solid #101418; overflow: auto; font-size: 12px; line-height: 1.55; }
+    .snippet .cm { color: #91a1ae; }.snippet .kw { color: #8fc7ff; }.snippet .fn { color: #b4e2b6; }.snippet .st { color: #f3d497; }
+    .code-explain { margin: 10px 0 0; padding: 12px 14px; color: var(--muted); background: var(--faint); border: 1px solid var(--line); font-size: 14px; }
+
+    .ledger { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .ledger th { padding: 10px 12px; color: var(--muted); border-bottom: 2px solid var(--line); text-align: left; }
+    .ledger td { padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .ledger td:nth-child(2), .ledger td:nth-child(3) { color: var(--muted); }
+    .risk { display: block; margin-top: 4px; font-size: 10px; font-weight: 800; letter-spacing: .07em; }
+    .risk.good { color: var(--green); }.risk.med { color: var(--amber); }.risk.high { color: var(--red); }
+    .actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 24px; counter-reset: action; }
+    .action { padding: 16px; background: var(--faint); border: 1px solid var(--line); counter-increment: action; }
+    .action::before { content: counter(action, decimal-leading-zero); display: block; margin-bottom: 10px; color: var(--blue); font: 750 12px monospace; }
+    .action p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+
+    .contribution-list { margin: 20px 0 0; padding-left: 22px; color: #344250; }
+    .contribution-list li + li { margin-top: 10px; }
+
+    @media (max-width: 900px) {
+      .role-grid { grid-template-columns: 1fr; }
+      .tech-columns { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: repeat(2, 1fr); }
+      .implementation-grid { grid-template-columns: 1fr; }
+      .implementation-card.wide { grid-column: auto; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .benchmark-profile summary { grid-template-columns: 1fr auto; }
+      .benchmark-profile summary p { grid-column: 1 / -1; }
+      .benchmark-detail { grid-template-columns: 1fr; justify-items: center; }
+      .breakdown-list { width: 100%; }
+      .repo-table, .ledger { font-size: 13px; }
+    }
+    @media (max-width: 620px) {
+      .wrap { width: min(100% - 24px, 1180px); }
+      header { padding-top: 34px; }
+      section { padding: 38px 0; }
+      .term { grid-template-columns: 1fr; gap: 5px; }
+      .tech-body { padding: 11px; }
+      .diagram { padding: 15px; }
+      .lane { grid-template-columns: 1fr; }
+      .lane-title { padding: 10px 14px; }
+      .actions { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+      .benchmark-table, .benchmark-table tbody, .benchmark-table tr, .benchmark-table td { display: block; }
+      .benchmark-table thead { display: none; }
+      .benchmark-table tr { padding: 12px 0; border-bottom: 1px solid var(--line); }
+      .benchmark-table td { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border: 0; text-align: right; white-space: normal; }
+      .benchmark-table td::before { content: attr(data-label); color: var(--muted); text-align: left; }
+      .benchmark-table td:first-child { display: block; margin-bottom: 6px; font-size: 15px; font-weight: 700; }
+      .benchmark-table td:first-child::before { content: none; }
+      .breakdown-list { grid-template-columns: 1fr; }
+      .repo-table, .repo-table tbody, .repo-table tr, .repo-table td,
+      .ledger, .ledger tbody, .ledger tr, .ledger td { display: block; }
+      .repo-table thead, .ledger thead { display: none; }
+      .repo-table tr, .ledger tr { padding: 13px 0; border-bottom: 1px solid var(--line); }
+      .repo-table td, .ledger td { padding: 3px 0; border: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>swiyu project overview</h1>
+    </div>
+  </header>
+
+  <nav aria-label="Page sections">
+    <div class="wrap">
+      <a href="#summary">Summary</a>
+      <a href="#terms">Vocabulary</a>
+      <a href="#protocol">Protocol flows</a>
+      <a href="#local-zk">ZK implementation</a>
+      <a href="#repositories">Repository map</a>
+      <a href="#objects">Code objects</a>
+      <a href="#evidence">Code excerpts</a>
+      <a href="#next-steps">Potential next steps</a>
+      <a href="#contributions">Contributions</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section id="summary">
+      <div class="role-grid">
+        <article class="role">
+          <span class="number">01</span>
+          <h3>Issuer</h3>
+          <p><code>swiyu-issuer</code> creates credential offers, authorizes issuance, signs credentials, and publishes or updates status information.</p>
+        </article>
+        <article class="role">
+          <span class="number">02</span>
+          <h3>Wallet</h3>
+          <p>A wallet receives and stores the credential. <code>one-core</code> is the intended product holder integration; <code>zkID</code> currently contains the working proof implementation.</p>
+        </article>
+        <article class="role">
+          <span class="number">03</span>
+          <h3>Verifier</h3>
+          <p><code>swiyu-verifier</code> creates a signed request, receives the wallet response, checks trust and status, and returns usable results to the business verifier.</p>
+        </article>
+      </div>
+
+    </section>
+
+    <section id="terms">
+      <div class="section-head">
+        <h2>Vocabulary</h2>
+      </div>
+
+      <dl class="glossary">
+        <div class="term" id="oid4vci">
+          <dt>OID4VCI<span>OpenID for Verifiable Credential Issuance</span></dt>
+          <dd>The protocol between an issuer and a wallet. It covers discovering issuer metadata, accepting a credential offer, obtaining authorization, proving possession of a holder key, and downloading the signed credential.</dd>
+          <details class="tech-details">
+            <summary>Technical details and example issuance exchange</summary>
+            <div class="tech-body">
+              <p>OID4VCI separates business authorization from credential delivery. A credential offer identifies what may be issued; an OAuth access token authorizes collection; a credential request proves that the wallet controls the key that should be bound into the credential.</p>
+              <ol>
+                <li>The wallet follows a credential offer and reads issuer metadata.</li>
+                <li>It exchanges an authorization code or pre-authorized code at the token endpoint.</li>
+                <li>It obtains a fresh credential nonce and creates a holder proof JWT.</li>
+                <li>It calls the credential endpoint with the access token, DPoP proof when enabled, requested format and holder proof.</li>
+                <li>The issuer validates the request, signs the credential and returns it immediately or through deferred issuance.</li>
+              </ol>
+              <div class="tech-columns">
+                <div class="tech-panel"><h4>Schematic request</h4><pre class="tech-code">POST /oid4vci/api/credential
+Authorization: DPoP eyJ...
+DPoP: eyJ...
+Content-Type: application/json
+
+{
+  "format": "dc+sd-jwt",
+  "proof": {
+    "proof_type": "jwt",
+    "jwt": "eyJ..."
+  }
+}</pre></div>
+                <div class="tech-panel"><h4>Local code path</h4><pre class="tech-code">IssuanceController
+  → decryptRequest(...)
+  → getValidatedAccessToken(...)
+  → CredentialServiceOrchestrator
+  → CredentialIssuanceService
+  → CredentialEnvelopeService</pre></div>
+              </div>
+              <p class="technical-note"><strong>Security binding:</strong> the holder proof and DPoP serve different layers. The credential proof binds the credential to a holder key; DPoP binds OAuth requests/tokens to the client key used for those HTTP calls.</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="term" id="oid4vp">
+          <dt>OID4VP<span>OpenID for Verifiable Presentations</span></dt>
+          <dd>The protocol between a verifier and a wallet. The verifier sends a request describing what it needs; the wallet returns one or more credential presentations to a response endpoint.</dd>
+          <details class="tech-details">
+            <summary>Technical details and example presentation exchange</summary>
+            <div class="tech-body">
+              <p>The verifier first creates server-side session state. The wallet receives a signed authorization request containing a nonce, client identifier, response URI and DCQL query. The nonce prevents replay; <code>state</code> correlates the browser/protocol round trip with the persisted session.</p>
+              <div class="tech-columns">
+                <div class="tech-panel"><h4>Wallet fetches the signed request</h4><pre class="tech-code">GET /oid4vp/api/
+    request-object/7b4...a91
+
+Content-Type:
+  application/oauth-authz-req+jwt
+
+Response: eyJhbGciOiJFUzI1NiJ9...</pre></div>
+                <div class="tech-panel"><h4>Wallet posts its response</h4><pre class="tech-code">POST /oid4vp/api/
+  request-object/7b4...a91/response-data
+Content-Type: application/x-www-form-urlencoded
+
+state=Zk2...
+vp_token={"identity":["eyJ..."]}</pre></div>
+              </div>
+              <p class="technical-note"><strong>In this verifier:</strong> <code>VerificationController</code> decrypts the response when needed, checks the OAuth state, maps the form into a typed presentation result, and then hands DCQL processing to <code>PresentationVerificationUsecase</code>.</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="term" id="dcql">
+          <dt>DCQL<span>Digital Credentials Query Language</span></dt>
+          <dd>A structured query carried inside OID4VP. It gives requested credentials IDs, acceptable formats and credential types, requested claims, and constraints. The wallet response maps those query IDs to values in <code>vp_token</code>.</dd>
+          <details class="tech-details">
+            <summary>Technical details and example query</summary>
+            <div class="tech-body">
+              <p>Each entry in <code>credentials</code> has an <code>id</code>. That ID is the join key between the verifier’s request and the wallet’s <code>vp_token</code> map. The verifier never has to guess which returned token answers which query.</p>
+              <pre class="tech-code">{
+  "credentials": [{
+    "id": "age",
+    "format": "dc+sd-jwt",
+    "meta": {
+      "vct_values": ["https://example.ch/identity"]
+    },
+    "claims": [{
+      "id": "birthdate",
+      "path": ["birthdate"]
+    }],
+    "require_cryptographic_holder_binding": true,
+    "x_swiyu_zkp": {
+      "profile": "swiyu-age18-status-2k-v0",
+      "circuit_id": "swiyu_age18_status_2k",
+      "cutoff_date": "2008-08-17",
+      "status_list_snapshot": "statuslist-jwt:AbC...",
+      "current_time": 1786939200
+    }
+  }]
+}</pre>
+              <p>The corresponding response is conceptually <code>{"age":["&lt;proof envelope&gt;"]}</code>. The local validator further requires one credential, one <code>birthdate</code> claim, no requested disclosed value, one presentation and the exact supported ZK profile.</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="term" id="sdjwt">
+          <dt>SD-JWT VC<span>Selective Disclosure JWT Credential</span></dt>
+          <dd>A JWT-based credential whose issuer signature commits to hidden claims through digests. The holder can reveal chosen claim disclosures. Selective disclosure alone is different from proving a predicate such as “over 18” without revealing the birthdate.</dd>
+          <details class="tech-details">
+            <summary>Technical details and disclosure example</summary>
+            <div class="tech-body">
+              <p>The issuer removes a selectively disclosable claim from the signed payload and replaces it with a digest in <code>_sd</code>. The holder receives the signed issuer JWT plus the original disclosure. At presentation time, the holder appends only the disclosures it wants to reveal.</p>
+              <div class="tech-columns">
+                <div class="tech-panel"><h4>Signed payload fragment</h4><pre class="tech-code">{
+  "iss": "did:tdw:issuer...",
+  "vct": "https://example.ch/identity",
+  "_sd_alg": "sha-256",
+  "_sd": ["B7M_t4...ZxQ"],
+  "cnf": {"jwk": {"kty":"EC", ...}}
+}</pre></div>
+                <div class="tech-panel"><h4>Disclosure before base64url encoding</h4><pre class="tech-code">[
+  "random-salt",
+  "birthdate",
+  "2000-01-15"
+]
+
+presentation =
+  issuerJWT~disclosure~keyBindingJWT</pre></div>
+              </div>
+              <p>The verifier hashes the exact encoded disclosure and checks that its digest appears in the signed <code>_sd</code> array. The ZK circuit goes further: it authenticates that disclosure but keeps its value private while comparing the birthdate with a public cutoff.</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="term" id="dpop">
+          <dt>DPoP<span>Demonstrating Proof of Possession</span></dt>
+          <dd>An OAuth mechanism that binds requests and access tokens to a client-held key. The issuer uses it to reduce the value of a stolen bearer token.</dd>
+          <details class="tech-details">
+            <summary>Technical details and proof JWT example</summary>
+            <div class="tech-body">
+              <p>A DPoP proof is a short-lived JWT signed by the client key. The protected header carries the public JWK. The payload binds the signature to one HTTP method and target URI; <code>jti</code> and <code>iat</code> help detect replay. A resource request may also include <code>ath</code>, a hash of the access token.</p>
+              <pre class="tech-code">header = {
+  "typ": "dpop+jwt",
+  "alg": "ES256",
+  "jwk": {"kty":"EC","crv":"P-256","x":"...","y":"..."}
+}
+
+payload = {
+  "jti": "9d2...",
+  "htm": "POST",
+  "htu": "https://issuer.example/oid4vci/api/credential",
+  "iat": 1786939200,
+  "nonce": "issuer-provided-nonce",
+  "ath": "base64url(sha256(access_token))"
+}</pre>
+              <p class="technical-note">The issuer recomputes the expected method, URI and token hash, verifies the signature, and checks that the token is bound to the same JWK thumbprint.</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="term" id="request-object">
+          <dt>Request object / JAR<span>Signed authorization request</span></dt>
+          <dd>The verifier serializes its OID4VP request as a signed JWT. The signature protects the nonce, audience, response URI, DCQL query, and, on the ZK path, the proof policy.</dd>
+          <details class="tech-details">
+            <summary>Technical details and signed-claims example</summary>
+            <div class="tech-body">
+              <p>The request object is a JWS: <code>base64url(header).base64url(claims).signature</code>. The verifier signs the complete authorization request so a relay or wallet-facing frontend cannot silently weaken the requested credential or replace the ZK cutoff/snapshot.</p>
+              <pre class="tech-code">{
+  "iss": "did:tdw:verifier...",
+  "aud": "https://self-issued.me/v2",
+  "client_id": "x509_san_dns:verifier.example",
+  "response_uri": "https://verifier.example/.../response-data",
+  "response_type": "vp_token",
+  "response_mode": "direct_post",
+  "nonce": "fresh-verification-nonce",
+  "state": "opaque-session-correlation",
+  "dcql_query": {"credentials": [...]}
+}</pre>
+              <p>In the local implementation, <code>x_swiyu_zkp</code> lives inside one DCQL credential object. Because the existing request-object serializer copies the DCQL query into the signed JWT, no second policy transport or endpoint is needed.</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="term" id="zkid-stack">
+          <dt>zkID proof stack<span>Circom → R1CS → witness → Spartan2 / Hyrax</span></dt>
+          <dd>The complete proving toolchain used by the local profiles. Circom defines the statement, witness code fills its signals, Spartan2 proves the resulting constraints, and Hyrax supplies the commitment layer used by that proof system.</dd>
+          <details class="tech-details">
+            <summary>Technical details and complete artifact lifecycle</summary>
+            <div class="tech-body">
+              <ol>
+                <li><strong>Author in Circom.</strong> Templates constrain SD-JWT parsing, issuer and holder signatures, validity windows, private claims, status membership, and the requested predicate.</li>
+                <li><strong>Compile once per circuit shape.</strong> Circom emits an <code>.r1cs</code> constraint system, a WASM witness generator, and a <code>.sym</code> signal map. R1CS is a matrix representation of equations of the form <code>A · B = C</code>.</li>
+                <li><strong>Generate a witness.</strong> TypeScript assembles authenticated credential and verifier inputs. Browser builds run the generated WASM; native builds use <code>witnesscalc_adapter</code>. Both produce the ordered field assignments stored as <code>.wtns</code> data.</li>
+                <li><strong>Preprocess the fixed circuit.</strong> Rust loads the R1CS through <code>circom-scotia</code> and calls <code>R1CSSNARK::setup</code>. This circuit-specific step creates the proving and verifying keys once for that exact relation.</li>
+                <li><strong>Prove a private assignment.</strong> The prover supplies the proving key, witness, and public values to Spartan2. The selected <code>T256HyraxEngine</code> uses Hyrax polynomial commitments inside the Spartan2 R1CS proof.</li>
+                <li><strong>Verify the exact statement.</strong> The verifier supplies the verifying key, proof, and independently reconstructed public values. The proof is accepted only when Spartan2 verifies and those values exactly match the signed verifier session.</li>
+              </ol>
+              <div class="tech-columns">
+                <div class="tech-panel"><h4>Build-time artifacts</h4><pre class="tech-code">profile.circom
+  ├─ profile.r1cs   fixed equations
+  ├─ profile.wasm   witness calculator
+  └─ profile.sym    signal positions
+
+R1CSSNARK::setup(shape)
+  ├─ proving key    held by prover
+  └─ verifying key  held by verifier</pre></div>
+                <div class="tech-panel"><h4>Per credential and presentation</h4><pre class="tech-code">private credential + public policy
+  → witness generator
+  → ordered witness (.wtns)
+  → Spartan2 prover + proving key
+  → proof + public values
+  → Spartan2 verifier + verifying key
+  → accept or reject</pre></div>
+              </div>
+              <p><strong>Spartan2</strong> is the proof protocol that establishes satisfaction of the compiled R1CS. <strong>Hyrax</strong> is the polynomial commitment scheme selected by this implementation’s engine, allowing the prover to commit to witness-derived data while the verifier checks the proof without receiving the private assignments.</p>
+              <p class="technical-note"><strong>Prepare and Show:</strong> the optimized profiles preprocess and authenticate credential data in a reusable Prepare proof, then create a smaller session-bound Show proof. Reblinded shared-witness commitments require both proofs to refer to the same hidden credential values without exposing them.</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="term" id="sidecar">
+          <dt>ZK sidecar<span>Local verifier helper</span></dt>
+          <dd>A separate local process used because the Java verifier does not directly run the TypeScript/WASM/Rust proof stack. Java sends the proof plus authoritative expected context over an explicit loopback-only HTTP endpoint.</dd>
+          <details class="tech-details">
+            <summary>Technical details and sidecar API example</summary>
+            <div class="tech-body">
+              <div class="tech-columns">
+                <div class="tech-panel"><h4>Java → sidecar</h4><pre class="tech-code">POST http://127.0.0.1:7788/v1/verify
+
+{
+  "proof_envelope": "&lt;opaque wallet output&gt;",
+  "expected": {
+    "nonce": "...",
+    "client_id": "...",
+    "response_uri": "...",
+    "state": "...",
+    "query_id": "age",
+    "profile": "swiyu-age18-status-2k-v0",
+    "cutoff_date": "2008-08-17",
+    "status_list_snapshot": "statuslist-jwt:AbC..."
+  }
+}</pre></div>
+                <div class="tech-panel"><h4>Sidecar → Java</h4><pre class="tech-code">{
+  "verified": true,
+  "profile": "swiyu-age18-status-2k-v0",
+  "circuit_id": "swiyu_age18_status_2k",
+  "predicate_satisfied": true,
+  "status_valid": true,
+  "status_list_snapshot": "statuslist-jwt:AbC..."
+}</pre></div>
+              </div>
+              <p>The sidecar resolves the issuer key and trust policy, resolves the configured signed status snapshot locally, recomputes the challenge/public inputs, and calls the Spartan verifier. Java uses strict JSON parsing and rechecks exact profile, circuit and snapshot equality.</p>
+              <p class="technical-note"><strong>Fail-closed behavior:</strong> no endpoint, non-loopback URI, timeout, non-200 response, oversized body, malformed JSON or <code>verified != true</code> rejects the ZK presentation. It does not fall back to ordinary SD-JWT verification.</p>
+            </div>
+          </details>
+        </div>
+      </dl>
+    </section>
+
+    <section id="protocol">
+      <div class="section-head">
+        <h2>Protocol flows</h2>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title"><h3>Flow A: issuing a credential with OID4VCI</h3><p>The issuer gives a wallet a signed credential. This part exists independently of the ZK experiment.</p></div>
+        <div class="flow">
+          <div class="flow-card core"><span class="label">Business system</span><b>Issuer decides to issue</b><p>Creates a credential offer and supplies the claims to be certified.</p></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="flow-card core"><span class="label">Repository</span><b>swiyu-issuer</b><p>Runs OAuth/DPoP checks, validates holder proof, builds and signs the credential.</p><code>IssuanceController</code></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="flow-card wallet"><span class="label">Protocol</span><b>OID4VCI</b><p>Token, nonce, credential and optional deferred-credential endpoints carry the issuance flow.</p><code>/oid4vci/api/*</code></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="flow-card wallet"><span class="label">Holder</span><b>Wallet stores SD-JWT VC</b><p>The wallet now holds the issuer-signed credential and its selectively disclosable claim material.</p></div>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title"><h3>Flow B: requesting and verifying a presentation with OID4VP</h3><p>The request and response transport is shared by the ordinary disclosure path and the ZK path.</p></div>
+        <div class="flow">
+          <div class="flow-card core"><span class="label">Business system</span><b>Verifier asks a question</b><p>For example: “provide an accepted identity credential containing these claims.”</p></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="flow-card core"><span class="label">Repository</span><b>swiyu-verifier</b><p>Persists the session and signs a request object containing nonce, response URI, state and DCQL.</p><code>RequestObjectService</code></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="flow-card wallet"><span class="label">Protocol</span><b>OID4VP + DCQL</b><p>The wallet reads exactly which credential type, claims or ZK profile the verifier requested.</p><code>request-object/{id}</code></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="flow-card wallet"><span class="label">Holder response</span><b>Wallet submits vp_token</b><p>Query IDs map to SD-JWT presentations or, for the fixed ZK profile, a proof envelope.</p><code>response-data</code></div>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title"><h3>Flow C: the verifier branches after receiving <code>vp_token</code></h3><p>The ZK path is an opt-in branch inside the existing DCQL processing service.</p></div>
+        <div class="branch">
+          <div class="flow-card core"><span class="label">Shared entry point</span><b>Dcql<wbr>Presentation<wbr>Verification<wbr>Service</b><p>Looks up the persisted requested credential by query ID and examines its policy.</p></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="fork">
+            <div class="flow-card wallet"><span class="path-label">Normal path</span><b>PresentationVerifier</b><p>Verify issuer signature and holder binding, filter by VCT, validate requested claims, decode disclosures.</p></div>
+            <div class="flow-card experimental"><span class="path-label exp">ZK path</span><b>ZkPresentationVerifier</b><p>Require exactly one proof, derive expected context from the signed session, call the local sidecar.</p></div>
+          </div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="fork">
+            <div class="flow-card wallet"><b>Disclosed claims</b><p>The business verifier receives the claims the holder chose and the DCQL request allowed.</p></div>
+            <div class="flow-card experimental"><b>Predicate result only</b><p>The business verifier receives profile, circuit ID, age result, status result and snapshot identifier, not the birthdate or status index.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="local-zk">
+      <div class="section-head">
+        <h2>ZK implementation</h2>
+      </div>
+
+      <div class="profile-statement">
+        <h3>Four experiment statements</h3>
+        <p><strong>Age:</strong> the signed private birthdate satisfies the verifier cutoff. <strong>Canton:</strong> the signed private canton belongs to the verifier’s accepted set. <strong>Residence:</strong> the signed private municipality belongs to an accepted set and the residence start date satisfies a duration threshold. <strong>One claim:</strong> the exact issuer-authenticated credential attestation has not already been accepted in the canonical verifier scope. Every profile also binds holder possession, credential validity, the verifier session, and a VALID status entry.</p>
+      </div>
+
+      <div class="implementation-grid">
+        <article class="implementation-card">
+          <h3>1. Verifier request model</h3>
+          <ul>
+            <li><code>ZkPresentationPolicyDto</code> adds <code>x_swiyu_zkp</code> to one DCQL credential query.</li>
+            <li>The policy names the exact profile, circuit, age cutoff, status snapshot and evaluation time.</li>
+            <li><code>CreateVerificationManagementValidator</code> accepts only <code>dc+sd-jwt</code>, one presentation, holder binding, and exactly one undisclosed <code>birthdate</code> claim.</li>
+            <li>The policy is persisted with <code>dcql_query</code> and therefore covered by the normal signed OID4VP request object.</li>
+          </ul>
+        </article>
+
+        <article class="implementation-card">
+          <h3>2. Verifier-side routing</h3>
+          <ul>
+            <li><code>DcqlMapper</code> maps the vendor extension into the domain <code>ZkPresentationPolicy</code>.</li>
+            <li><code>DcqlPresentationVerificationService</code> detects that policy and requires exactly one proof envelope for the query ID.</li>
+            <li>Ordinary queries still use <code>PresentationVerifier</code>; ZK queries use <code>ZkPresentationVerifier</code>.</li>
+            <li>The result is reduced to profile, circuit, predicate result, status result and snapshot ID.</li>
+          </ul>
+        </article>
+
+        <article class="implementation-card">
+          <h3>3. Authoritative sidecar boundary</h3>
+          <ul>
+            <li><code>HttpZkPresentationVerifier</code> builds <code>ExpectedContext</code> from persisted verifier state: nonce, client ID, response URI, OAuth state, query ID, policy, VCT, accepted issuer DIDs and trust anchors.</li>
+            <li>It accepts only an explicit loopback HTTP endpoint, disables redirects, bounds response size and fails closed on timeout or malformed output.</li>
+            <li>The sidecar resolves the issuer/trust policy and a locally provisioned signed status-list snapshot; it does not trust envelope lookup hints.</li>
+            <li>The Java service independently checks returned profile, circuit, snapshot, predicate and status equality.</li>
+          </ul>
+        </article>
+
+        <article class="implementation-card">
+          <h3>4. Wallet prepare → provision → show API</h3>
+          <ul>
+            <li><code>prepareSwiyuCredential</code> parses and authenticates the fixed Swiss SD-JWT shape.</li>
+            <li><code>provisionSwiyuCredentialStatus</code> verifies a locally fetched <code>statuslist+jwt</code> and derives the Merkle witness for the credential’s signed private index.</li>
+            <li><code>SwiyuZkpWallet.show</code> binds the verifier challenge, cutoff, time and snapshot, checks validity, asks the holder key to sign the challenge digest, generates the witness and produces one proof.</li>
+            <li><code>show</code> performs no network lookup; its credential and status inputs were already authenticated.</li>
+          </ul>
+        </article>
+
+        <article class="implementation-card">
+          <h3>5. Fixed Circom relation</h3>
+          <ul>
+            <li><code>SwiyuAge18Status</code> verifies the issuer ES256 signature, protected header profile, signed registered claims and exact top-level disclosure membership.</li>
+            <li>It proves the hidden ISO birthdate is at or before <code>cutoff_date</code>, verifies the holder P-256 signature, and enforces <code>nbf ≤ current_time &lt; exp</code>.</li>
+            <li>A fixed-depth SHA-256 Merkle path proves the signed private status index has two-bit value <code>VALID</code>.</li>
+            <li>Credential bytes, disclosure, holder key, status URI/index and Merkle branch stay private; the verifier-selected context is public.</li>
+          </ul>
+        </article>
+
+        <article class="implementation-card">
+          <h3>6. Spartan2 proof backend</h3>
+          <ul>
+            <li>Circom compiles the relation to R1CS; <code>SwiyuCircuit</code> exposes the fixed public-value layout.</li>
+            <li><code>prove_swiyu_from_witness</code> generates one Spartan2 proof.</li>
+            <li><code>verify_swiyu</code> requires the proof, verifying key and all ten expected public values. Proof bytes alone cannot choose the statement being verified.</li>
+            <li>The SDK supports WASM bindings, but the working full-profile path uses the Node/native backend with local-file key references.</li>
+          </ul>
+        </article>
+
+        <article class="implementation-card wide" id="benchmark-comparison">
+          <h3>Benchmark comparison</h3>
+          <p class="benchmark-intro">Each run was limited to cpuset 0 to 3 (four CPUs), 12 GiB of memory, 4,096 PIDs/tasks, and loopback-only networking in Linux/ARM64 Docker image <code>sha256:c201b0ab1a15ee35eb195d0959f6fbbada6d5f849da9f780cfd8cdca1673f488</code>.</p>
+          <p class="benchmark-intro">Machine-readable results: <a href="../components/zkid/wallet-unit-poc/benchmark/results/final-container.json">final container campaign</a>, <a href="../components/zkid/wallet-unit-poc/benchmark/results/age-optimization.json">age optimization</a>, <a href="../components/zkid/wallet-unit-poc/benchmark/results/canton.json">canton pilot</a>, and <a href="../components/zkid/wallet-unit-poc/benchmark/results/residence-nullifier.json">residence and nullifier</a>.</p>
+
+          <table class="benchmark-table" aria-label="ZK benchmark comparison">
+            <thead>
+              <tr><th>Profile</th><th>R1CS</th><th>PK + VK</th><th>Setup</th><th>First wallet</th><th>Repeat wallet</th><th>Verify</th><th>Transmitted</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Standard SD-JWT, no ZK</td><td data-label="R1CS">None</td><td data-label="PK + VK">None</td><td data-label="Setup">0.3 to 0.6 ms</td><td data-label="First wallet">14.8 to 15.6 ms</td><td data-label="Repeat wallet">4.4 to 5.3 ms</td><td data-label="Verify">13.1 to 15.9 ms</td><td data-label="Transmitted">1.3 to 1.8 KB</td>
+              </tr>
+              <tr>
+                <td>Age eligibility</td><td data-label="R1CS">672.4 MB</td><td data-label="PK + VK">1.611 GB</td><td data-label="Setup"><span class="benchmark-value">53.0 s<span class="benchmark-ratio">153,411× baseline</span></span></td><td data-label="First wallet"><span class="benchmark-value">30.9 s<span class="benchmark-ratio">2,072× baseline</span></span></td><td data-label="Repeat wallet"><span class="benchmark-value">13.9 s<span class="benchmark-ratio">3,147× baseline</span></span></td><td data-label="Verify"><span class="benchmark-value">1.73 s<span class="benchmark-ratio">111.5× baseline</span></span></td><td data-label="Transmitted"><span class="benchmark-value">257.9 KB<span class="benchmark-ratio">202.9× baseline</span></span></td>
+              </tr>
+              <tr>
+                <td>Residence eligibility</td><td data-label="R1CS">650.6 MB</td><td data-label="PK + VK">1.566 GB</td><td data-label="Setup"><span class="benchmark-value">51.8 s<span class="benchmark-ratio">93,025× baseline</span></span></td><td data-label="First wallet"><span class="benchmark-value">30.4 s<span class="benchmark-ratio">1,955× baseline</span></span></td><td data-label="Repeat wallet"><span class="benchmark-value">14.8 s<span class="benchmark-ratio">2,882× baseline</span></span></td><td data-label="Verify"><span class="benchmark-value">1.70 s<span class="benchmark-ratio">106.8× baseline</span></span></td><td data-label="Transmitted"><span class="benchmark-value">258.4 KB<span class="benchmark-ratio">193.0× baseline</span></span></td>
+              </tr>
+              <tr>
+                <td>One claim per credential</td><td data-label="R1CS">729.0 MB</td><td data-label="PK + VK">1.726 GB</td><td data-label="Setup"><span class="benchmark-value">61.0 s<span class="benchmark-ratio">187,620× baseline</span></span></td><td data-label="First wallet"><span class="benchmark-value">32.5 s<span class="benchmark-ratio">2,200× baseline</span></span></td><td data-label="Repeat wallet"><span class="benchmark-value">15.7 s<span class="benchmark-ratio">2,978× baseline</span></span></td><td data-label="Verify"><span class="benchmark-value">1.80 s<span class="benchmark-ratio">136.9× baseline</span></span></td><td data-label="Transmitted"><span class="benchmark-value">258.0 KB<span class="benchmark-ratio">141.9× baseline</span></span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="benchmark-profiles">
+            <details class="benchmark-profile">
+              <summary><h3>Age eligibility</h3><p>3.086M constraints; ordinary SD-JWT wallet and verifier medians were 4.4 ms and 15.5 ms.</p></summary>
+              <div class="benchmark-detail">
+                <div class="donut" style="--p1:62.4%;--p2:81.7%;--p3:98.0%" role="img" aria-label="Age first complete cycle: 62.4 percent setup, 19.3 percent reusable Prepare, 16.3 percent presentation wallet, 2 percent verifier">
+                  <div class="donut-center"><strong>84.9 s</strong><span>first complete cycle</span></div>
+                </div>
+                <ul class="breakdown-list">
+                  <li><i class="dot setup"></i><span>One-time circuit setup and key encoding</span><strong>52.97 s</strong></li>
+                  <li><i class="dot prepare"></i><span>Reusable credential Prepare</span><strong>16.36 s</strong></li>
+                  <li><i class="dot wallet"></i><span>Presentation wallet work</span><strong>13.87 s</strong></li>
+                  <li><i class="dot verify"></i><span>Presentation verification</span><strong>1.73 s</strong></li>
+                </ul>
+                <p class="benchmark-note">The first-wallet number in the table is Prepare plus presentation wallet work. The donut also includes circuit setup and verifier work to show one complete initial cycle.</p>
+              </div>
+            </details>
+
+            <details class="benchmark-profile">
+              <summary><h3>Canton eligibility pilot</h3><p>3.734M constraints across linked Prepare and Show relations; seven native runs.</p></summary>
+              <div class="benchmark-detail">
+                <div class="donut" style="--p1:63.3%;--p2:87.4%;--p3:97.5%" role="img" aria-label="Canton pilot first complete cycle: 63.3 percent setup, 24.1 percent reusable Prepare, 10.1 percent presentation wallet, 2.5 percent verifier">
+                  <div class="donut-center"><strong>55.5 s</strong><span>native pilot cycle</span></div>
+                </div>
+                <ul class="breakdown-list">
+                  <li><i class="dot setup"></i><span>Circuit setup for both relations</span><strong>35.15 s</strong></li>
+                  <li><i class="dot prepare"></i><span>Reusable Prepare assignment and proof</span><strong>13.33 s</strong></li>
+                  <li><i class="dot wallet"></i><span>Show assignment and proof</span><strong>5.62 s</strong></li>
+                  <li><i class="dot verify"></i><span>Verification of both proofs</span><strong>1.39 s</strong></li>
+                </ul>
+                <p class="benchmark-note">The combined R1CS is 831.8 MB, combined proving and verifying keys are 1.987 GB, and the proof pair is 292.3 KB. This was a separate native pilot, so its timings are not mixed into the pinned-container comparison table.</p>
+              </div>
+            </details>
+
+            <details class="benchmark-profile">
+              <summary><h3>Residence eligibility</h3><p>2.995M constraints; ordinary SD-JWT wallet and verifier medians were 5.1 ms and 15.9 ms.</p></summary>
+              <div class="benchmark-detail">
+                <div class="donut" style="--p1:61.9%;--p2:80.3%;--p3:98.0%" role="img" aria-label="Residence first complete cycle: 61.9 percent setup, 18.4 percent reusable Prepare, 17.6 percent presentation wallet, 2 percent verifier">
+                  <div class="donut-center"><strong>83.7 s</strong><span>first complete cycle</span></div>
+                </div>
+                <ul class="breakdown-list">
+                  <li><i class="dot setup"></i><span>One-time circuit setup and key encoding</span><strong>51.81 s</strong></li>
+                  <li><i class="dot prepare"></i><span>Reusable credential Prepare</span><strong>15.43 s</strong></li>
+                  <li><i class="dot wallet"></i><span>Presentation wallet work</span><strong>14.77 s</strong></li>
+                  <li><i class="dot verify"></i><span>Presentation verification</span><strong>1.70 s</strong></li>
+                </ul>
+                <p class="benchmark-note">The 650.6 MB R1CS and 1.566 GB combined key total cover both linked relations. The raw linked proof pair is 258.4 KB.</p>
+              </div>
+            </details>
+
+            <details class="benchmark-profile">
+              <summary><h3>One claim per credential</h3><p>3.316M constraints; ordinary SD-JWT wallet and verifier medians were 5.3 ms and 13.1 ms.</p></summary>
+              <div class="benchmark-detail">
+                <div class="donut" style="--p1:63.4%;--p2:81.8%;--p3:98.1%" role="img" aria-label="One claim first complete cycle: 63.4 percent setup, 18.4 percent reusable Prepare, 16.3 percent presentation wallet, 1.9 percent verifier">
+                  <div class="donut-center"><strong>96.3 s</strong><span>first complete cycle</span></div>
+                </div>
+                <ul class="breakdown-list">
+                  <li><i class="dot setup"></i><span>One-time circuit setup and key encoding</span><strong>61.04 s</strong></li>
+                  <li><i class="dot prepare"></i><span>Reusable credential Prepare</span><strong>17.68 s</strong></li>
+                  <li><i class="dot wallet"></i><span>Presentation wallet work</span><strong>15.73 s</strong></li>
+                  <li><i class="dot verify"></i><span>Presentation verification</span><strong>1.80 s</strong></li>
+                </ul>
+                <p class="benchmark-note">The profile adds 230,559 constraints over packed age. Its FULL-sync spent-claim registry adds a 0.45 ms median to the first accepted claim.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="repositories">
+      <div class="section-head">
+        <h2>Repository map</h2>
+      </div>
+
+      <div class="diagram">
+        <div class="repo-map">
+          <div class="map-card standards"><strong>EUDI specifications and SD-JWT standards</strong><p>Define the protocol vocabulary, formats and trust expectations used by the service and reference implementations.</p></div>
+          <div class="map-card issuer"><strong>swiyu-issuer</strong><p>Credential offer, OID4VCI, OAuth/DPoP, signing, status management.</p><small>Java · Spring Boot</small></div>
+          <div class="map-arrow a" aria-hidden="true">→</div>
+          <div class="map-card wallet"><strong>Wallet role</strong><p><code>one-core</code> is the planned product integration; <code>zkID</code> currently implements proof construction.</p><small>Rust / TypeScript</small></div>
+          <div class="map-arrow b" aria-hidden="true">→</div>
+          <div class="map-card verifier"><strong>swiyu-verifier</strong><p>OID4VP request object, DCQL response handling, trust/status validation and result delivery.</p><small>Java · Spring Boot</small></div>
+          <div class="map-card refs"><strong>Reference and alternative implementations</strong><p>VC-K, EUDI Kotlin SD-JWT, sd-jwt-js, sd-jwt-payload, Crescent, Longfellow, l8zk, Passport Noir and Tessaliq help compare designs. They are not one assembled swiyu runtime.</p></div>
+          <div class="map-card zk"><strong>zkID / OpenAC implementation</strong><p>Wallet API → Circom fixed relation → Spartan2 Rust wrapper → WASM/Node adapter.</p><small>TypeScript · Circom · Rust</small></div>
+          <div class="map-arrow c" aria-hidden="true">→</div>
+          <div class="map-card sidecar"><strong>Local ZK sidecar</strong><p>Receives proof plus verifier-owned expected context and returns bounded predicate/status results.</p><small>loopback HTTP · active local integration</small></div>
+        </div>
+        <div class="map-legend">
+          <span><i class="swatch" style="background:var(--blue)"></i>product service</span>
+          <span><i class="swatch" style="background:var(--green)"></i>wallet / intended integration</span>
+          <span><i class="swatch" style="background:var(--amber)"></i>ZK implementation or standards context</span>
+        </div>
+      </div>
+
+      <table class="repo-table" aria-label="Repository roles">
+        <thead><tr><th>Repository group</th><th>Role in this audit</th><th>Observed relationship</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><strong>swiyu-issuer</strong></td><td>Credential issuer service</td><td>Direct OID4VCI product role; depends on Authlete SD-JWT and swiyu utility artifacts.</td><td><span class="status core">core service</span></td></tr>
+          <tr><td><strong>swiyu-verifier</strong></td><td>Presentation verifier service</td><td>Direct OID4VP/DCQL role; local additions implement the ZK policy and sidecar adapter.</td><td><span class="status core">core + local ZK</span></td></tr>
+          <tr><td><strong>one-core</strong></td><td>Credential lifecycle / wallet core</td><td>Named as holder target in the integration plan; no completed local ZK integration observed.</td><td><span class="status plan">planned</span></td></tr>
+          <tr><td><strong>zkID / OpenAC</strong></td><td>ZK proof implementation</td><td>Contains fixed swiyu circuit, SDK, status witness code, Spartan wrapper and sidecar.</td><td><span class="status wip">active local code</span></td></tr>
+          <tr><td><strong>Authlete sd-jwt</strong></td><td>SD-JWT implementation</td><td>Explicit Maven dependency of the issuer and verifier services.</td><td><span class="status core">runtime dependency</span></td></tr>
+          <tr><td><strong>EUDI docs, VC-K, EUDI SD-JWT</strong></td><td>Standards and interoperability reference</td><td>Useful context; no direct swiyu source import established for VC-K/Kotlin repos.</td><td><span class="status ref">reference</span></td></tr>
+          <tr><td><strong>Other ZK repos</strong></td><td>Comparison set</td><td>Alternative proof systems, circuits and credential approaches, not current runtime links.</td><td><span class="status ref">research</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="objects">
+      <div class="section-head">
+        <h2>Code objects</h2>
+      </div>
+
+      <div class="object-lanes">
+        <div class="lane">
+          <div class="lane-title">Issuance</div>
+          <div class="lane-body">
+            <div class="object"><b>IssuanceController.createCredential</b><span>Decrypts request and validates token.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>CredentialServiceOrchestrator.createCredential</b><span>Coordinates issuance path.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>CredentialIssuanceService</b><span>Finds offer or renewal flow.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>CredentialEnvelopeService</b><span>Builds response envelope.</span></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-title">Verification</div>
+          <div class="lane-body">
+            <div class="object"><b>VerificationController.receiveVerificationPresentation</b><span>Receives wallet response and checks state.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>PresentationResponseResolver</b><span>Decrypts/maps response form.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>PresentationVerificationUsecase</b><span>Claims and processes session.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>Dcql<wbr>Presentation<wbr>Verification<wbr>Service</b><span>Selects ordinary or ZK branch.</span></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-title">ZK wallet</div>
+          <div class="lane-body">
+            <div class="object"><b>prepareSwiyuCredential</b><span>Authenticates immutable SD-JWT material.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>provisionSwiyuCredentialStatus</b><span>Verifies status JWT and derives private witness.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>SwiyuZkpWallet.show</b><span>Binds challenge and generates proof inputs.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>SwiyuAge18Status</b><span>Fixed Circom relation.</span></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-title">ZK verifier</div>
+          <div class="lane-body">
+            <div class="object"><b>ZkPresentationPolicy</b><span>Signed expected profile and snapshot.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>HttpZkPresentationVerifier.ExpectedContext</b><span>Derives nonce, audience, state, trust and policy.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>verify_swiyu</b><span>Spartan proof verification against ten public values.</span></div><div class="object-arrow">→</div>
+            <div class="object"><b>ZkPresentationVerificationResult</b><span>Returns only bounded outputs.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence">
+      <div class="section-head">
+        <h2>Code excerpts</h2>
+      </div>
+      <div class="code-tabs" id="tabs" role="tablist" aria-label="Code excerpts"></div>
+      <div id="snippets"></div>
+    </section>
+
+    <section id="next-steps">
+      <div class="section-head">
+        <h2>Potential next steps</h2>
+      </div>
+
+      <div class="actions">
+        <article class="action"><h3>Integrate the product wallet</h3><p>Exercise age, canton, residence, and one-claim presentations through the selected holder application and normal OID4VP submission flow.</p></article>
+        <article class="action"><h3>Package the runtime</h3><p>Version the verifier adapter, sidecar, circuits, SDK, native binary, key artifacts, and status profiles as one reproducible release.</p></article>
+        <article class="action"><h3>Use production policy data</h3><p>Replace laboratory issuers and directory fixtures with authenticated production VCTs, trust anchors, status snapshots, and municipality data.</p></article>
+        <article class="action"><h3>Reduce recurring cost</h3><p>Focus optimization on Prepare assignment, Prepare proof generation, and Show witness generation, which dominate the measured runtime.</p></article>
+        <article class="action"><h3>Expand end-to-end tests</h3><p>Exercise invalid linkage, replay, reissuance, status rotation, verifier-scope changes, and concurrent claim acceptance across every process boundary.</p></article>
+      </div>
+    </section>
+
+    <!--
+      CONTRIBUTION LEDGER: CURATION CONTRACT FOR FUTURE EDITORS/AGENTS
+
+      This is not a changelog, task log, file inventory, or place to advertise
+      routine implementation work. Add an entry only when the local project
+      contributes a concrete, high-level capability, security property,
+      integration pattern, or measured research result beyond baseline swiyu.
+
+      Every entry must:
+        1. state one specific contribution in one sentence;
+        2. describe the result or new capability, not the effort spent;
+        3. be supportable by code, tests, a benchmark, or another local artifact;
+        4. remain meaningful to a reader who does not know individual commits.
+
+      Do not add generic items such as refactors, documentation, test coverage,
+      dependency upgrades, exploratory notes, or "improved security" without
+      naming the exact property delivered. Keep this list short and curated.
+    -->
+    <section id="contributions">
+      <h2>Contributions</h2>
+
+      <!-- Keep each contribution to one evidence-backed sentence; see the curation contract above. -->
+      <ol class="contribution-list" aria-label="Project contributions beyond baseline swiyu">
+        <li>Built a linked Prepare and Show age-verification profile covering issuer authentication, holder possession, credential validity, private status, and a hidden birthdate predicate, then reduced it to 3,085,711 constraints and 672,361,820 R1CS bytes with packed status.</li>
+        <li>Added private canton eligibility over an issuer-authenticated <code>resident_canton</code> and a verifier-selected allow-list of up to four cantons, with 3,733,806 constraints and 831,814,716 R1CS bytes across Prepare and Show.</li>
+        <li>Added private residence eligibility with combined disclosure and packed status, reducing the complete relation from 3,597,121 to 2,995,049 constraints (−16.74%) and its R1CS from 787,664,004 to 650,552,532 bytes (−17.41%).</li>
+        <li>Added one accepted claim per credential attestation and verifier scope; packed status reduces its Show relation from 1,333,418 to 692,194 constraints (−48.09%), while the complete profile adds only 230,559 constraints (+7.47%) over packed age.</li>
+      </ol>
+      <!-- End contribution ledger. Preserve the curation contract when extending this list. -->
+    </section>
+  </main>
+
+  <script>
+    const snippets = [
+      {
+        id: 'issuer', name: 'Issuer endpoint', lang: 'Java',
+        label: 'OID4VCI enters through one public controller and is handed to business services.',
+        path: 'swiyu-issuer · IssuanceController.java:54',
+        file: '../components/swiyu-issuer/issuer-application/src/main/java/ch/admin/bj/swiyu/issuer/infrastructure/web/signer/IssuanceController.java',
+        html: `<span class="kw">@RequestMapping</span>(value = {<span class="st">"/oid4vci/api"</span>})
+<span class="kw">public class</span> IssuanceController {
+  <span class="kw">private final</span> CredentialServiceOrchestrator credentialServiceOrchestrator;
+  <span class="kw">private final</span> JweService jweService;
+  <span class="kw">private final</span> AuthorizationService authorizationSerivce;
+
+  <span class="kw">@PostMapping</span>(value = {<span class="st">"/credential"</span>})
+  <span class="kw">public</span> ResponseEntity&lt;String&gt; <span class="fn">createCredential</span>(...) {
+    String request = jweService.<span class="fn">decryptRequest</span>(...);
+    String token = authorizationSerivce.<span class="fn">getValidatedAccessToken</span>(...);
+    CredentialEnvelopeDto envelope =
+      credentialServiceOrchestrator.<span class="fn">createCredential</span>(...);
+    <span class="kw">return</span> ResponseEntity.status(envelope.<span class="fn">getHttpStatus</span>())...;
+  }
+}`
+      },
+      {
+        id: 'receiver', name: 'OID4VP receiver', lang: 'Java',
+        label: 'The wallet response uses the existing response-data endpoint; OAuth state is checked before verification processing.',
+        path: 'swiyu-verifier · VerificationController.java:47',
+        file: '../components/swiyu-verifier/verifier-application/src/main/java/ch/admin/bj/swiyu/verifier/infrastructure/web/oid4vp/VerificationController.java',
+        html: `<span class="kw">@RequestMapping</span>({<span class="st">"/oid4vp/api/"</span>})
+<span class="kw">public class</span> VerificationController {
+  <span class="kw">@PostMapping</span>(value = {
+    <span class="st">"request-object/{request_id}/response-data"</span>
+  })
+  <span class="kw">public void</span> <span class="fn">receiveVerificationPresentation</span>(...) {
+    <span class="kw">var</span> management = managementService.<span class="fn">getManagementById</span>(requestId);
+    <span class="kw">var</span> dto = presentationResponseResolver.<span class="fn">decryptIfNecessary</span>(...);
+    <span class="kw">if</span> (!management.<span class="fn">matchesOauthState</span>(dto.getState()))
+      <span class="kw">throw new</span> IllegalArgumentException(<span class="st">"OAuth2.0 State mismatch"</span>);
+    <span class="kw">var</span> result = presentationResponseResolver.<span class="fn">mapToPresentationResult</span>(...);
+    ...
+  }
+}`
+      },
+      {
+        id: 'dcql', name: 'DCQL branch', lang: 'Java',
+        label: 'A ZK policy selects the sidecar adapter; otherwise the ordinary SD-JWT verifier remains in control.',
+        path: 'swiyu-verifier · DcqlPresentationVerificationService.java:67',
+        file: '../components/swiyu-verifier/verifier-service/src/main/java/ch/admin/bj/swiyu/verifier/service/oid4vp/DcqlPresentationVerificationService.java',
+        html: `<span class="kw">var</span> zkPolicy = requestedCredential.<span class="fn">getZkPresentationPolicy</span>();
+<span class="kw">if</span> (zkPolicy != <span class="kw">null</span>) {
+  <span class="kw">var</span> verifier = zkPresentationVerifier.<span class="fn">orElseThrow</span>(...);
+  <span class="kw">var</span> result = verifier.<span class="fn">verify</span>(
+    requestedVpTokens.<span class="fn">getFirst</span>(), entity, requestedCredential);
+  <span class="fn">validateZkResult</span>(zkPolicy, result);
+  verifiedResponses.<span class="fn">put</span>(requestedCredential.getId(),
+    List.<span class="fn">of</span>(<span class="fn">toResponseMap</span>(zkPolicy, result)));
+  <span class="kw">continue</span>;
+}
+
+<span class="kw">var</span> sdJwts = requestedVpTokens.stream()
+  .map(token -&gt; presentationVerifier.<span class="fn">verify</span>(token, entity, requestedCredential))
+  .toList();`
+      },
+      {
+        id: 'context', name: 'Verifier authority', lang: 'Java',
+        label: 'The expected public statement comes from the persisted signed session, not from attacker-controlled proof metadata.',
+        path: 'swiyu-verifier · HttpZkPresentationVerifier.java:94',
+        file: '../components/swiyu-verifier/verifier-service/src/main/java/ch/admin/bj/swiyu/verifier/service/oid4vp/adapters/HttpZkPresentationVerifier.java',
+        html: `<span class="kw">var</span> expected = <span class="kw">new</span> ExpectedContext(
+  management.<span class="fn">getRequestNonce</span>(),
+  clientId,
+  responseUri,
+  management.<span class="fn">getOauthState</span>(),
+  dcqlCredential.<span class="fn">getId</span>(),
+  policy.<span class="fn">profile</span>(),
+  policy.<span class="fn">circuitId</span>(),
+  policy.<span class="fn">cutoffDate</span>(),
+  policy.<span class="fn">currentTime</span>(),
+  policy.<span class="fn">statusListSnapshot</span>(),
+  dcqlCredential.getMeta().<span class="fn">getVctValues</span>(),
+  management.<span class="fn">getAcceptedIssuerDids</span>(),
+  management.<span class="fn">getTrustAnchors</span>()
+);`
+      },
+      {
+        id: 'wallet', name: 'Private status witness', lang: 'TypeScript',
+        label: 'The status URI and index are taken from the already-authenticated credential, preventing the caller from selecting an easier list entry.',
+        path: 'zkID · wallet.ts:71',
+        file: '../components/zkid/wallet-unit-poc/openac-sdk/src/swiyu-zkp/wallet.ts',
+        html: `<span class="kw">export function</span> <span class="fn">prepareSwiyuCredential</span>(request) {
+  <span class="kw">return new</span> PreparedCredential(
+    <span class="fn">parseSwiyuCompactSdJwt</span>(request.compactSdJwt, request.issuerPublicKey),
+  );
+}
+
+<span class="cm">// Expected issuer, status URI and index come from the authenticated credential.</span>
+<span class="kw">const</span> resolved = <span class="fn">resolveSwiyuStatusListJwt</span>({
+  compactJwt: request.compactStatusListJwt,
+  issuerPublicKey: request.statusListIssuerPublicKey,
+  expectedIssuer: parsed.lookup.issuer,
+  expectedSubject: parsed.statusUri,
+  currentTime: request.currentTime,
+  inflateZlib: request.inflateZlib,
+});
+<span class="kw">const</span> witness = resolved.tree.<span class="fn">witness</span>(parsed.statusIndex);`
+      },
+      {
+        id: 'circuit', name: 'Fixed relation', lang: 'Circom',
+        label: 'Public values describe the verifier’s expected statement; credential bytes, disclosure and status path remain private witness inputs.',
+        path: 'zkID · swiyu-age18-status.circom:13',
+        file: '../components/zkid/wallet-unit-poc/circom/circuits/swiyu-age18-status.circom',
+        html: `<span class="cm">/// Fixed, opt-in swiyu Prototype A+B relation.
+/// issuer ES256 • exact SD-JWT fields • birthdate cutoff
+/// holder signature • validity • private status index</span>
+<span class="kw">template</span> <span class="fn">SwiyuAge18Status</span>(...) {
+  <span class="cm">// Public verifier context.</span>
+  signal input issuerPubKeyX;
+  signal input issuerPubKeyY;
+  signal input challengeHash;
+  signal input cutoffDate;
+  signal input currentTime;
+  signal input expectedMetadataHashHi;
+  signal input expectedMetadataHashLo;
+  signal input expectedStatusSnapshotHashHi;
+  signal input expectedStatusSnapshotHashLo;
+
+  <span class="cm">// Private credential and status witness material.</span>
+  signal input message[maxMessageLength];
+  signal input disclosurePadded[128];
+  signal input statusSiblings[statusDepth][32];
+  signal output expressionResult;
+}`
+      },
+      {
+        id: 'proof', name: 'Proof verification', lang: 'Rust',
+        label: 'The Rust verifier requires both the proof and the complete expected public context; proof bytes alone are insufficient.',
+        path: 'zkID · swiyu.rs:172',
+        file: '../components/zkid/wallet-unit-poc/ecdsa-spartan2/src/swiyu.rs',
+        html: `<span class="cm">/// Verify a serialized proof against all ten expected public values.
+/// Supplying the proof alone is insufficient.</span>
+<span class="kw">pub fn</span> <span class="fn">verify_swiyu</span>(
+  proof_bytes: &amp;[u8],
+  vk_bytes: &amp;[u8],
+  expected_public_context: &amp;[u8],
+) -&gt; SwiyuVerifyResult {
+  <span class="kw">let</span> expected = <span class="fn">decode_public_context</span>(expected_public_context)?;
+  <span class="fn">validate_expected_public_values</span>(&amp;expected)?;
+  <span class="kw">let</span> proof = bincode::<span class="fn">deserialize</span>(proof_bytes)?;
+  <span class="kw">let</span> vk = bincode::<span class="fn">deserialize</span>(vk_bytes)?;
+  ...
+}`
+      }
+    ];
+
+    const tabs = document.getElementById('tabs');
+    const snippetsElement = document.getElementById('snippets');
+
+    snippets.forEach((snippet, index) => {
+      tabs.insertAdjacentHTML('beforeend',
+        `<button type="button" role="tab" aria-selected="${index === 0}" class="${index === 0 ? 'active' : ''}" data-id="${snippet.id}">${snippet.name}</button>`);
+      snippetsElement.insertAdjacentHTML('beforeend',
+        `<article class="code-item ${index === 0 ? 'active' : ''}" id="code-${snippet.id}" role="tabpanel">
+          <div class="source"><a href="${snippet.file}" title="Open local source">${snippet.path}</a><span class="lang">${snippet.lang}</span></div>
+          <pre class="snippet"><code>${snippet.html}</code></pre>
+          <p class="code-explain"><strong>Why it matters:</strong> ${snippet.label}</p>
+        </article>`);
+    });
+
+    tabs.addEventListener('click', event => {
+      if (event.target.tagName !== 'BUTTON') return;
+      document.querySelectorAll('.code-tabs button').forEach(button => {
+        button.classList.remove('active');
+        button.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.code-item').forEach(item => item.classList.remove('active'));
+      event.target.classList.add('active');
+      event.target.setAttribute('aria-selected', 'true');
+      document.getElementById(`code-${event.target.dataset.id}`).classList.add('active');
+    });
+  </script>
+</body>
+</html>
