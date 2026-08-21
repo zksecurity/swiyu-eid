@@ -659,7 +659,7 @@ R1CSSNARK::setup(shape)
             <li><code>prepareSwiyuCredential</code> parses and authenticates the fixed Swiss SD-JWT shape.</li>
             <li><code>provisionSwiyuCredentialStatus</code> verifies a locally fetched <code>statuslist+jwt</code> and derives the Merkle witness for the credential’s signed private index.</li>
             <li><code>SwiyuZkpWallet.show</code> binds the verifier challenge, cutoff, time and snapshot, checks validity, asks the holder key to sign the challenge digest, generates the witness and produces one proof.</li>
-            <li><code>ZkPresentationRuntimeRequest</code> carries the authenticated policy, selected credential, holder-key ID, and verifier challenge to the future native package.</li>
+            <li><code>ZkPresentationRuntimeRequest</code> carries the authenticated policy, selected credential, holder-key ID, and verifier challenge to the future native package; a shared Kotlin and zkID vector pins its serialized form and exact age-profile challenge hash.</li>
             <li><code>BuildAuthorizationResponseConfig</code> accepts the finished proof envelope as opaque data and places it under the matching DCQL query ID in the normal OID4VP <code>vp_token</code>.</li>
           </ul>
         </article>
@@ -876,7 +876,7 @@ R1CSSNARK::setup(shape)
       </div>
 
       <div class="actions">
-        <article class="action"><h3>Package the mobile proof producer</h3><p>Implement <code>CreateZkPresentation</code> with the native zkID runtime. The signed policy parser, typed runtime request, and OID4VP response path are already connected.</p></article>
+        <article class="action"><h3>Package the mobile proof producer</h3><p>Implement <code>CreateZkPresentation</code> with the native zkID runtime. The signed policy parser, versioned runtime request, cross-language challenge vector, and OID4VP response path are already connected.</p></article>
         <article class="action"><h3>Package the runtime</h3><p>Version the verifier adapter, sidecar, circuits, SDK, native binary, key artifacts, and status profiles as one reproducible release.</p></article>
         <article class="action"><h3>Use production policy data</h3><p>Replace laboratory issuers and directory fixtures with authenticated production VCTs, trust anchors, status snapshots, and municipality data.</p></article>
         <article class="action"><h3>Reduce recurring cost</h3><p>Focus optimization on Prepare assignment, Prepare proof generation, and Show witness generation, which dominate the measured runtime.</p></article>

@@ -15,6 +15,7 @@ import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.Presen
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ProximitySubmissionError
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.VerificationProcessType
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ZkPresentationPolicy
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ZkPresentationRuntimeRequestSchema
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.CreateZkPresentation
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.CreateZkPresentationError
 import ch.admin.foitt.wallet.platform.database.domain.model.BundleItemEntity
@@ -221,11 +222,12 @@ class SubmitPresentationImplTest {
 
         coVerify(exactly = 1) {
             mockCreateZkPresentation(match { runtimeRequest ->
-                runtimeRequest.credentialId == CREDENTIAL_ID &&
+                runtimeRequest.schema == ZkPresentationRuntimeRequestSchema &&
+                    runtimeRequest.credentialId == CREDENTIAL_ID &&
                     runtimeRequest.compactSdJwt == VALID_SD_JWT_PAYLOAD &&
                     runtimeRequest.holderKeyId == HOLDER_KEY_ID &&
                     runtimeRequest.challenge.queryId == DCQL_QUERY_ID &&
-                    runtimeRequest.challenge.policy.circuitId == ZK_POLICY.circuitId
+                    runtimeRequest.challenge.policy.circuitIds == listOf(ZK_POLICY.circuitId)
             })
         }
         coVerify(exactly = 1) {

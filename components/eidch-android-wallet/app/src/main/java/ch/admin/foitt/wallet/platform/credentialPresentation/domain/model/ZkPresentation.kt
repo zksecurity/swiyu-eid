@@ -2,6 +2,11 @@ package ch.admin.foitt.wallet.platform.credentialPresentation.domain.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+
+const val ZkPresentationRuntimeRequestSchema = "swiyu.mobile-runtime-request.v1"
 
 @Serializable
 data class ZkPresentationPolicy(
@@ -23,20 +28,37 @@ data class ZkPresentationPolicy(
  * signing, witness generation, and proof generation. The app already owns and
  * authenticates every request value passed through this boundary.
  */
+@Serializable
 data class ZkPresentationRuntimeRequest(
+    val schema: String,
+    @SerialName("credential_id")
     val credentialId: Long,
+    @SerialName("compact_sd_jwt")
     val compactSdJwt: String,
+    @SerialName("holder_key_id")
     val holderKeyId: String,
     val challenge: ZkPresentationChallenge,
 )
 
+@Serializable
 data class ZkPresentationChallenge(
     val nonce: String,
+    @SerialName("client_id")
     val clientId: String,
+    @SerialName("response_uri")
     val responseUri: String,
     val state: String,
+    @SerialName("query_id")
     val queryId: String,
-    val policy: ZkPresentationPolicy,
+    val policy: ZkPresentationRuntimePolicy,
+)
+
+@Serializable
+data class ZkPresentationRuntimePolicy(
+    val profile: String,
+    @SerialName("circuit_ids")
+    val circuitIds: List<String>,
+    val parameters: JsonObject,
 )
 
 fun PresentationRequestWithRaw.toZkPresentationRuntimeRequest(
@@ -48,6 +70,7 @@ fun PresentationRequestWithRaw.toZkPresentationRuntimeRequest(
     val request = authorizationRequest
 
     return ZkPresentationRuntimeRequest(
+        schema = ZkPresentationRuntimeRequestSchema,
         credentialId = compatibleCredential.credentialId,
         compactSdJwt = compactSdJwt,
         holderKeyId = holderKeyId,
@@ -57,7 +80,15 @@ fun PresentationRequestWithRaw.toZkPresentationRuntimeRequest(
             responseUri = requireNotNull(request.responseUri),
             state = requireNotNull(request.state),
             queryId = compatibleCredential.dcqlQueryId,
-            policy = policy,
+            policy = ZkPresentationRuntimePolicy(
+                profile = policy.profile,
+                circuitIds = listOf(policy.circuitId),
+                parameters = buildJsonObject {
+                    put("cutoff_date", policy.cutoffDate)
+                    put("status_list_snapshot", policy.statusListSnapshot)
+                    put("current_time", policy.currentTime)
+                },
+            ),
         ),
     )
 }
