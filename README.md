@@ -2,11 +2,6 @@
 
 Monorepo for the swiyu issuer, Android wallet, verifier, and the zkID proof work used by this project.
 
-## Start here
+## Visual overview
 
-- [Project overview](website/index.html)
-- [Benchmark results](benchmark/README.md)
-- [Pinned upstream revisions](UPSTREAM.lock.yaml)
-- [Imported local lineage](LOCAL_CHANGES.lock.yaml)
-
-`components` contains the imported projects. `integration` contains the small cross-component contract indexes.
+Clone the repository, then open [`website/index.html`](website/index.html) in a browser for the interactive project and benchmark overview.

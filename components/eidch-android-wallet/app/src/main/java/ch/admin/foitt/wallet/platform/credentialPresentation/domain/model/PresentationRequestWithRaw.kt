@@ -10,4 +10,5 @@ data class PresentationRequestWithRaw(
     val rawPresentationRequest: String,
     val verificationProcessType: VerificationProcessType,
     val verifierAttestationTrusted: Boolean? = null,
+    val zkPresentationPolicies: Map<String, ZkPresentationPolicy> = emptyMap(),
 ) : Invitation

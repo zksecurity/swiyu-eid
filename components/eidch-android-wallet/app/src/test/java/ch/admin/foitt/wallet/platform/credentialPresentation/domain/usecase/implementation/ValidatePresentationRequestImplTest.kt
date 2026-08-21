@@ -27,10 +27,14 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -77,6 +81,39 @@ class ValidatePresentationRequestImplTest {
     @Test
     fun `A valid jwt presentation request returns Ok`() = runTest {
         useCase(VerificationProcessType.NETWORK, mockRequestObject).assertOk()
+    }
+
+    @Test
+    fun `A signed ZK policy is parsed and indexed by DCQL query id`() = runTest {
+        every { mockPresentationJwt.payloadJson } returns authorizationRequestWithZkPolicy()
+
+        val result = useCase(VerificationProcessType.NETWORK, mockRequestObject).assertOk()
+
+        val policy = result.zkPresentationPolicies.getValue("id")
+        assertEquals("swiyu-age18-status-2k-v0", policy.profile)
+        assertEquals("swiyu_age18_status_2k", policy.circuitId)
+        assertEquals("2008-08-20", policy.cutoffDate)
+        assertEquals("snapshot-2026-08-20", policy.statusListSnapshot)
+        assertEquals(1787184000L, policy.currentTime)
+    }
+
+    @Test
+    fun `A ZK policy is rejected when request-object signature verification is disabled`() = runTest {
+        every { mockPresentationJwt.payloadJson } returns authorizationRequestWithZkPolicy()
+        every { mockEnvironmentSetupRepository.verifyRequestObjectSignature } returns false
+
+        useCase(VerificationProcessType.NETWORK, mockRequestObject)
+            .assertErrorType(CredentialPresentationError.InvalidRequest::class)
+    }
+
+    @Test
+    fun `An unsupported ZK circuit is rejected`() = runTest {
+        every { mockPresentationJwt.payloadJson } returns authorizationRequestWithZkPolicy(
+            circuitId = "unsupported"
+        )
+
+        useCase(VerificationProcessType.NETWORK, mockRequestObject)
+            .assertErrorType(CredentialPresentationError.InvalidRequest::class)
     }
 
     @Test
@@ -447,6 +484,30 @@ class ValidatePresentationRequestImplTest {
 
     private fun AuthorizationRequest.toJsonObject(): JsonObject =
         testSafeJson.json.encodeToJsonElement(value = this).jsonObject
+
+    private fun authorizationRequestWithZkPolicy(
+        circuitId: String = "swiyu_age18_status_2k",
+    ): JsonObject {
+        val payload = MockPresentationRequest.authorizationRequest.toJsonObject()
+        val dcqlQuery = payload.getValue("dcql_query").jsonObject
+        val credentials = dcqlQuery.getValue("credentials").jsonArray
+        val credential = credentials.first().jsonObject.toMutableMap().apply {
+            put("x_swiyu_zkp", buildJsonObject {
+                put("profile", "swiyu-age18-status-2k-v0")
+                put("circuit_id", circuitId)
+                put("cutoff_date", "2008-08-20")
+                put("status_list_snapshot", "snapshot-2026-08-20")
+                put("current_time", 1787184000L)
+            })
+        }.let(::JsonObject)
+        val dcqlWithPolicy = dcqlQuery.toMutableMap().apply {
+            put("credentials", JsonArray(listOf(credential)))
+        }.let(::JsonObject)
+
+        return payload.toMutableMap().apply {
+            put("dcql_query", dcqlWithPolicy)
+        }.let(::JsonObject)
+    }
 
     private companion object {
         const val INVALID_RESPONSE_TYPE = "invalid response_type"

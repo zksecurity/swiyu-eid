@@ -191,6 +191,7 @@ class PresentationRequestViewModel @AssistedInject constructor(
                         PresentationRequestError.InvalidUrl,
                         PresentationRequestError.RawSdJwtParsingError,
                         PresentationRequestError.SocketTimeoutError,
+                        PresentationRequestError.ZkRuntimeNotPackaged,
                         is PresentationRequestError.Unexpected -> {
                             saveAcceptedActivity()
                             navigateToFailure()

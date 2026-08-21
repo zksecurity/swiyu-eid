@@ -1,10 +1,12 @@
 package ch.admin.foitt.wallet.platform.credentialPresentation.di
 
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.CreateZkPresentation
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.GetCompatibleCredentials
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.ProcessPresentationRequest
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.ValidatePresentationRequest
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.implementation.GetCompatibleCredentialsImpl
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.implementation.ProcessPresentationRequestImpl
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.implementation.UnpackagedZkPresentationRuntime
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.implementation.ValidatePresentationRequestImpl
 import dagger.Binds
 import dagger.Module
@@ -14,6 +16,11 @@ import dagger.hilt.android.components.ActivityRetainedComponent
 @Module
 @InstallIn(ActivityRetainedComponent::class)
 interface CredentialPresentationModule {
+
+    @Binds
+    fun bindCreateZkPresentation(
+        runtime: UnpackagedZkPresentationRuntime
+    ): CreateZkPresentation
 
     @Binds
     fun bindProcessPresentationRequest(

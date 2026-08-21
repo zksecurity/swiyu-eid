@@ -1,7 +1,12 @@
 schema: swiyu-eid.local-changes.v1
-recorded_at: 2026-08-19
+recorded_at: 2026-08-20
 
 ports:
+  android-wallet-zk-oid4vp:
+    target: components/eidch-android-wallet
+    upstream_base: 82c2df64d6a66170c205465708776af0c130c21f
+    scope: signed x_swiyu_zkp parsing, typed proof-runtime handoff, and normal OID4VP envelope submission
+
   verifier-zk-sidecar:
     target: components/swiyu-verifier
     upstream_base: 0d0ba1113437ce3a122b3f73c3259130b4b566b7

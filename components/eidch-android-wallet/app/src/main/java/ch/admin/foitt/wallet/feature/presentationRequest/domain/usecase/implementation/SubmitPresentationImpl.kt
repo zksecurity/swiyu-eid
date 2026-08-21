@@ -3,8 +3,10 @@ package ch.admin.foitt.wallet.feature.presentationRequest.domain.usecase.impleme
 import ch.admin.foitt.openid4vc.domain.model.presentationRequest.AuthorizationResponseConfig
 import ch.admin.foitt.openid4vc.domain.model.presentationRequest.GetAuthorizationResponseConfigError
 import ch.admin.foitt.openid4vc.domain.model.presentationRequest.SubmitAnyCredentialPresentationError
+import ch.admin.foitt.openid4vc.domain.usecase.BuildAuthorizationResponseConfig
 import ch.admin.foitt.openid4vc.domain.usecase.GetAuthorizationResponseConfig
 import ch.admin.foitt.openid4vc.domain.usecase.SubmitAnyCredentialNetworkPresentation
+import ch.admin.foitt.wallet.feature.presentationRequest.domain.model.PresentationRequestError
 import ch.admin.foitt.wallet.feature.presentationRequest.domain.model.SubmitPresentationError
 import ch.admin.foitt.wallet.feature.presentationRequest.domain.model.toSubmitPresentationError
 import ch.admin.foitt.wallet.feature.presentationRequest.domain.usecase.SubmitPresentation
@@ -13,6 +15,9 @@ import ch.admin.foitt.wallet.platform.credential.domain.model.toNextAnyCredentia
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.CompatibleCredential
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.PresentationRequestWithRaw
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.VerificationProcessType
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.toZkPresentationRuntimeRequest
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.CreateZkPresentation
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.CreateZkPresentationError
 import ch.admin.foitt.wallet.platform.database.domain.model.VerifiableCredentialWithBundleItemsWithKeyBinding
 import ch.admin.foitt.wallet.platform.environmentSetup.domain.repository.EnvironmentSetupRepository
 import ch.admin.foitt.wallet.platform.proximity.domain.usecase.GetProximityRepositoryForScope
@@ -22,6 +27,7 @@ import ch.admin.foitt.wallet.platform.ssi.domain.model.VerifiableCredentialRepos
 import ch.admin.foitt.wallet.platform.ssi.domain.repository.BundleItemRepository
 import ch.admin.foitt.wallet.platform.ssi.domain.repository.VerifiableCredentialRepository
 import ch.admin.foitt.wallet.platform.ssi.domain.repository.VerifiableCredentialWithBundleItemsWithKeyBindingRepository
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
@@ -34,6 +40,8 @@ class SubmitPresentationImpl @Inject constructor(
     private val bundleItemRepository: BundleItemRepository,
     private val submitAnyCredentialNetworkPresentation: SubmitAnyCredentialNetworkPresentation,
     private val getAuthorizationResponseConfig: GetAuthorizationResponseConfig,
+    private val buildAuthorizationResponseConfig: BuildAuthorizationResponseConfig,
+    private val createZkPresentation: CreateZkPresentation,
     private val getProximityRepositoryForScope: GetProximityRepositoryForScope,
 ) : SubmitPresentation {
 
@@ -46,19 +54,53 @@ class SubmitPresentationImpl @Inject constructor(
                 .mapError(CredentialWithKeyBindingRepositoryError::toSubmitPresentationError)
                 .bind()
 
-        val nextAnyCredentialToPresent = verifiableCredentialWithBundleItemsWithKeyBinding
-            .toNextAnyCredentialToPresent()
-            .mapError(AnyCredentialError::toSubmitPresentationError)
-            .bind()
+        val authorizationResponseConfig = if (
+            presentationRequestWithRaw.zkPresentationPolicies.containsKey(compatibleCredential.dcqlQueryId)
+        ) {
+            if (presentationRequestWithRaw.verificationProcessType != VerificationProcessType.NETWORK) {
+                Err(
+                    PresentationRequestError.Unexpected(
+                        IllegalStateException("ZK presentations require network submission")
+                    )
+                ).bind<AuthorizationResponseConfig>()
+            }
+            val selectedBundleItem =
+                verifiableCredentialWithBundleItemsWithKeyBinding.nextBundleItemWithKeyBindingToPresent
+            val holderKeyId = selectedBundleItem.keyBinding?.id
+                ?: Err(PresentationRequestError.InvalidCredentialError).bind<String>()
+            val runtimeRequest = checkNotNull(
+                presentationRequestWithRaw.toZkPresentationRuntimeRequest(
+                    compatibleCredential = compatibleCredential,
+                    compactSdJwt = selectedBundleItem.bundleItem.payload,
+                    holderKeyId = holderKeyId,
+                )
+            )
+            val proofEnvelope = createZkPresentation(runtimeRequest)
+                .mapError(CreateZkPresentationError::toSubmitPresentationError)
+                .bind()
 
-        val authorizationResponseConfig = getAuthorizationResponseConfig(
-            anyCredential = nextAnyCredentialToPresent,
-            presentationPaths = compatibleCredential.presentationPaths,
-            authorizationRequest = presentationRequestWithRaw.authorizationRequest,
-            usePayloadEncryption = environmentSetupRepository.payloadEncryptionEnabled,
-            dcqlQueryId = compatibleCredential.dcqlQueryId,
-        ).mapError(GetAuthorizationResponseConfigError::toSubmitPresentationError)
-            .bind()
+            buildAuthorizationResponseConfig(
+                verifiablePresentation = proofEnvelope,
+                authorizationRequest = presentationRequestWithRaw.authorizationRequest,
+                usePayloadEncryption = environmentSetupRepository.payloadEncryptionEnabled,
+                dcqlQueryId = compatibleCredential.dcqlQueryId,
+            ).mapError(GetAuthorizationResponseConfigError::toSubmitPresentationError)
+                .bind()
+        } else {
+            val nextAnyCredentialToPresent = verifiableCredentialWithBundleItemsWithKeyBinding
+                .toNextAnyCredentialToPresent()
+                .mapError(AnyCredentialError::toSubmitPresentationError)
+                .bind()
+
+            getAuthorizationResponseConfig(
+                anyCredential = nextAnyCredentialToPresent,
+                presentationPaths = compatibleCredential.presentationPaths,
+                authorizationRequest = presentationRequestWithRaw.authorizationRequest,
+                usePayloadEncryption = environmentSetupRepository.payloadEncryptionEnabled,
+                dcqlQueryId = compatibleCredential.dcqlQueryId,
+            ).mapError(GetAuthorizationResponseConfigError::toSubmitPresentationError)
+                .bind()
+        }
 
         when (presentationRequestWithRaw.verificationProcessType) {
             VerificationProcessType.NETWORK -> submitNetwork(

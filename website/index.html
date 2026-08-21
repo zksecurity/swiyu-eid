@@ -293,7 +293,7 @@
         <article class="role">
           <span class="number">02</span>
           <h3>Wallet</h3>
-          <p>A wallet receives and stores the credential. <code>one-core</code> is the intended product holder integration; <code>zkID</code> currently contains the working proof implementation.</p>
+          <p><code>eidch-android-wallet</code> receives and stores the credential, parses signed ZK policies, and submits OID4VP responses. <code>zkID</code> contains the proof implementation that still needs Android packaging.</p>
         </article>
         <article class="role">
           <span class="number">03</span>
@@ -654,12 +654,13 @@ R1CSSNARK::setup(shape)
         </article>
 
         <article class="implementation-card">
-          <h3>4. Wallet prepare → provision → show API</h3>
+          <h3>4. Wallet proof and response APIs</h3>
           <ul>
             <li><code>prepareSwiyuCredential</code> parses and authenticates the fixed Swiss SD-JWT shape.</li>
             <li><code>provisionSwiyuCredentialStatus</code> verifies a locally fetched <code>statuslist+jwt</code> and derives the Merkle witness for the credential’s signed private index.</li>
             <li><code>SwiyuZkpWallet.show</code> binds the verifier challenge, cutoff, time and snapshot, checks validity, asks the holder key to sign the challenge digest, generates the witness and produces one proof.</li>
-            <li><code>show</code> performs no network lookup; its credential and status inputs were already authenticated.</li>
+            <li><code>ZkPresentationRuntimeRequest</code> carries the authenticated policy, selected credential, holder-key ID, and verifier challenge to the future native package.</li>
+            <li><code>BuildAuthorizationResponseConfig</code> accepts the finished proof envelope as opaque data and places it under the matching DCQL query ID in the normal OID4VP <code>vp_token</code>.</li>
           </ul>
         </article>
 
@@ -787,7 +788,7 @@ R1CSSNARK::setup(shape)
           <div class="map-card standards"><strong>EUDI specifications and SD-JWT standards</strong><p>Define the protocol vocabulary, formats and trust expectations used by the service and reference implementations.</p></div>
           <div class="map-card issuer"><strong>swiyu-issuer</strong><p>Credential offer, OID4VCI, OAuth/DPoP, signing, status management.</p><small>Java · Spring Boot</small></div>
           <div class="map-arrow a" aria-hidden="true">→</div>
-          <div class="map-card wallet"><strong>Wallet role</strong><p><code>one-core</code> is the planned product integration; <code>zkID</code> currently implements proof construction.</p><small>Rust / TypeScript</small></div>
+          <div class="map-card wallet"><strong>eidch-android-wallet</strong><p>Parses signed ZK policy requests, constructs the native-runtime handoff, and carries opaque presentations through the normal DCQL response path.</p><small>Kotlin · Android</small></div>
           <div class="map-arrow b" aria-hidden="true">→</div>
           <div class="map-card verifier"><strong>swiyu-verifier</strong><p>OID4VP request object, DCQL response handling, trust/status validation and result delivery.</p><small>Java · Spring Boot</small></div>
           <div class="map-card refs"><strong>Reference and alternative implementations</strong><p>VC-K, EUDI Kotlin SD-JWT, sd-jwt-js, sd-jwt-payload, Crescent, Longfellow, l8zk, Passport Noir and Tessaliq help compare designs. They are not one assembled swiyu runtime.</p></div>
@@ -807,7 +808,7 @@ R1CSSNARK::setup(shape)
         <tbody>
           <tr><td><strong>swiyu-issuer</strong></td><td>Credential issuer service</td><td>Direct OID4VCI product role; depends on Authlete SD-JWT and swiyu utility artifacts.</td><td><span class="status core">core service</span></td></tr>
           <tr><td><strong>swiyu-verifier</strong></td><td>Presentation verifier service</td><td>Direct OID4VP/DCQL role; local additions implement the ZK policy and sidecar adapter.</td><td><span class="status core">core + local ZK</span></td></tr>
-          <tr><td><strong>one-core</strong></td><td>Credential lifecycle / wallet core</td><td>Named as holder target in the integration plan; no completed local ZK integration observed.</td><td><span class="status plan">planned</span></td></tr>
+          <tr><td><strong>eidch-android-wallet</strong></td><td>Android holder application</td><td>Signed ZK policy parsing, runtime-request construction, and OID4VP/DCQL envelope transport are connected.</td><td><span class="status wip">runtime boundary ready</span></td></tr>
           <tr><td><strong>zkID / OpenAC</strong></td><td>ZK proof implementation</td><td>Contains fixed swiyu circuit, SDK, status witness code, Spartan wrapper and sidecar.</td><td><span class="status wip">active local code</span></td></tr>
           <tr><td><strong>Authlete sd-jwt</strong></td><td>SD-JWT implementation</td><td>Explicit Maven dependency of the issuer and verifier services.</td><td><span class="status core">runtime dependency</span></td></tr>
           <tr><td><strong>EUDI docs, VC-K, EUDI SD-JWT</strong></td><td>Standards and interoperability reference</td><td>Useful context; no direct swiyu source import established for VC-K/Kotlin repos.</td><td><span class="status ref">reference</span></td></tr>
@@ -846,7 +847,7 @@ R1CSSNARK::setup(shape)
             <div class="object"><b>prepareSwiyuCredential</b><span>Authenticates immutable SD-JWT material.</span></div><div class="object-arrow">→</div>
             <div class="object"><b>provisionSwiyuCredentialStatus</b><span>Verifies status JWT and derives private witness.</span></div><div class="object-arrow">→</div>
             <div class="object"><b>SwiyuZkpWallet.show</b><span>Binds challenge and generates proof inputs.</span></div><div class="object-arrow">→</div>
-            <div class="object"><b>SwiyuAge18Status</b><span>Fixed Circom relation.</span></div>
+            <div class="object"><b>BuildAuthorization<wbr>ResponseConfig</b><span>Packages the proof as an OID4VP vp_token.</span></div>
           </div>
         </div>
         <div class="lane">
@@ -875,7 +876,7 @@ R1CSSNARK::setup(shape)
       </div>
 
       <div class="actions">
-        <article class="action"><h3>Integrate the product wallet</h3><p>Exercise age, canton, residence, and one-claim presentations through the selected holder application and normal OID4VP submission flow.</p></article>
+        <article class="action"><h3>Package the mobile proof producer</h3><p>Implement <code>CreateZkPresentation</code> with the native zkID runtime. The signed policy parser, typed runtime request, and OID4VP response path are already connected.</p></article>
         <article class="action"><h3>Package the runtime</h3><p>Version the verifier adapter, sidecar, circuits, SDK, native binary, key artifacts, and status profiles as one reproducible release.</p></article>
         <article class="action"><h3>Use production policy data</h3><p>Replace laboratory issuers and directory fixtures with authenticated production VCTs, trust anchors, status snapshots, and municipality data.</p></article>
         <article class="action"><h3>Reduce recurring cost</h3><p>Focus optimization on Prepare assignment, Prepare proof generation, and Show witness generation, which dominate the measured runtime.</p></article>

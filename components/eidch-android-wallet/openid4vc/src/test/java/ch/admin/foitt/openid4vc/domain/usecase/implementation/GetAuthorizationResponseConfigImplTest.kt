@@ -67,8 +67,10 @@ class GetAuthorizationResponseConfigImplTest {
 
         useCase = GetAuthorizationResponseConfigImpl(
             createAnyVerifiablePresentation = mockCreateAnyVerifiablePresentation,
-            safeJson = safeJson,
-            createJWE = mockCreateJWE,
+            buildAuthorizationResponseConfig = BuildAuthorizationResponseConfigImpl(
+                safeJson = safeJson,
+                createJWE = mockCreateJWE,
+            ),
         )
     }
 
@@ -114,6 +116,34 @@ class GetAuthorizationResponseConfigImplTest {
                 AuthorizationResponseParam.VP_TOKEN to safeJson.safeEncodeObjectToString(mapOf(DCQL_QUERY_ID to listOf(VP_TOKEN))).value,
                 AuthorizationResponseParam.STATE to STATE,
             ),
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `Opaque ZK envelope uses the normal direct post vp token field`() = runTest {
+        val zkEnvelope = """{"schema":"swiyu-zkp-envelope-v1","proof":"opaque-proof"}"""
+        val responseBuilder = BuildAuthorizationResponseConfigImpl(
+            safeJson = safeJson,
+            createJWE = mockCreateJWE,
+        )
+
+        val result = responseBuilder(
+            verifiablePresentation = zkEnvelope,
+            authorizationRequest = mockAuthorizationRequest,
+            usePayloadEncryption = false,
+            dcqlQueryId = DCQL_QUERY_ID,
+        ).assertOk()
+
+        val expected = AuthorizationResponseConfig(
+            type = AuthorizationResponseType.DCQL,
+            params = mapOf(
+                AuthorizationResponseParam.VP_TOKEN to safeJson.safeEncodeObjectToString(
+                    mapOf(DCQL_QUERY_ID to listOf(zkEnvelope))
+                ).value,
+                AuthorizationResponseParam.STATE to STATE,
+            )
         )
 
         assertEquals(expected, result)
