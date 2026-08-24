@@ -318,6 +318,8 @@
     <string name="tk_present_review_confirmPresentation_button_primary">Partager des données</string>
     <string name="tk_receive_credentialOffer_confirmIssuance_button_primary">Accepter le document</string>
     <string name="tk_present_review_credential_dataSection_primary">Données demandées</string>
+    <string name="tk_present_review_zk_section_title">Preuve demandée</string>
+    <string name="tk_present_review_zk_age_predicate">Prouvez que votre date de naissance est antérieure ou égale au %1$s. Votre date de naissance ne sera pas partagée.</string>
     <string name="tk_menu_homeList_settings">Paramètres</string>
     <string name="tk_nonCompliance_report_info_moreInformation_link_value">https://www.eid.admin.ch/fr/swiyu-privacy-f</string>
     <string name="tk_actor_nonCompliant">Avertissement</string>

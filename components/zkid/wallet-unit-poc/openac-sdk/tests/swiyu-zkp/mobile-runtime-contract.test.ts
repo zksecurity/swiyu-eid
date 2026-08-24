@@ -83,7 +83,49 @@ describe("swiyu mobile runtime contract", () => {
     const policy = challenge.policy as Record<string, unknown>;
     policy.circuit_ids = ["attacker_selected_circuit"];
     expect(() => parseSwiyuMobileRuntimeRequestJson(JSON.stringify(changed))).toThrow(
-      "mobile runtime profile or circuit ids are unsupported",
+      "mobile runtime profile or circuit ids are not executable by this runtime",
+    );
+  });
+
+  it("accepts standard JSON escapes at the Kotlin transport boundary", () => {
+    const changed = structuredClone(vector.request);
+    const challenge = changed.challenge as Record<string, unknown>;
+    challenge.nonce = "opaque\"nonce\\value\nline";
+
+    const parsed = parseSwiyuMobileRuntimeRequestJson(JSON.stringify(changed));
+
+    expect(parsed.challenge.nonce).toBe("opaque\"nonce\\value\nline");
+  });
+
+  it("rejects experiment descriptors that do not yet have a mobile adapter", () => {
+    for (const experiment of SWIYU_MOBILE_EXPERIMENTS.slice(1)) {
+      const changed = structuredClone(vector.request);
+      const challenge = changed.challenge as Record<string, unknown>;
+      const policy = challenge.policy as Record<string, unknown>;
+      policy.profile = experiment.profile;
+      policy.circuit_ids = [...experiment.circuitIds];
+
+      expect(() => parseSwiyuMobileRuntimeRequestJson(JSON.stringify(changed))).toThrow(
+        "mobile runtime profile or circuit ids are not executable by this runtime",
+      );
+    }
+  });
+
+  it("validates the complete executable age parameter schema while parsing", () => {
+    const extraParameter = structuredClone(vector.request);
+    const extraPolicy = (extraParameter.challenge as Record<string, unknown>)
+      .policy as Record<string, unknown>;
+    (extraPolicy.parameters as Record<string, unknown>).unexpected = true;
+    expect(() => parseSwiyuMobileRuntimeRequestJson(JSON.stringify(extraParameter))).toThrow(
+      "request.challenge.policy.parameters.unexpected is not allowed",
+    );
+
+    const invalidSnapshot = structuredClone(vector.request);
+    const invalidPolicy = (invalidSnapshot.challenge as Record<string, unknown>)
+      .policy as Record<string, unknown>;
+    (invalidPolicy.parameters as Record<string, unknown>).status_list_snapshot = "not allowed";
+    expect(() => parseSwiyuMobileRuntimeRequestJson(JSON.stringify(invalidSnapshot))).toThrow(
+      "request.challenge.policy.parameters.status_list_snapshot is invalid",
     );
   });
 

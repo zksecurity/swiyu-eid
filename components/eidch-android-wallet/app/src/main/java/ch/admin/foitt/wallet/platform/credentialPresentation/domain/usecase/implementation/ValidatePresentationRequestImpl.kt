@@ -25,7 +25,9 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.coroutines.runSuspendCatching
 import com.github.michaelbull.result.mapError
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -186,6 +188,7 @@ class ValidatePresentationRequestImpl @Inject constructor(
             val queryId = checkNotNull(credential[CLAIM_ID]?.jsonPrimitive?.content)
             check(queryId.isNotBlank()) { "ZK credential query id is blank" }
 
+            validateZkCredentialQuery(credential)
             val policy = safeJson.json.decodeFromJsonElement<ZkPresentationPolicy>(policyElement)
             validateZkPresentationPolicy(policy)
             queryId to policy
@@ -200,6 +203,38 @@ class ValidatePresentationRequestImpl @Inject constructor(
             responseUri = responseUri,
             message = "parse ZK presentation policy error",
         )
+    }
+
+    private fun validateZkCredentialQuery(credential: JsonObject) {
+        check(credential[CLAIM_FORMAT]?.jsonPrimitive?.content == CredentialFormat.DC_SD_JWT.format) {
+            "ZK policies require credential format dc+sd-jwt"
+        }
+        val multiple = credential[CLAIM_MULTIPLE]
+        check(multiple == null || multiple is JsonNull || multiple.jsonPrimitive.boolean == false) {
+            "ZK policies support exactly one presentation"
+        }
+        check(credential[CLAIM_HOLDER_BINDING]?.jsonPrimitive?.boolean == true) {
+            "ZK policies require explicit cryptographic holder binding"
+        }
+
+        val claimSets = credential[CLAIM_CLAIM_SETS]
+        check(claimSets == null || claimSets is JsonNull || claimSets.jsonArray.isEmpty()) {
+            "ZK policies do not support claim_sets"
+        }
+
+        val claims = checkNotNull(credential[CLAIM_CLAIMS]).jsonArray
+        check(claims.size == 1) { "ZK policies require exactly one birthdate claim" }
+        val claim = claims.single().jsonObject
+        check(claim[CLAIM_ID]?.jsonPrimitive?.content == BIRTHDATE_CLAIM) {
+            "ZK claim id must be birthdate"
+        }
+        check(claim[CLAIM_PATH]?.jsonArray?.map { it.jsonPrimitive.content } == listOf(BIRTHDATE_CLAIM)) {
+            "ZK claim path must be birthdate"
+        }
+        val values = claim[CLAIM_VALUES]
+        check(values == null || values is JsonNull || values.jsonArray.isEmpty()) {
+            "ZK birthdate claim must not request a disclosed value"
+        }
     }
 
     private fun validateZkPresentationPolicy(policy: ZkPresentationPolicy) {
@@ -260,7 +295,15 @@ class ValidatePresentationRequestImpl @Inject constructor(
         const val CLAIM_DCQL_QUERY = "dcql_query"
         const val CLAIM_CREDENTIALS = "credentials"
         const val CLAIM_ID = "id"
+        const val CLAIM_FORMAT = "format"
+        const val CLAIM_MULTIPLE = "multiple"
+        const val CLAIM_HOLDER_BINDING = "require_cryptographic_holder_binding"
+        const val CLAIM_CLAIMS = "claims"
+        const val CLAIM_CLAIM_SETS = "claim_sets"
+        const val CLAIM_PATH = "path"
+        const val CLAIM_VALUES = "values"
         const val CLAIM_ZK_POLICY = "x_swiyu_zkp"
+        const val BIRTHDATE_CLAIM = "birthdate"
         const val SUPPORTED_ZK_PROFILE = "swiyu-age18-status-2k-v0"
         const val SUPPORTED_ZK_CIRCUIT = "swiyu_age18_status_2k"
         val CUTOFF_DATE_PATTERN = Regex("^(19\\d{2}|20\\d{2}|21\\d{2})-\\d{2}-\\d{2}$")

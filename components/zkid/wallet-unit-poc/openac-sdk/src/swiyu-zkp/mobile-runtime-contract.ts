@@ -16,9 +16,9 @@ import {
 import {
   parseJsonWithUniqueKeys,
   requireArray,
+  requireDecodedString,
   requireObject,
   requireProperty,
-  requireString,
   requireUnsignedDecimal,
   type StrictJsonNode,
   type StrictJsonObject,
@@ -165,11 +165,13 @@ export function parseSwiyuMobileRuntimeRequestJson(
   if (circuitIds.length < 1 || circuitIds.length > 2) {
     throw new Error("request.challenge.policy.circuit_ids length must be in 1..2");
   }
-  requireKnownDescriptor(profile, circuitIds);
-  const parametersNode = requireObject(
+  requireExecutableDescriptor(profile, circuitIds);
+  const parametersNode = exactObject(
     property(policyObject, "parameters"),
     "request.challenge.policy.parameters",
+    ["cutoff_date", "current_time", "status_list_snapshot"],
   );
+  validateExecutableAgeParameters(parametersNode);
 
   return Object.freeze({
     schema: SWIYU_MOBILE_RUNTIME_REQUEST_SCHEMA,
@@ -226,14 +228,33 @@ export function hashSwiyuMobileRuntimeAgeChallenge(
   return hashSwiyuChallenge(mobileRuntimeRequestToAgeChallenge(request));
 }
 
-function requireKnownDescriptor(profile: string, circuitIds: readonly string[]): void {
-  const descriptor = SWIYU_MOBILE_EXPERIMENTS.find((candidate) => candidate.profile === profile);
+function requireExecutableDescriptor(profile: string, circuitIds: readonly string[]): void {
   if (
-    !descriptor
-    || descriptor.circuitIds.length !== circuitIds.length
-    || descriptor.circuitIds.some((circuitId, index) => circuitId !== circuitIds[index])
+    profile !== SWIYU_AGE18_STATUS_PROFILE
+    || circuitIds.length !== 1
+    || circuitIds[0] !== SWIYU_AGE18_STATUS_CIRCUIT
   ) {
-    throw new Error("mobile runtime profile or circuit ids are unsupported");
+    throw new Error("mobile runtime profile or circuit ids are not executable by this runtime");
+  }
+}
+
+function validateExecutableAgeParameters(parameters: StrictJsonObject): void {
+  const path = "request.challenge.policy.parameters";
+  const cutoffDate = boundedString(parameters, "cutoff_date", path, 10);
+  parseSwiyuIsoDate(cutoffDate, `${path}.cutoff_date`);
+
+  const currentTime = requireUnsignedDecimal(
+    property(parameters, "current_time"),
+    `${path}.current_time`,
+    19,
+  ).value;
+  if (currentTime === 0n || currentTime > 9_223_372_036_854_775_807n) {
+    throw new Error(`${path}.current_time must fit a positive signed 64-bit integer`);
+  }
+
+  const snapshot = boundedString(parameters, "status_list_snapshot", path, 256);
+  if (!/^[A-Za-z0-9._~:-]+$/u.test(snapshot)) {
+    throw new Error(`${path}.status_list_snapshot is invalid`);
   }
 }
 
@@ -261,7 +282,7 @@ function boundedString(
 }
 
 function boundedNodeString(node: StrictJsonNode, path: string, maximumLength: number): string {
-  const value = requireString(node, path).value;
+  const value = requireDecodedString(node, path).value;
   const length = new TextEncoder().encode(value).length;
   if (length < 1 || length > maximumLength) {
     throw new Error(`${path} UTF-8 length must be in 1..${maximumLength}`);

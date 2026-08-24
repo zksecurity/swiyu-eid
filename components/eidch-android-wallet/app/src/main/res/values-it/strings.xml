@@ -472,6 +472,8 @@
     <string name="tk_activity_activityDetail_deleteConfirmation_delete_button">Eliminare</string>
     <string name="tk_activity_activityDetail_deleteConfirmation_cancel_button">Annullare</string>
     <string name="tk_present_review_credential_dataSection_primary">Dati richiesti</string>
+    <string name="tk_present_review_zk_section_title">Prova richiesta</string>
+    <string name="tk_present_review_zk_age_predicate">Dimostri che la Sua data di nascita è uguale o precedente al %1$s. La data di nascita non sarà condivisa.</string>
     <string name="tk_nonCompliance_report_info_moreInformation_link_value">https://www.eid.admin.ch/it/swiyu-privacy-i</string>
     <string name="tk_actor_nonCompliant">Avvertimento</string>
     <string name="tk_activity_activityList_nonCompliance_reportSent_title">Rapporto trasmesso con successo</string>

@@ -28,6 +28,7 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -114,6 +115,48 @@ class ValidatePresentationRequestImplTest {
 
         useCase(VerificationProcessType.NETWORK, mockRequestObject)
             .assertErrorType(CredentialPresentationError.InvalidRequest::class)
+    }
+
+    @TestFactory
+    fun `A ZK policy is rejected when its DCQL query does not describe the age predicate`(): List<DynamicTest> {
+        val invalidQueries = listOf<Pair<String, MutableMap<String, JsonElement>.() -> Unit>>(
+            "wrong credential format" to {
+                put("format", JsonPrimitive("vc+sd-jwt"))
+            },
+            "multiple presentations" to {
+                put("multiple", JsonPrimitive(true))
+            },
+            "missing explicit holder binding" to {
+                remove("require_cryptographic_holder_binding")
+            },
+            "claim sets" to {
+                put("claim_sets", JsonArray(listOf(JsonArray(listOf(JsonPrimitive("birthdate"))))))
+            },
+            "wrong claim path" to {
+                put("claims", JsonArray(listOf(buildJsonObject {
+                    put("id", "given_name")
+                    put("path", JsonArray(listOf(JsonPrimitive("given_name"))))
+                })))
+            },
+            "requested birthdate disclosure value" to {
+                put("claims", JsonArray(listOf(buildJsonObject {
+                    put("id", "birthdate")
+                    put("path", JsonArray(listOf(JsonPrimitive("birthdate"))))
+                    put("values", JsonArray(listOf(JsonPrimitive("2000-01-01"))))
+                })))
+            },
+        )
+
+        return invalidQueries.map { (name, mutation) ->
+            DynamicTest.dynamicTest(name) {
+                runTest {
+                    every { mockPresentationJwt.payloadJson } returns authorizationRequestWithZkPolicy(mutation = mutation)
+
+                    useCase(VerificationProcessType.NETWORK, mockRequestObject)
+                        .assertErrorType(CredentialPresentationError.InvalidRequest::class)
+                }
+            }
+        }
     }
 
     @Test
@@ -487,11 +530,19 @@ class ValidatePresentationRequestImplTest {
 
     private fun authorizationRequestWithZkPolicy(
         circuitId: String = "swiyu_age18_status_2k",
+        mutation: MutableMap<String, JsonElement>.() -> Unit = {},
     ): JsonObject {
         val payload = MockPresentationRequest.authorizationRequest.toJsonObject()
         val dcqlQuery = payload.getValue("dcql_query").jsonObject
         val credentials = dcqlQuery.getValue("credentials").jsonArray
         val credential = credentials.first().jsonObject.toMutableMap().apply {
+            put("format", JsonPrimitive("dc+sd-jwt"))
+            put("multiple", JsonPrimitive(false))
+            put("require_cryptographic_holder_binding", JsonPrimitive(true))
+            put("claims", JsonArray(listOf(buildJsonObject {
+                put("id", "birthdate")
+                put("path", JsonArray(listOf(JsonPrimitive("birthdate"))))
+            })))
             put("x_swiyu_zkp", buildJsonObject {
                 put("profile", "swiyu-age18-status-2k-v0")
                 put("circuit_id", circuitId)
@@ -499,6 +550,7 @@ class ValidatePresentationRequestImplTest {
                 put("status_list_snapshot", "snapshot-2026-08-20")
                 put("current_time", 1787184000L)
             })
+            mutation()
         }.let(::JsonObject)
         val dcqlWithPolicy = dcqlQuery.toMutableMap().apply {
             put("credentials", JsonArray(listOf(credential)))

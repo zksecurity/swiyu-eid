@@ -42,7 +42,7 @@ class ZkPresentationRuntimeContractTest {
             .map { path -> path.resolve(relativePath) }
             .firstOrNull { path -> Files.isRegularFile(path) }
             ?: error("Could not locate $relativePath from the test working directory")
-        return Files.readString(fixture)
+        return fixture.toFile().readText(Charsets.UTF_8)
     }
 
     private fun ByteArray.toHex() = joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xff) }

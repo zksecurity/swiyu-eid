@@ -468,6 +468,8 @@
     <string name="tk_activity_activityDetail_deleteConfirmation_delete_button">Stizzar</string>
     <string name="tk_activity_activityDetail_deleteConfirmation_cancel_button">Annullar</string>
     <string name="tk_present_review_credential_dataSection_primary">Datas dumandadas</string>
+    <string name="tk_present_review_zk_section_title">Cumprova dumandada</string>
+    <string name="tk_present_review_zk_age_predicate">Cumprovai che Vossa data da naschientscha è ils %1$s u pli baud. Vossa data da naschientscha na vegn betg cundividida.</string>
     <string name="tk_nonCompliance_report_info_moreInformation_link_value">https://www.eid.admin.ch/de/swiyu-privacy</string>
     <string name="tk_actor_nonCompliant">Avis</string>
     <string name="tk_activity_activityList_nonCompliance_reportSent_title">Rapport tramess cun success</string>

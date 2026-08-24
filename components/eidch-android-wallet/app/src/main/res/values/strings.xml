@@ -498,6 +498,8 @@
     <string name="tk_present_review_confirmPresentation_primary">Do you want to share your data with an unknown verifier?</string>
     <string name="tk_present_review_confirmPresentation_secondary">This verifier is not part of the swiyu ecosystem. The trustworthiness can not be ensured. Would you like to proceed?</string>
     <string name="tk_present_review_credential_dataSection_primary">Requested data</string>
+    <string name="tk_present_review_zk_section_title">Proof requested</string>
+    <string name="tk_present_review_zk_age_predicate">Prove that your birthdate is on or before %1$s. Your birthdate will not be shared.</string>
     <string name="tk_present_review_loading">Please wait</string>
     <string name="tk_present_verifierError_subtitle">Verification has failed. Please try again later or contact support.</string>
     <string name="tk_present_verifierError_title">Your data could not be processed.</string>
