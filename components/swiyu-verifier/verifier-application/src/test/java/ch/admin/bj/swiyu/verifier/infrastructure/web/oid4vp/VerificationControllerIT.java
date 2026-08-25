@@ -14,6 +14,8 @@ import ch.admin.bj.swiyu.verifier.service.oid4vp.test.fixtures.DidDocFixtures;
 import ch.admin.bj.swiyu.verifier.service.oid4vp.test.fixtures.KeyFixtures;
 import ch.admin.bj.swiyu.verifier.service.oid4vp.test.fixtures.StatusListGenerator;
 import ch.admin.bj.swiyu.verifier.service.oid4vp.test.mock.SDJWTCredentialMock;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.ZkPresentationVerificationResult;
+import ch.admin.bj.swiyu.verifier.service.oid4vp.ports.ZkPresentationVerifier;
 import ch.admin.bj.swiyu.verifier.service.statuslist.StatusListMaxSizeExceededException;
 import ch.admin.bj.swiyu.verifier.service.statuslist.StatusListResolver;
 import com.authlete.sd.Disclosure;
@@ -61,6 +63,9 @@ import static ch.admin.bj.swiyu.verifier.service.oid4vp.test.mock.SDJWTCredentia
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -90,6 +95,9 @@ class VerificationControllerIT extends BaseVerificationControllerTest {
 
     @MockitoBean
     private StatusListResolver mockedStatusListResolverAdapter;
+
+    @MockitoBean
+    private ZkPresentationVerifier zkPresentationVerifier;
 
     private final String clientId = "did:example:12345";
     private final String prefix = "decentralized_identifier";
@@ -713,6 +721,63 @@ class VerificationControllerIT extends BaseVerificationControllerTest {
                 .contains("last_name")
                 .contains("TestLastName")
                 .contains("languages");
+    }
+
+    @Test
+    void zkPresentationUsesNormalOid4vpSubmissionFlow() throws Exception {
+        var requestId = UUID.randomUUID();
+        var profile = "swiyu-age18-status-2k-v0";
+        var circuitId = "swiyu_age18_status_2k";
+        var snapshot = "snapshot-2026-08-20";
+        var zkEnvelope = """
+                {"schema":"swiyu-zkp-envelope-v1","proof":"opaque-proof"}
+                """.trim();
+        var dcqlQuery = """
+                {
+                  "credentials": [{
+                    "id": "age",
+                    "format": "dc+sd-jwt",
+                    "meta": {"vct_values": ["urn:example:identity"]},
+                    "require_cryptographic_holder_binding": true,
+                    "claims": [{"id": "birthdate", "path": ["birthdate"]}],
+                    "x_swiyu_zkp": {
+                      "profile": "%s",
+                      "circuit_id": "%s",
+                      "cutoff_date": "2008-08-20",
+                      "status_list_snapshot": "%s",
+                      "current_time": 1787184000
+                    }
+                  }]
+                }
+                """.formatted(profile, circuitId, snapshot);
+
+        managementEntityRepository.save(Management.builder()
+                .id(requestId)
+                .requestNonce(NONCE_SD_JWT_SQL)
+                .state(PENDING)
+                .oauthState(requestId.toString())
+                .walletResponse(null)
+                .expirationInSeconds(86400)
+                .expiresAt(4070908800000L)
+                .acceptedIssuerDids(List.of(DEFAULT_ISSUER_ID))
+                .jwtSecuredAuthorizationRequest(true)
+                .dcqlQuery(DcqlTestHelper.stringToDcqlQuery(dcqlQuery))
+                .build());
+
+        when(zkPresentationVerifier.verify(eq(zkEnvelope), any(Management.class), any()))
+                .thenReturn(new ZkPresentationVerificationResult(profile, circuitId, true, true, snapshot));
+        var submissionData = objectMapper.writeValueAsString(Map.of("age", List.of(zkEnvelope)));
+
+        postVerificationResponse(requestId, submissionData, requestId)
+                .andExpect(status().isOk());
+
+        var managementEntity = managementEntityRepository.findById(requestId).orElseThrow();
+        assertThat(managementEntity.getState()).isEqualTo(VerificationStatus.SUCCESS);
+        assertThat(managementEntity.getWalletResponse().credentialSubjectData())
+                .contains("\"predicate_satisfied\":true")
+                .contains("\"status_list_snapshot\":\"" + snapshot + "\"")
+                .doesNotContain("birthdate");
+        verify(zkPresentationVerifier).verify(eq(zkEnvelope), any(Management.class), any());
     }
 
     @Test

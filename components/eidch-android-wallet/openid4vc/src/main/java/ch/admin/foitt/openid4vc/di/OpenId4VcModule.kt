@@ -10,6 +10,7 @@ import ch.admin.foitt.openid4vc.domain.repository.FetchDidLogRepository
 import ch.admin.foitt.openid4vc.domain.repository.PresentationRequestRepository
 import ch.admin.foitt.openid4vc.domain.repository.TypeMetadataRepository
 import ch.admin.foitt.openid4vc.domain.repository.VcSchemaRepository
+import ch.admin.foitt.openid4vc.domain.usecase.BuildAuthorizationResponseConfig
 import ch.admin.foitt.openid4vc.domain.usecase.CreateAnyVerifiablePresentation
 import ch.admin.foitt.openid4vc.domain.usecase.CreateCredentialRequest
 import ch.admin.foitt.openid4vc.domain.usecase.CreateCredentialRequestProofsJwt
@@ -32,6 +33,7 @@ import ch.admin.foitt.openid4vc.domain.usecase.ResolvePublicKey
 import ch.admin.foitt.openid4vc.domain.usecase.SubmitAnyCredentialNetworkPresentation
 import ch.admin.foitt.openid4vc.domain.usecase.ValidateIssuerMetadataJwt
 import ch.admin.foitt.openid4vc.domain.usecase.VerifyRequestObjectSignature
+import ch.admin.foitt.openid4vc.domain.usecase.implementation.BuildAuthorizationResponseConfigImpl
 import ch.admin.foitt.openid4vc.domain.usecase.implementation.CreateAnyVerifiablePresentationImpl
 import ch.admin.foitt.openid4vc.domain.usecase.implementation.CreateCredentialRequestImpl
 import ch.admin.foitt.openid4vc.domain.usecase.implementation.CreateCredentialRequestProofsJwtImpl
@@ -267,6 +269,11 @@ internal interface OpenId4VCBindings {
     fun bindCreateAnyVerifiablePresentation(
         useCase: CreateAnyVerifiablePresentationImpl
     ): CreateAnyVerifiablePresentation
+
+    @Binds
+    fun bindBuildAuthorizationResponseConfig(
+        useCase: BuildAuthorizationResponseConfigImpl
+    ): BuildAuthorizationResponseConfig
 
     @Binds
     fun bindCreateVcSdJwtVerifiablePresentation(

@@ -4,6 +4,7 @@ import ch.admin.foitt.openid4vc.domain.model.claimsPathPointer.ClaimsPathPointer
 import ch.admin.foitt.openid4vc.domain.model.credentialoffer.metadata.CredentialFormat
 import ch.admin.foitt.openid4vc.domain.model.presentationRequest.AuthorizationRequest
 import ch.admin.foitt.openid4vc.domain.model.presentationRequest.AuthorizationResponseConfig
+import ch.admin.foitt.openid4vc.domain.usecase.BuildAuthorizationResponseConfig
 import ch.admin.foitt.openid4vc.domain.usecase.GetAuthorizationResponseConfig
 import ch.admin.foitt.openid4vc.domain.usecase.SubmitAnyCredentialNetworkPresentation
 import ch.admin.foitt.wallet.feature.presentationRequest.domain.model.PresentationRequestError
@@ -13,9 +14,14 @@ import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.Compat
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.PresentationRequestWithRaw
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ProximitySubmissionError
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.VerificationProcessType
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ZkPresentationPolicy
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ZkPresentationRuntimeRequestSchema
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.CreateZkPresentation
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.CreateZkPresentationError
 import ch.admin.foitt.wallet.platform.database.domain.model.BundleItemEntity
 import ch.admin.foitt.wallet.platform.database.domain.model.BundleItemWithKeyBinding
 import ch.admin.foitt.wallet.platform.database.domain.model.Credential
+import ch.admin.foitt.wallet.platform.database.domain.model.CredentialKeyBindingEntity
 import ch.admin.foitt.wallet.platform.database.domain.model.VerifiableCredentialEntity
 import ch.admin.foitt.wallet.platform.database.domain.model.VerifiableCredentialWithBundleItemsWithKeyBinding
 import ch.admin.foitt.wallet.platform.environmentSetup.domain.repository.EnvironmentSetupRepository
@@ -52,6 +58,12 @@ class SubmitPresentationImplTest {
     private lateinit var mockGetAuthorizationResponseConfig: GetAuthorizationResponseConfig
 
     @MockK
+    private lateinit var mockBuildAuthorizationResponseConfig: BuildAuthorizationResponseConfig
+
+    @MockK
+    private lateinit var mockCreateZkPresentation: CreateZkPresentation
+
+    @MockK
     private lateinit var mockEnvironmentSetupRepository: EnvironmentSetupRepository
 
     @MockK
@@ -75,6 +87,9 @@ class SubmitPresentationImplTest {
 
     @MockK
     private lateinit var mockAuthorizationResponseConfig: AuthorizationResponseConfig
+
+    @MockK
+    private lateinit var mockCredentialKeyBinding: CredentialKeyBindingEntity
 
     private lateinit var presentationRequestWithRawNetwork: PresentationRequestWithRaw
     private lateinit var presentationRequestWithRawProximity: PresentationRequestWithRaw
@@ -109,10 +124,13 @@ class SubmitPresentationImplTest {
             bundleItemRepository = mockBundleItemRepository,
             submitAnyCredentialNetworkPresentation = mockSubmitAnyCredentialNetworkPresentation,
             getAuthorizationResponseConfig = mockGetAuthorizationResponseConfig,
+            buildAuthorizationResponseConfig = mockBuildAuthorizationResponseConfig,
+            createZkPresentation = mockCreateZkPresentation,
             getProximityRepositoryForScope = mockGetProximityRepositoryForScope,
         )
 
         every { mockEnvironmentSetupRepository.payloadEncryptionEnabled } returns true
+        every { mockCredentialKeyBinding.id } returns HOLDER_KEY_ID
         coEvery {
             mockVerifiableCredentialWithBundleItemsWithKeyBindingRepository.getByCredentialId(CREDENTIAL_ID)
         } returns Ok(createCredentialWithBundleItems())
@@ -133,6 +151,16 @@ class SubmitPresentationImplTest {
                 authorizationResponseConfig = mockAuthorizationResponseConfig,
             )
         } returns Ok(Unit)
+
+        coEvery { mockCreateZkPresentation(any()) } returns Ok(ZK_PROOF_ENVELOPE)
+        coEvery {
+            mockBuildAuthorizationResponseConfig(
+                verifiablePresentation = any(),
+                authorizationRequest = mockAuthorizationRequest,
+                usePayloadEncryption = true,
+                dcqlQueryId = any(),
+            )
+        } returns Ok(mockAuthorizationResponseConfig)
 
         coEvery { mockProximityRepository.submit(mockAuthorizationResponseConfig) } returns Ok(Unit)
 
@@ -175,6 +203,66 @@ class SubmitPresentationImplTest {
         coVerify(exactly = 1) {
             mockVerifiableCredentialRepository.updateNextBundleIdByCredentialId(CREDENTIAL_ID, NEXT_BUNDLE_ITEM_ID)
         }
+    }
+
+    @Test
+    fun `Submitting a ZK request invokes the runtime and sends its envelope through OID4VP`() = runTest {
+        val request = presentationRequestWithRawNetwork.copy(
+            zkPresentationPolicies = mapOf(DCQL_QUERY_ID to ZK_POLICY)
+        )
+        coEvery {
+            mockVerifiableCredentialWithBundleItemsWithKeyBindingRepository.getByCredentialId(CREDENTIAL_ID)
+        } returns Ok(createCredentialWithBundleItems(hasKeyBinding = true))
+        every { mockAuthorizationRequest.nonce } returns "nonce"
+        every { mockAuthorizationRequest.clientId } returns "client-id"
+        every { mockAuthorizationRequest.responseUri } returns "https://verifier.example/response"
+        every { mockAuthorizationRequest.state } returns "state"
+
+        submitPresentationUseCase(request, compatibleCredentialWithDcql).assertOk()
+
+        coVerify(exactly = 1) {
+            mockCreateZkPresentation(match { runtimeRequest ->
+                runtimeRequest.schema == ZkPresentationRuntimeRequestSchema &&
+                    runtimeRequest.credentialId == CREDENTIAL_ID &&
+                    runtimeRequest.compactSdJwt == VALID_SD_JWT_PAYLOAD &&
+                    runtimeRequest.holderKeyId == HOLDER_KEY_ID &&
+                    runtimeRequest.challenge.queryId == DCQL_QUERY_ID &&
+                    runtimeRequest.challenge.policy.circuitIds == listOf(ZK_POLICY.circuitId)
+            })
+        }
+        coVerify(exactly = 1) {
+            mockBuildAuthorizationResponseConfig(
+                verifiablePresentation = ZK_PROOF_ENVELOPE,
+                authorizationRequest = mockAuthorizationRequest,
+                usePayloadEncryption = true,
+                dcqlQueryId = DCQL_QUERY_ID,
+            )
+        }
+        coVerify(exactly = 0) { mockGetAuthorizationResponseConfig(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) {
+            mockSubmitAnyCredentialNetworkPresentation(mockAuthorizationRequest, mockAuthorizationResponseConfig)
+        }
+    }
+
+    @Test
+    fun `A ZK request reports that the Android runtime is not packaged`() = runTest {
+        val request = presentationRequestWithRawNetwork.copy(
+            zkPresentationPolicies = mapOf(DCQL_QUERY_ID to ZK_POLICY)
+        )
+        coEvery {
+            mockVerifiableCredentialWithBundleItemsWithKeyBindingRepository.getByCredentialId(CREDENTIAL_ID)
+        } returns Ok(createCredentialWithBundleItems(hasKeyBinding = true))
+        every { mockAuthorizationRequest.nonce } returns "nonce"
+        every { mockAuthorizationRequest.clientId } returns "client-id"
+        every { mockAuthorizationRequest.responseUri } returns "https://verifier.example/response"
+        every { mockAuthorizationRequest.state } returns "state"
+        coEvery { mockCreateZkPresentation(any()) } returns Err(CreateZkPresentationError.RuntimeNotPackaged)
+
+        val result = submitPresentationUseCase(request, compatibleCredentialWithDcql)
+
+        result.assertErrorType(PresentationRequestError.ZkRuntimeNotPackaged::class)
+        coVerify(exactly = 0) { mockSubmitAnyCredentialNetworkPresentation(any(), any()) }
+        coVerify(exactly = 0) { mockBundleItemRepository.onPresented(any(), any()) }
     }
 
     @Test
@@ -312,7 +400,8 @@ class SubmitPresentationImplTest {
     }
 
     private fun createCredentialWithBundleItems(
-        format: CredentialFormat = CredentialFormat.VC_SD_JWT
+        format: CredentialFormat = CredentialFormat.VC_SD_JWT,
+        hasKeyBinding: Boolean = false,
     ) = VerifiableCredentialWithBundleItemsWithKeyBinding(
         credential = Credential(
             id = CREDENTIAL_ID,
@@ -333,7 +422,7 @@ class SubmitPresentationImplTest {
                     credentialId = CREDENTIAL_ID,
                     payload = VALID_SD_JWT_PAYLOAD
                 ),
-                keyBinding = null
+                keyBinding = if (hasKeyBinding) mockCredentialKeyBinding else null
             )
         ),
     )
@@ -355,6 +444,15 @@ class SubmitPresentationImplTest {
             "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Qta2lkIn0." +
                 "eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlIiwidmN0IjoidGVzdC12Y3QiLCJfc2QiOltdLCJfc2RfYWxnIjoic2hhLTI1NiJ9." +
                 "c2ln~"
+        const val HOLDER_KEY_ID = "holder-key-id"
+        const val ZK_PROOF_ENVELOPE = "{\"schema\":\"swiyu-zkp-envelope-v1\",\"proof\":\"opaque\"}"
+        val ZK_POLICY = ZkPresentationPolicy(
+            profile = "swiyu-age18-status-2k-v0",
+            circuitId = "swiyu_age18_status_2k",
+            cutoffDate = "2008-08-20",
+            statusListSnapshot = "snapshot-2026-08-20",
+            currentTime = 1787184000L,
+        )
         val compatibleCredential = CompatibleCredential(CREDENTIAL_ID, presentationPaths, "1")
         val compatibleCredentialWithDcql =
             CompatibleCredential(CREDENTIAL_ID, presentationPaths, dcqlQueryId = DCQL_QUERY_ID)

@@ -297,7 +297,13 @@ private fun ContentList(
 
             item {
                 WalletTexts.HeadlineSmallEmphasized(
-                    text = stringResource(id = R.string.tk_present_review_credential_dataSection_primary),
+                    text = stringResource(
+                        id = if (presentationRequestUiState.zkConsent == null) {
+                            R.string.tk_present_review_credential_dataSection_primary
+                        } else {
+                            R.string.tk_present_review_zk_section_title
+                        }
+                    ),
                     modifier = Modifier
                         .padding(start = Sizes.s06, end = Sizes.s03, top = Sizes.s02)
                         .semantics { heading() },
@@ -305,6 +311,7 @@ private fun ContentList(
             }
             item { Spacer(modifier = Modifier.height(Sizes.s04)) }
 
+            val zkConsent = presentationRequestUiState.zkConsent
             credentialInfoWithClaimBadgesWidget(
                 credentialCardState = presentationRequestUiState.credentialCardState,
                 claimBadgesUiStates = presentationRequestUiState.claimBadgesUiStates,
@@ -312,10 +319,22 @@ private fun ContentList(
             )
             item { Spacer(modifier = Modifier.height(Sizes.s04)) }
 
-            credentialElements(
-                elements = presentationRequestUiState.requestedClaims,
-                onWrongData = onWrongData,
-            )
+            if (zkConsent == null) {
+                credentialElements(
+                    elements = presentationRequestUiState.requestedClaims,
+                    onWrongData = onWrongData,
+                )
+            } else {
+                item {
+                    WalletTexts.BodyMedium(
+                        text = stringResource(
+                            R.string.tk_present_review_zk_age_predicate,
+                            zkConsent.cutoffDate,
+                        ),
+                        modifier = Modifier.padding(horizontal = Sizes.s06),
+                    )
+                }
+            }
         }
 
         Buttons(

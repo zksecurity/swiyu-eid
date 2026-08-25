@@ -1,0 +1,85 @@
+name: Mobile ZK hardening
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-zk-hardening-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: components/zkid/wallet-unit-poc/openac-sdk
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: components/zkid/wallet-unit-poc/openac-sdk/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm test -- tests/swiyu-zkp/mobile-runtime-contract.test.ts tests/swiyu-zkp/sidecar.test.ts
+
+  android-wallet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: components/eidch-android-wallet
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - name: Install Android API 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Run focused app tests
+        run: >-
+          ./gradlew
+          :app:testDevDebugUnitTest
+          --tests ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.implementation.ValidatePresentationRequestImplTest
+          --tests ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ZkPresentationRuntimeContractTest
+          --tests ch.admin.foitt.wallet.feature.presentationRequest.domain.usecase.implementation.SubmitPresentationImplTest
+          --no-daemon
+      - name: Run focused OID4VP response tests
+        run: >-
+          ./gradlew
+          :openid4vc:testDebugUnitTest
+          --tests ch.admin.foitt.openid4vc.domain.usecase.implementation.GetAuthorizationResponseConfigImplTest
+          --no-daemon
+
+  verifier-submission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: components/swiyu-verifier
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Run verifier unit and OID4VP integration tests
+        run: >-
+          ./mvnw
+          --batch-mode
+          -Dpgpverify.skip=true
+          -Dit.test=VerificationControllerIT
+          -DfailIfNoTests=false
+          -Dfailsafe.failIfNoSpecifiedTests=false
+          verify

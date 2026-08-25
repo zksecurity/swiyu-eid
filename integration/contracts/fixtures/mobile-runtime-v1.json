@@ -1,0 +1,74 @@
+{
+  "request": {
+    "schema": "swiyu.mobile-runtime-request.v1",
+    "credential_id": 42,
+    "compact_sd_jwt": "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlIiwidmN0IjoidGVzdC12Y3QiLCJfc2QiOltdLCJfc2RfYWxnIjoic2hhLTI1NiJ9.c2ln~",
+    "holder_key_id": "wallet-key-42",
+    "challenge": {
+      "nonce": "n-2026-08-20",
+      "client_id": "decentralized_identifier:did:example:verifier",
+      "response_uri": "https://verifier.example/oid4vp/api/request-object/00000000-0000-0000-0000-000000000042/response-data",
+      "state": "state-00000042",
+      "query_id": "age",
+      "policy": {
+        "profile": "swiyu-age18-status-2k-v0",
+        "circuit_ids": [
+          "swiyu_age18_status_2k"
+        ],
+        "parameters": {
+          "cutoff_date": "2008-08-20",
+          "status_list_snapshot": "statuslist-jwt:fixture-2026-08-20",
+          "current_time": 1787184000
+        }
+      }
+    }
+  },
+  "expected": {
+    "challenge_sha256": "ffde8dbee9b7619d641b003f97e80eb668e3024be8fe940194c99d5a382c314f",
+    "challenge_scalar": "115732994730351697237701856480333663174581569770241706735857050340082292896079",
+    "proof_envelope": {
+      "version": "swiyu-zkp-proof-v0",
+      "profile": "swiyu-age18-status-2k-v0",
+      "circuitId": "swiyu_age18_status_2k",
+      "proof": "AQIDBA",
+      "lookup": {
+        "issuer": "did:example:issuer",
+        "kid": "did:example:issuer#key-1",
+        "vct": "urn:example:identity"
+      }
+    },
+    "experiments": [
+      {
+        "experiment": "age-over-18",
+        "profile": "swiyu-age18-status-2k-v0",
+        "circuitIds": [
+          "swiyu_age18_status_2k"
+        ]
+      },
+      {
+        "experiment": "canton-membership",
+        "profile": "swiyu.canton-eligibility.prepare-show.v1",
+        "circuitIds": [
+          "swiyu_canton_prepare_compact",
+          "swiyu_canton_show_split"
+        ]
+      },
+      {
+        "experiment": "residence-eligibility",
+        "profile": "swiyu.residence-eligibility.combined-disclosure.v1",
+        "circuitIds": [
+          "swiyu_residence_combined_prepare_compact",
+          "swiyu_residence_show_packed_chunk_v2"
+        ]
+      },
+      {
+        "experiment": "one-claim-per-credential",
+        "profile": "swiyu.age-over-18.scoped-nullifier.v1",
+        "circuitIds": [
+          "swiyu_nullifier_age18_prepare",
+          "swiyu_nullifier_age18_show_packed_chunk_v2"
+        ]
+      }
+    ]
+  }
+}

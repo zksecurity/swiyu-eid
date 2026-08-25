@@ -13,6 +13,7 @@ import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.Creden
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.PresentationRequestWithRaw
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ValidatePresentationRequestError
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.VerificationProcessType
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ZkPresentationPolicy
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.toValidatePresentationRequestError
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.ValidatePresentationRequest
 import ch.admin.foitt.wallet.platform.environmentSetup.domain.repository.EnvironmentSetupRepository
@@ -24,7 +25,14 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.coroutines.runSuspendCatching
 import com.github.michaelbull.result.mapError
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.time.LocalDate
 import javax.inject.Inject
 
 class ValidatePresentationRequestImpl @Inject constructor(
@@ -130,6 +138,27 @@ class ValidatePresentationRequestImpl @Inject constructor(
             .mapError(JsonParsingError::toValidatePresentationRequestError)
             .bind()
 
+        val zkPresentationPolicies = parseZkPresentationPolicies(
+            payload = jwt.payloadJson,
+            responseUri = authorizationRequest.responseUri,
+        ).bind()
+
+        if (zkPresentationPolicies.isNotEmpty()) {
+            runSuspendCatching {
+                check(verificationOutcome != null) { "ZK policies require request-object signature verification" }
+                check(verificationProcessType == VerificationProcessType.NETWORK) { "ZK policies require network presentation" }
+                check(!authorizationRequest.responseUri.isNullOrBlank()) { "ZK policies require response_uri" }
+                check(!authorizationRequest.state.isNullOrBlank()) { "ZK policies require state" }
+                check(authorizationRequest.nonce.isNotBlank()) { "ZK policies require nonce" }
+                check(authorizationRequest.clientId.isNotBlank()) { "ZK policies require client_id" }
+            }.mapError { throwable ->
+                throwable.toValidatePresentationRequestError(
+                    responseUri = authorizationRequest.responseUri,
+                    message = "validate ZK presentation policy error",
+                )
+            }.bind()
+        }
+
         PresentationRequestWithRaw(
             verificationProcessType = verificationProcessType,
             authorizationRequest = authorizationRequest,
@@ -139,7 +168,82 @@ class ValidatePresentationRequestImpl @Inject constructor(
                 RequestObjectVerificationOutcome.ATTESTATION_UNTRUSTED -> false
                 RequestObjectVerificationOutcome.DID_PATH, null -> null
             },
+            zkPresentationPolicies = zkPresentationPolicies,
         )
+    }
+
+    private fun parseZkPresentationPolicies(
+        payload: JsonObject,
+        responseUri: String?,
+    ): Result<Map<String, ZkPresentationPolicy>, ValidatePresentationRequestError> = runSuspendCatching {
+        val credentials = payload[CLAIM_DCQL_QUERY]
+            ?.jsonObject
+            ?.get(CLAIM_CREDENTIALS)
+            ?.jsonArray
+            ?: return@runSuspendCatching emptyMap()
+
+        val policies = credentials.mapNotNull { credentialElement ->
+            val credential = credentialElement.jsonObject
+            val policyElement = credential[CLAIM_ZK_POLICY] ?: return@mapNotNull null
+            val queryId = checkNotNull(credential[CLAIM_ID]?.jsonPrimitive?.content)
+            check(queryId.isNotBlank()) { "ZK credential query id is blank" }
+
+            validateZkCredentialQuery(credential)
+            val policy = safeJson.json.decodeFromJsonElement<ZkPresentationPolicy>(policyElement)
+            validateZkPresentationPolicy(policy)
+            queryId to policy
+        }
+
+        check(policies.map { it.first }.distinct().size == policies.size) {
+            "ZK credential query ids must be unique"
+        }
+        policies.toMap()
+    }.mapError { throwable ->
+        throwable.toValidatePresentationRequestError(
+            responseUri = responseUri,
+            message = "parse ZK presentation policy error",
+        )
+    }
+
+    private fun validateZkCredentialQuery(credential: JsonObject) {
+        check(credential[CLAIM_FORMAT]?.jsonPrimitive?.content == CredentialFormat.DC_SD_JWT.format) {
+            "ZK policies require credential format dc+sd-jwt"
+        }
+        val multiple = credential[CLAIM_MULTIPLE]
+        check(multiple == null || multiple is JsonNull || multiple.jsonPrimitive.boolean == false) {
+            "ZK policies support exactly one presentation"
+        }
+        check(credential[CLAIM_HOLDER_BINDING]?.jsonPrimitive?.boolean == true) {
+            "ZK policies require explicit cryptographic holder binding"
+        }
+
+        val claimSets = credential[CLAIM_CLAIM_SETS]
+        check(claimSets == null || claimSets is JsonNull || claimSets.jsonArray.isEmpty()) {
+            "ZK policies do not support claim_sets"
+        }
+
+        val claims = checkNotNull(credential[CLAIM_CLAIMS]).jsonArray
+        check(claims.size == 1) { "ZK policies require exactly one birthdate claim" }
+        val claim = claims.single().jsonObject
+        check(claim[CLAIM_ID]?.jsonPrimitive?.content == BIRTHDATE_CLAIM) {
+            "ZK claim id must be birthdate"
+        }
+        check(claim[CLAIM_PATH]?.jsonArray?.map { it.jsonPrimitive.content } == listOf(BIRTHDATE_CLAIM)) {
+            "ZK claim path must be birthdate"
+        }
+        val values = claim[CLAIM_VALUES]
+        check(values == null || values is JsonNull || values.jsonArray.isEmpty()) {
+            "ZK birthdate claim must not request a disclosed value"
+        }
+    }
+
+    private fun validateZkPresentationPolicy(policy: ZkPresentationPolicy) {
+        check(policy.profile == SUPPORTED_ZK_PROFILE) { "Unsupported ZK profile" }
+        check(policy.circuitId == SUPPORTED_ZK_CIRCUIT) { "Unsupported ZK circuit" }
+        check(CUTOFF_DATE_PATTERN.matches(policy.cutoffDate)) { "Invalid ZK cutoff_date" }
+        LocalDate.parse(policy.cutoffDate)
+        check(STATUS_SNAPSHOT_PATTERN.matches(policy.statusListSnapshot)) { "Invalid ZK status_list_snapshot" }
+        check(policy.currentTime > 0) { "Invalid ZK current_time" }
     }
 
     @Suppress("CyclomaticComplexMethod")
@@ -188,5 +292,21 @@ class ValidatePresentationRequestImpl @Inject constructor(
         const val CLAIM_RESPONSE_URI = "response_uri"
         const val CLAIM_AUDIENCE = "aud"
         const val CLAIM_TRANSACTION_DATA = "transaction_data"
+        const val CLAIM_DCQL_QUERY = "dcql_query"
+        const val CLAIM_CREDENTIALS = "credentials"
+        const val CLAIM_ID = "id"
+        const val CLAIM_FORMAT = "format"
+        const val CLAIM_MULTIPLE = "multiple"
+        const val CLAIM_HOLDER_BINDING = "require_cryptographic_holder_binding"
+        const val CLAIM_CLAIMS = "claims"
+        const val CLAIM_CLAIM_SETS = "claim_sets"
+        const val CLAIM_PATH = "path"
+        const val CLAIM_VALUES = "values"
+        const val CLAIM_ZK_POLICY = "x_swiyu_zkp"
+        const val BIRTHDATE_CLAIM = "birthdate"
+        const val SUPPORTED_ZK_PROFILE = "swiyu-age18-status-2k-v0"
+        const val SUPPORTED_ZK_CIRCUIT = "swiyu_age18_status_2k"
+        val CUTOFF_DATE_PATTERN = Regex("^(19\\d{2}|20\\d{2}|21\\d{2})-\\d{2}-\\d{2}$")
+        val STATUS_SNAPSHOT_PATTERN = Regex("^[A-Za-z0-9._~:-]{1,256}$")
     }
 }

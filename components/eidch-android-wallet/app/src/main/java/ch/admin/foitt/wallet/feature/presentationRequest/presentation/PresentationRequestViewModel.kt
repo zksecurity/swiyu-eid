@@ -12,6 +12,7 @@ import ch.admin.foitt.wallet.feature.presentationRequest.domain.model.Presentati
 import ch.admin.foitt.wallet.feature.presentationRequest.domain.usecase.GetPresentationRequestFlow
 import ch.admin.foitt.wallet.feature.presentationRequest.domain.usecase.SubmitPresentation
 import ch.admin.foitt.wallet.feature.presentationRequest.presentation.model.PresentationRequestUiState
+import ch.admin.foitt.wallet.feature.presentationRequest.presentation.model.ZkPresentationConsentUiState
 import ch.admin.foitt.wallet.platform.activityList.domain.usecase.SavePresentationAcceptedActivity
 import ch.admin.foitt.wallet.platform.activityList.domain.usecase.SavePresentationDeclinedActivity
 import ch.admin.foitt.wallet.platform.actorMetadata.domain.usecase.FetchAndCacheVerifierDisplayData
@@ -79,6 +80,9 @@ class PresentationRequestViewModel @AssistedInject constructor(
     @Assisted private val compatibleCredential: CompatibleCredential,
     @Assisted private val presentationRequestWithRaw: PresentationRequestWithRaw,
 ) : ScreenViewModel(setTopBarState) {
+
+    private val zkConsent = presentationRequestWithRaw.zkPresentationPolicies[compatibleCredential.dcqlQueryId]
+        ?.let { policy -> ZkPresentationConsentUiState(cutoffDate = policy.cutoffDate) }
 
     @AssistedFactory
     interface Factory {
@@ -191,6 +195,7 @@ class PresentationRequestViewModel @AssistedInject constructor(
                         PresentationRequestError.InvalidUrl,
                         PresentationRequestError.RawSdJwtParsingError,
                         PresentationRequestError.SocketTimeoutError,
+                        PresentationRequestError.ZkRuntimeNotPackaged,
                         is PresentationRequestError.Unexpected -> {
                             saveAcceptedActivity()
                             navigateToFailure()
@@ -296,11 +301,13 @@ class PresentationRequestViewModel @AssistedInject constructor(
     }
 
     private suspend fun PresentationRequestDisplayData.toUiState(): PresentationRequestUiState {
+        val disclosedClaims = if (zkConsent == null) requestedClaims else emptyList()
         return PresentationRequestUiState(
             credentialCardState = getCredentialCardState(credential),
-            requestedClaims = requestedClaims,
-            claimBadgesUiStates = requestedClaims.toClaimBadgesUiStates(isParentSensitive = false),
-            numberOfClaims = getAmountOfClaims(requestedClaims)
+            requestedClaims = disclosedClaims,
+            claimBadgesUiStates = disclosedClaims.toClaimBadgesUiStates(isParentSensitive = false),
+            numberOfClaims = getAmountOfClaims(disclosedClaims),
+            zkConsent = zkConsent,
         )
     }
 

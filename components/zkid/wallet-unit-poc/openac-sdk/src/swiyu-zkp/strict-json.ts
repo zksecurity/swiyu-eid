@@ -113,6 +113,22 @@ export function requireString(
   return node;
 }
 
+/**
+ * Read a string from a normal JSON transport boundary.
+ *
+ * Unlike requireString, this accepts JSON escape sequences because the decoded
+ * value, rather than the source spelling, is the transport contract.
+ */
+export function requireDecodedString(
+  node: StrictJsonNode,
+  path: string,
+): StrictJsonString {
+  if (node.kind !== "string") {
+    throw new Error(`${path} must be a string`);
+  }
+  return node;
+}
+
 export function requireProperty(
   object: StrictJsonObject,
   key: string,

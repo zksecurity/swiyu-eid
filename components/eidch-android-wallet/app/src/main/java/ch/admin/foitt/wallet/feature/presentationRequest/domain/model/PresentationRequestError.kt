@@ -8,6 +8,7 @@ import ch.admin.foitt.wallet.platform.credential.domain.model.AnyCredentialError
 import ch.admin.foitt.wallet.platform.credential.domain.model.CredentialError
 import ch.admin.foitt.wallet.platform.credential.domain.model.MapToCredentialDisplayDataError
 import ch.admin.foitt.wallet.platform.credentialPresentation.domain.model.ProximitySubmissionError
+import ch.admin.foitt.wallet.platform.credentialPresentation.domain.usecase.CreateZkPresentationError
 import ch.admin.foitt.wallet.platform.ssi.domain.model.BundleItemRepositoryError
 import ch.admin.foitt.wallet.platform.ssi.domain.model.CredentialWithDisplaysRepositoryError
 import ch.admin.foitt.wallet.platform.ssi.domain.model.CredentialWithKeyBindingRepositoryError
@@ -24,6 +25,7 @@ interface PresentationRequestError {
     data object InvalidUrl : SubmitPresentationError
     data object NetworkError : SubmitPresentationError
     data object SocketTimeoutError : SubmitPresentationError
+    data object ZkRuntimeNotPackaged : SubmitPresentationError
     data class Unexpected(val throwable: Throwable?) :
         SubmitPresentationError,
         GetPresentationRequestFlowError,
@@ -69,6 +71,11 @@ internal fun GetAuthorizationResponseConfigError.toSubmitPresentationError(): Su
 
 fun AnyCredentialError.toSubmitPresentationError(): SubmitPresentationError = when (this) {
     is CredentialError.Unexpected -> PresentationRequestError.Unexpected(cause)
+}
+
+fun CreateZkPresentationError.toSubmitPresentationError(): SubmitPresentationError = when (this) {
+    CreateZkPresentationError.RuntimeNotPackaged -> PresentationRequestError.ZkRuntimeNotPackaged
+    is CreateZkPresentationError.Unexpected -> PresentationRequestError.Unexpected(throwable)
 }
 
 fun BundleItemRepositoryError.toSubmitPresentationError(): SubmitPresentationError = when (this) {

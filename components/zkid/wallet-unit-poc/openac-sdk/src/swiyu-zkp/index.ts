@@ -248,3 +248,19 @@ export type {
   SwiyuNullifierAge18ProofEnvelope,
   SwiyuNullifierAge18VerifierPolicy,
 } from "./nullifier-age18-split.js";
+export {
+  SWIYU_MOBILE_RUNTIME_REQUEST_SCHEMA,
+  SWIYU_MOBILE_RUNTIME_MAX_REQUEST_BYTES,
+  SWIYU_MOBILE_EXPERIMENTS,
+  parseSwiyuMobileRuntimeRequestJson,
+  mobileRuntimeRequestToAgeChallenge,
+  hashSwiyuMobileRuntimeAgeChallenge,
+} from "./mobile-runtime-contract.js";
+export type {
+  SwiyuMobileRuntimeJson,
+  SwiyuMobileRuntimeJsonObject,
+  SwiyuMobileRuntimePolicy,
+  SwiyuMobileRuntimeRequest,
+  SwiyuMobileTrustedKeyPurpose,
+  SwiyuMobileRuntimeCallbacks,
+} from "./mobile-runtime-contract.js";
