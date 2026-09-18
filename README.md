@@ -1,4 +1,4 @@
-# swiyu-eid
+# swiyu-eid and ZKP
 
 ## Project scope
 
