@@ -1,0 +1,636 @@
+{
+  "schema": "swiyu.transcript-campaign-bundle.v1",
+  "provider": "swiyu-openac-adapter",
+  "claim": "swiyu.openac.age18-status-2k.v0",
+  "mode": "live",
+  "evidence_usable": true,
+  "qualification": "Local owned lifecycle: Java production controllers/services via JDK HTTP adapter, memory repository, local signed request objects, and preprovisioned issuer/status. Provider-generated proofs via the registered sidecar (swiyu-openac-adapter). Not full Spring dispatch, BeanValidation, deployment filters, Android, TLS, or live authority.",
+  "runtime_evidence": {
+    "http": "Java production controllers/services via JDK HTTP test adapter",
+    "proofs": "OpenAC WASM witness generation, native prover and SDK/native verifier",
+    "engine": "transcript_equivalence.analyze_transcripts",
+    "repository": "in-memory",
+    "authority": "locally provisioned synthetic issuer and status inputs"
+  },
+  "campaigns": [
+    {
+      "name": "Clean A/B",
+      "kind": "baseline",
+      "report": {
+        "schema": "swiyu.transcript-campaign.v1",
+        "status": "clean",
+        "policy": {
+          "id": "swiyu-direct-post-http-v1",
+          "observer": "verifier",
+          "expected_boundaries": [
+            "verifier:management_create",
+            "verifier:request_object",
+            "wallet->verifier:direct_post",
+            "verifier:management_result"
+          ],
+          "opaque_fields": [
+            {
+              "event": "wallet->verifier:direct_post",
+              "side": "request",
+              "path": "/vp_token/age-over-18-and-valid-status/0/proof",
+              "channel": "proof"
+            }
+          ],
+          "public_fields": [
+            {
+              "event": "verifier:request_object",
+              "side": "response",
+              "path": "/payload/nonce",
+              "expected_key": "nonce"
+            },
+            {
+              "event": "verifier:request_object",
+              "side": "response",
+              "path": "/payload/state",
+              "expected_key": "state"
+            },
+            {
+              "event": "wallet->verifier:direct_post",
+              "side": "request",
+              "path": "/state",
+              "expected_key": "state"
+            }
+          ],
+          "rename_session_tokens": true,
+          "request_object_clock": true,
+          "response_clock_headers": [
+            "date"
+          ],
+          "ignored_headers": []
+        },
+        "unassessed_channels": [
+          "timing distributions",
+          "response Date values",
+          "request-object absolute issuance time"
+        ],
+        "oracle_scope": {
+          "independent": [
+            "credential.authentic@1",
+            "credential.expected-metadata@1",
+            "credential.valid-at@1",
+            "where"
+          ],
+          "verifier_evaluated": [
+            "holder.signature-valid@1",
+            "status.zero-at-reference@1"
+          ],
+          "note": "Independent checks cover authentic SD-JWT, expected issuer metadata, validity time, where, and public status envelope fields. holder.signature-valid@1 and status.zero-at-reference@1 are verifier_evaluated (native OpenAC / submitted verifier). Compact JWS signatures are an explicit unverified crypto assumption: header alg and signature length only.",
+          "crypto_assumptions": [
+            "compact-jws signatures compared by alg and canonical length only; not verified"
+          ]
+        },
+        "classifications": [
+          {
+            "session": "clean-dob-<redacted>-status-42",
+            "statement_digest": "8be8c6e5dd5498f094c51a11ad4e2b41fe2efe874a89742bc22e4cc0298d0fad",
+            "acceptance": true,
+            "release": {
+              "acceptance": true,
+              "eid.issuer": "did:example:issuer",
+              "eid.key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+              "eid.credential_type": "https://example.ch/vct/person"
+            },
+            "public_context": {
+              "issuer": {
+                "public_key": {
+                  "kty": "EC",
+                  "crv": "P-256",
+                  "x": "tnQCGRdqvyj-Y1o_EBErJSYZ4OmMXMBvHHsrdJXtgy8",
+                  "y": "4A4z2DCfieVR07EgnHSsh9cUG_p2J4t-mWFSfn__NsU",
+                  "kid": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01"
+                },
+                "issuer_id": "did:example:issuer",
+                "key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+                "allowed_vcts": [
+                  "https://example.ch/vct/person"
+                ]
+              },
+              "current_time": "1789499617",
+              "age18_cutoff": "2007-06-15",
+              "session": {
+                "client_id": "did:example:12345",
+                "response_uri": "http://127.0.0.1:53967/oid4vp/api/request-object/{request_id}/response-data",
+                "query_id": "age-over-18-and-valid-status"
+              },
+              "status_snapshot": {
+                "id": "ch-tsl-2026-07-epoch-172",
+                "issuer_id": "did:example:issuer",
+                "key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+                "subject": "https://status.example.ch/lists/2026-07",
+                "commitment": "525c23b966937402183083af47c956c980708718dd06c367e63e70c2939ad5bc",
+                "epoch": "172",
+                "list_length": 65536,
+                "valid_before": "1800000000"
+              }
+            },
+            "hidden_markers": [
+              {
+                "id": "attribute.birthdate",
+                "kind": "signed_attribute"
+              },
+              {
+                "id": "holder.jwk",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.x",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.y",
+                "kind": "holder_key"
+              }
+            ]
+          },
+          {
+            "session": "clean-dob-<redacted>-status-7",
+            "statement_digest": "8be8c6e5dd5498f094c51a11ad4e2b41fe2efe874a89742bc22e4cc0298d0fad",
+            "acceptance": true,
+            "release": {
+              "acceptance": true,
+              "eid.issuer": "did:example:issuer",
+              "eid.key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+              "eid.credential_type": "https://example.ch/vct/person"
+            },
+            "public_context": {
+              "issuer": {
+                "public_key": {
+                  "kty": "EC",
+                  "crv": "P-256",
+                  "x": "tnQCGRdqvyj-Y1o_EBErJSYZ4OmMXMBvHHsrdJXtgy8",
+                  "y": "4A4z2DCfieVR07EgnHSsh9cUG_p2J4t-mWFSfn__NsU",
+                  "kid": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01"
+                },
+                "issuer_id": "did:example:issuer",
+                "key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+                "allowed_vcts": [
+                  "https://example.ch/vct/person"
+                ]
+              },
+              "current_time": "1789499617",
+              "age18_cutoff": "2007-06-15",
+              "session": {
+                "client_id": "did:example:12345",
+                "response_uri": "http://127.0.0.1:53967/oid4vp/api/request-object/{request_id}/response-data",
+                "query_id": "age-over-18-and-valid-status"
+              },
+              "status_snapshot": {
+                "id": "ch-tsl-2026-07-epoch-172",
+                "issuer_id": "did:example:issuer",
+                "key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+                "subject": "https://status.example.ch/lists/2026-07",
+                "commitment": "525c23b966937402183083af47c956c980708718dd06c367e63e70c2939ad5bc",
+                "epoch": "172",
+                "list_length": 65536,
+                "valid_before": "1800000000"
+              }
+            },
+            "hidden_markers": [
+              {
+                "id": "attribute.birthdate",
+                "kind": "signed_attribute"
+              },
+              {
+                "id": "holder.jwk",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.x",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.y",
+                "kind": "holder_key"
+              }
+            ]
+          }
+        ],
+        "pairs": [
+          {
+            "left": "clean-dob-<redacted>-status-42",
+            "right": "clean-dob-<redacted>-status-7",
+            "eligibility": "compared",
+            "status": "equivalent",
+            "diffs": []
+          }
+        ],
+        "findings": [],
+        "coverage": {
+          "sessions": 2,
+          "classified": 2,
+          "compared_pairs": 1
+        },
+        "exceptions": [],
+        "method": "Claim classification (authentic SD-JWT, metadata, validity, where, and exact public status envelope fields) then observer HTTP structural equality after named public fresh alpha-rename and declared proof-length opacity. Secret markers are scanned on raw and decoded bodies before masking. Compact JWS signatures are unverified (alg+length). Two-to-four samples do not establish timing or size side channels."
+      }
+    },
+    {
+      "name": "Injected transport A/B",
+      "kind": "injected regression",
+      "report": {
+        "schema": "swiyu.transcript-campaign.v1",
+        "status": "findings",
+        "policy": {
+          "id": "swiyu-direct-post-http-v1",
+          "observer": "verifier",
+          "expected_boundaries": [
+            "verifier:management_create",
+            "verifier:request_object",
+            "wallet->verifier:direct_post",
+            "verifier:management_result"
+          ],
+          "opaque_fields": [
+            {
+              "event": "wallet->verifier:direct_post",
+              "side": "request",
+              "path": "/vp_token/age-over-18-and-valid-status/0/proof",
+              "channel": "proof"
+            }
+          ],
+          "public_fields": [
+            {
+              "event": "verifier:request_object",
+              "side": "response",
+              "path": "/payload/nonce",
+              "expected_key": "nonce"
+            },
+            {
+              "event": "verifier:request_object",
+              "side": "response",
+              "path": "/payload/state",
+              "expected_key": "state"
+            },
+            {
+              "event": "wallet->verifier:direct_post",
+              "side": "request",
+              "path": "/state",
+              "expected_key": "state"
+            }
+          ],
+          "rename_session_tokens": true,
+          "request_object_clock": true,
+          "response_clock_headers": [
+            "date"
+          ],
+          "ignored_headers": []
+        },
+        "unassessed_channels": [
+          "timing distributions",
+          "response Date values",
+          "request-object absolute issuance time"
+        ],
+        "oracle_scope": {
+          "independent": [
+            "credential.authentic@1",
+            "credential.expected-metadata@1",
+            "credential.valid-at@1",
+            "where"
+          ],
+          "verifier_evaluated": [
+            "holder.signature-valid@1",
+            "status.zero-at-reference@1"
+          ],
+          "note": "Independent checks cover authentic SD-JWT, expected issuer metadata, validity time, where, and public status envelope fields. holder.signature-valid@1 and status.zero-at-reference@1 are verifier_evaluated (native OpenAC / submitted verifier). Compact JWS signatures are an explicit unverified crypto assumption: header alg and signature length only.",
+          "crypto_assumptions": [
+            "compact-jws signatures compared by alg and canonical length only; not verified"
+          ]
+        },
+        "classifications": [
+          {
+            "session": "injected-dob-<redacted>-status-42",
+            "statement_digest": "8be8c6e5dd5498f094c51a11ad4e2b41fe2efe874a89742bc22e4cc0298d0fad",
+            "acceptance": true,
+            "release": {
+              "acceptance": true,
+              "eid.issuer": "did:example:issuer",
+              "eid.key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+              "eid.credential_type": "https://example.ch/vct/person"
+            },
+            "public_context": {
+              "issuer": {
+                "public_key": {
+                  "kty": "EC",
+                  "crv": "P-256",
+                  "x": "tnQCGRdqvyj-Y1o_EBErJSYZ4OmMXMBvHHsrdJXtgy8",
+                  "y": "4A4z2DCfieVR07EgnHSsh9cUG_p2J4t-mWFSfn__NsU",
+                  "kid": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01"
+                },
+                "issuer_id": "did:example:issuer",
+                "key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+                "allowed_vcts": [
+                  "https://example.ch/vct/person"
+                ]
+              },
+              "current_time": "1789499617",
+              "age18_cutoff": "2007-06-15",
+              "session": {
+                "client_id": "did:example:12345",
+                "response_uri": "http://127.0.0.1:53967/oid4vp/api/request-object/{request_id}/response-data",
+                "query_id": "age-over-18-and-valid-status"
+              },
+              "status_snapshot": {
+                "id": "ch-tsl-2026-07-epoch-172",
+                "issuer_id": "did:example:issuer",
+                "key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+                "subject": "https://status.example.ch/lists/2026-07",
+                "commitment": "525c23b966937402183083af47c956c980708718dd06c367e63e70c2939ad5bc",
+                "epoch": "172",
+                "list_length": 65536,
+                "valid_before": "1800000000"
+              }
+            },
+            "hidden_markers": [
+              {
+                "id": "attribute.birthdate",
+                "kind": "signed_attribute"
+              },
+              {
+                "id": "holder.jwk",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.x",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.y",
+                "kind": "holder_key"
+              }
+            ]
+          },
+          {
+            "session": "injected-dob-<redacted>-status-7",
+            "statement_digest": "8be8c6e5dd5498f094c51a11ad4e2b41fe2efe874a89742bc22e4cc0298d0fad",
+            "acceptance": true,
+            "release": {
+              "acceptance": true,
+              "eid.issuer": "did:example:issuer",
+              "eid.key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+              "eid.credential_type": "https://example.ch/vct/person"
+            },
+            "public_context": {
+              "issuer": {
+                "public_key": {
+                  "kty": "EC",
+                  "crv": "P-256",
+                  "x": "tnQCGRdqvyj-Y1o_EBErJSYZ4OmMXMBvHHsrdJXtgy8",
+                  "y": "4A4z2DCfieVR07EgnHSsh9cUG_p2J4t-mWFSfn__NsU",
+                  "kid": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01"
+                },
+                "issuer_id": "did:example:issuer",
+                "key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+                "allowed_vcts": [
+                  "https://example.ch/vct/person"
+                ]
+              },
+              "current_time": "1789499617",
+              "age18_cutoff": "2007-06-15",
+              "session": {
+                "client_id": "did:example:12345",
+                "response_uri": "http://127.0.0.1:53967/oid4vp/api/request-object/{request_id}/response-data",
+                "query_id": "age-over-18-and-valid-status"
+              },
+              "status_snapshot": {
+                "id": "ch-tsl-2026-07-epoch-172",
+                "issuer_id": "did:example:issuer",
+                "key_id": "did:tdw:QmYyQSo1c1Ym7orWxLYvCrzRLZad5ZxQ8HkBLyEE4RRAA1:identifier.admin.ch:api:v1:did#assert-key-01",
+                "subject": "https://status.example.ch/lists/2026-07",
+                "commitment": "525c23b966937402183083af47c956c980708718dd06c367e63e70c2939ad5bc",
+                "epoch": "172",
+                "list_length": 65536,
+                "valid_before": "1800000000"
+              }
+            },
+            "hidden_markers": [
+              {
+                "id": "attribute.birthdate",
+                "kind": "signed_attribute"
+              },
+              {
+                "id": "holder.jwk",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.x",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.y",
+                "kind": "holder_key"
+              }
+            ]
+          }
+        ],
+        "pairs": [
+          {
+            "left": "injected-dob-<redacted>-status-42",
+            "right": "injected-dob-<redacted>-status-7",
+            "eligibility": "compared",
+            "status": "mismatch",
+            "diffs": [
+              {
+                "pointer": "/request/body/x_swiyu_wallet_tag/disclosures/0/2",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "scalar leaf differed"
+              },
+              {
+                "pointer": "/request/body/x_swiyu_wallet_tag/payload/_sd/0",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "unknown hash-like identifier differed"
+              },
+              {
+                "pointer": "/request/body/x_swiyu_wallet_tag/payload/status/status_list/idx",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "scalar leaf differed"
+              },
+              {
+                "pointer": "/request/body_size",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "scalar leaf differed"
+              },
+              {
+                "pointer": "/request/headers/1/1",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "scalar leaf differed"
+              },
+              {
+                "pointer": "/request/headers/4/1",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "unknown hash-like identifier differed"
+              }
+            ]
+          }
+        ],
+        "findings": [
+          {
+            "kind": "secret_disclosure",
+            "boundary": "wallet->verifier:direct_post",
+            "side": "request",
+            "location": "decoded-body",
+            "explanation": "hidden marker observed on the wire before opaque masking"
+          },
+          {
+            "kind": "unknown_identifier_differential",
+            "left": "injected-dob-<redacted>-status-42",
+            "right": "injected-dob-<redacted>-status-7",
+            "explanation": "unknown hash-like identifier differed across equivalent sessions"
+          },
+          {
+            "kind": "transcript_mismatch",
+            "left": "injected-dob-<redacted>-status-42",
+            "right": "injected-dob-<redacted>-status-7",
+            "explanation": "normalized observer transcripts differed",
+            "pointers": [
+              "/request/body/x_swiyu_wallet_tag/disclosures/0/2",
+              "/request/body/x_swiyu_wallet_tag/payload/_sd/0",
+              "/request/body/x_swiyu_wallet_tag/payload/status/status_list/idx",
+              "/request/body_size",
+              "/request/headers/1/1",
+              "/request/headers/4/1"
+            ]
+          }
+        ],
+        "coverage": {
+          "sessions": 2,
+          "classified": 2,
+          "compared_pairs": 1
+        },
+        "exceptions": [],
+        "method": "Claim classification (authentic SD-JWT, metadata, validity, where, and exact public status envelope fields) then observer HTTP structural equality after named public fresh alpha-rename and declared proof-length opacity. Secret markers are scanned on raw and decoded bodies before masking. Compact JWS signatures are unverified (alg+length). Two-to-four samples do not establish timing or size side channels."
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "clean-0",
+      "variant": "variant-0",
+      "accepted": true,
+      "event_count": 4,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "present_ms": 50543,
+      "prepare_ms": 74,
+      "request_ms": 830,
+      "post_ms": 14893,
+      "result_ms": 3,
+      "campaign": "clean",
+      "fresh_label": "fresh",
+      "proof_reuse": null
+    },
+    {
+      "id": "clean-1",
+      "variant": "variant-1",
+      "accepted": true,
+      "event_count": 4,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "present_ms": 44111,
+      "prepare_ms": 7,
+      "request_ms": 8,
+      "post_ms": 14821,
+      "result_ms": 2,
+      "campaign": "clean",
+      "fresh_label": "fresh",
+      "proof_reuse": null
+    },
+    {
+      "id": "injected-2",
+      "variant": "variant-2",
+      "accepted": true,
+      "event_count": 4,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "present_ms": 44256,
+      "prepare_ms": 7,
+      "request_ms": 9,
+      "post_ms": 14546,
+      "result_ms": 2,
+      "campaign": "injected",
+      "fresh_label": "fresh",
+      "proof_reuse": null
+    },
+    {
+      "id": "injected-3",
+      "variant": "variant-3",
+      "accepted": true,
+      "event_count": 4,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "present_ms": 44204,
+      "prepare_ms": 6,
+      "request_ms": 7,
+      "post_ms": 19232,
+      "result_ms": 3,
+      "campaign": "injected",
+      "fresh_label": "fresh",
+      "proof_reuse": null
+    }
+  ],
+  "policy": {
+    "id": "swiyu-direct-post-http-v1",
+    "observer": "verifier",
+    "expected_boundaries": [
+      "verifier:management_create",
+      "verifier:request_object",
+      "wallet->verifier:direct_post",
+      "verifier:management_result"
+    ],
+    "opaque_fields": [
+      {
+        "event": "wallet->verifier:direct_post",
+        "side": "request",
+        "path": "/vp_token/age-over-18-and-valid-status/0/proof",
+        "channel": "proof"
+      }
+    ],
+    "public_fields": [
+      {
+        "event": "verifier:request_object",
+        "side": "response",
+        "path": "/payload/nonce",
+        "expected_key": "nonce"
+      },
+      {
+        "event": "verifier:request_object",
+        "side": "response",
+        "path": "/payload/state",
+        "expected_key": "state"
+      },
+      {
+        "event": "wallet->verifier:direct_post",
+        "side": "request",
+        "path": "/state",
+        "expected_key": "state"
+      }
+    ],
+    "rename_session_tokens": true,
+    "request_object_clock": true,
+    "response_clock_headers": [
+      "date"
+    ],
+    "ignored_headers": []
+  },
+  "limitations": {
+    "http_scope": "complete selected application HTTP exchanges",
+    "excluded": [
+      "packet/TLS",
+      "Android/emulator",
+      "uninstrumented sidecar unless observer includes verifier->sidecar",
+      "production filters/database when using memory repositories"
+    ],
+    "engine_note": "Fresh session values are validated before renaming. Compact JWS signatures are compared by algorithm and canonical length, without cryptographic verification by the comparator. Request issuance time and Date values are unassessed; request lifetime remains visible."
+  },
+  "case_study": "OpenAC: two signed credentials with different hidden birth dates and status indices satisfy the same supplied claim. Four fresh native proofs were accepted. The clean pair had no findings; adding a credential and its hash outside the proof produced visible transcript differences.",
+  "novelty": "Claim-derived privacy regression testing across provider integration: pinned claims and permitted releases define which private fixtures should be equivalent; the common harness runs fresh presentations, captures complete selected HTTP exchanges, and finds distinctions outside explicit session and cryptographic assumptions."
+}

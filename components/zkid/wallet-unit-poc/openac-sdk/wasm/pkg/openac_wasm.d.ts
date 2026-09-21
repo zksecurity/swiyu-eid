@@ -80,6 +80,25 @@ export function setup_prepare(): any;
 export function setup_show(): any;
 
 /**
+ * Produce one swiyu proof from an externally generated Circom `.wtns`.
+ *
+ * Returns `{ proof, public_values }`; no reusable Spartan witness or shared
+ * commitment is exported. Each `show()` session must calculate a fresh,
+ * challenge-bound witness and call this function once.
+ */
+export function swiyu_prove_from_witness(pk_bytes: Uint8Array, witness_wtns_bytes: Uint8Array): any;
+
+/**
+ * Verify one proof against the complete verifier-supplied public context.
+ *
+ * `expected_public_context` must contain exactly ten canonical 32-byte
+ * little-endian scalars (320 bytes), in circuit witness order. The first is
+ * `expressionResult` and must equal one. Malformed proofs and context
+ * mismatches return `{ valid: false, error }` instead of throwing.
+ */
+export function swiyu_verify(proof_bytes: Uint8Array, vk_bytes: Uint8Array, expected_public_context: Uint8Array): any;
+
+/**
  * Complete verification: verify both Prepare and Show proofs and compare their
  * shared commitments (comm_W_shared) to ensure they use the same private data.
  *
@@ -112,6 +131,8 @@ export interface InitOutput {
     readonly setup: () => [number, number, number];
     readonly setup_prepare: () => [number, number, number];
     readonly setup_show: () => [number, number, number];
+    readonly swiyu_prove_from_witness: (a: number, b: number, c: number, d: number) => [number, number, number];
+    readonly swiyu_verify: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number];
     readonly verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => [number, number, number];
     readonly verify_single: (a: number, b: number, c: number, d: number) => [number, number, number];
     readonly __wbindgen_malloc: (a: number, b: number) => number;

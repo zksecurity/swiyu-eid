@@ -166,6 +166,54 @@ export function setup_show() {
 }
 
 /**
+ * Produce one swiyu proof from an externally generated Circom `.wtns`.
+ *
+ * Returns `{ proof, public_values }`; no reusable Spartan witness or shared
+ * commitment is exported. Each `show()` session must calculate a fresh,
+ * challenge-bound witness and call this function once.
+ * @param {Uint8Array} pk_bytes
+ * @param {Uint8Array} witness_wtns_bytes
+ * @returns {any}
+ */
+export function swiyu_prove_from_witness(pk_bytes, witness_wtns_bytes) {
+    const ptr0 = passArray8ToWasm0(pk_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(witness_wtns_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.swiyu_prove_from_witness(ptr0, len0, ptr1, len1);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
+
+/**
+ * Verify one proof against the complete verifier-supplied public context.
+ *
+ * `expected_public_context` must contain exactly ten canonical 32-byte
+ * little-endian scalars (320 bytes), in circuit witness order. The first is
+ * `expressionResult` and must equal one. Malformed proofs and context
+ * mismatches return `{ valid: false, error }` instead of throwing.
+ * @param {Uint8Array} proof_bytes
+ * @param {Uint8Array} vk_bytes
+ * @param {Uint8Array} expected_public_context
+ * @returns {any}
+ */
+export function swiyu_verify(proof_bytes, vk_bytes, expected_public_context) {
+    const ptr0 = passArray8ToWasm0(proof_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(vk_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArray8ToWasm0(expected_public_context, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ret = wasm.swiyu_verify(ptr0, len0, ptr1, len1, ptr2, len2);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
+
+/**
  * Complete verification: verify both Prepare and Show proofs and compare their
  * shared commitments (comm_W_shared) to ensure they use the same private data.
  *

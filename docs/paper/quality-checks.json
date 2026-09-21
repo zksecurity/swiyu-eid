@@ -1,0 +1,31 @@
+{
+  "paper_title": "Integrating and Testing Zero-Knowledge Presentations in Swiyu",
+  "authors": [
+    "Antonio Kambiré",
+    "Martìn Ochoa"
+  ],
+  "affiliation": "zkSecurity",
+  "pages_including_references": 5,
+  "cited_references": 14,
+  "hashed_evidence_files": 32,
+  "narrative": "Swiyu; ZK approaches; generic integration; shared claims and circuit alignment; transcript testing; evaluation",
+  "plan_review": "PASS (talk narrative review)",
+  "final_technical_review": "PASS (linear-technical-r1.md)",
+  "final_editorial_and_visual_review": "PASS (linear-editorial-visual-r2.md; all five pages inspected)",
+  "common_claim_conformance_tests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "shared_and_cross_transcript_tests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "shared_regression_mode": "fixture-only; evidence_usable:false",
+  "pdf": "claim-guided-transcript-testing.pdf",
+  "pdf_sha256": "834a5b9ea98fa2563d2a45a1a4e449f37e6928aa335f1b1860f588308a64fbfa",
+  "source_sha256": "57e83e2f8e7155c8761023876e9e42a54c9dacf6547cef7a1e0b4fc1383064c6",
+  "remaining_submission_work": [
+    "Venue template",
+    "Durable public artifact deposit and native-artifact acquisition/build instructions"
+  ]
+}

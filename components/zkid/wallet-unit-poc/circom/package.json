@@ -20,6 +20,7 @@
     "compile:mdoc": "bash scripts/compile.sh mdoc",
     "compile:ecdsa": "bash scripts/compile.sh ecdsa",
     "compile:swiyu": "bash scripts/compile.sh swiyu_age18_status_2k",
+    "compile:swiyu:age25": "bash scripts/compile.sh swiyu_age25_jwt",
     "compile:swiyu:compact": "bash scripts/compile.sh swiyu_age18_status_compact",
     "compile:swiyu:prepare": "bash scripts/compile.sh swiyu_age18_prepare_compact",
     "compile:swiyu:show-split": "bash scripts/compile.sh swiyu_age18_show_split",

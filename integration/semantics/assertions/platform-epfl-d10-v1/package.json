@@ -1,0 +1,31 @@
+{
+  "schema": "swiyu.semantic-assertion-package.v0",
+  "id": "platform.epfl-d10@1",
+  "title": "EPFL d10_swiyu_jwt bounded assertions",
+  "assertions": {
+    "credential.authentic@1": {
+      "args": {
+        "credential": {"ref": "credential"},
+        "issuer": {"ref": "given"}
+      }
+    },
+    "presentation.challenge-bound@1": {
+      "args": {
+        "challenge": {"ref": "given"}
+      },
+      "outputs": ["expected_transcript"]
+    },
+    "holder.signature-valid@1": {
+      "args": {
+        "credential": {"ref": "credential"},
+        "transcript": {"ref": "assertion_output"}
+      }
+    }
+  },
+  "recipes": {},
+  "mandatory_assertions": [
+    "credential.authentic@1",
+    "presentation.challenge-bound@1",
+    "holder.signature-valid@1"
+  ]
+}

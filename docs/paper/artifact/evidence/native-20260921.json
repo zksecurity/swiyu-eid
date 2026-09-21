@@ -1,0 +1,309 @@
+{
+  "schema": "swiyu.bounded-research-assessment.v1",
+  "conclusion": "No natural privacy counterexample was observed in the seven eligible selected-flow comparisons.",
+  "sessions": [
+    {
+      "run": "original matrix",
+      "session": "clean-a-baseline",
+      "variant": "a-baseline",
+      "accepted": true,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "prepare_ms": 65,
+      "present_ms": 41898,
+      "post_ms": 18539,
+      "result_ms": 3
+    },
+    {
+      "run": "original matrix",
+      "session": "clean-a-repeat",
+      "variant": "a-repeat",
+      "accepted": true,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "prepare_ms": 7,
+      "present_ms": 39535,
+      "post_ms": 19390,
+      "result_ms": 3
+    },
+    {
+      "run": "original matrix",
+      "session": "clean-b-holder",
+      "variant": "b-holder",
+      "accepted": true,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "prepare_ms": 8,
+      "present_ms": 40017,
+      "post_ms": 18173,
+      "result_ms": 3
+    },
+    {
+      "run": "original matrix",
+      "session": "clean-c-exp",
+      "variant": "c-exp",
+      "accepted": false,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "prepare_ms": 7,
+      "present_ms": 39947,
+      "post_ms": 36,
+      "result_ms": 2
+    },
+    {
+      "run": "fresh expiry pair",
+      "session": "clean-c-exp",
+      "variant": "c-exp",
+      "accepted": true,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "prepare_ms": 65,
+      "present_ms": 41028,
+      "post_ms": 18692,
+      "result_ms": 5
+    },
+    {
+      "run": "fresh expiry pair",
+      "session": "clean-a-baseline",
+      "variant": "a-baseline",
+      "accepted": true,
+      "proof_bytes": 315967,
+      "witness_bytes": 199642572,
+      "prepare_ms": 8,
+      "present_ms": 42067,
+      "post_ms": 18299,
+      "result_ms": 2
+    },
+    {
+      "run": "EPFL hidden-holder",
+      "session": "clean-epfl-adult-a",
+      "variant": "epfl-adult-a",
+      "accepted": true,
+      "proof_bytes": 16224,
+      "witness_bytes": 311420,
+      "prepare_ms": 0,
+      "present_ms": 14544,
+      "post_ms": 137,
+      "result_ms": 3
+    },
+    {
+      "run": "EPFL hidden-holder",
+      "session": "clean-epfl-adult-a-repeat",
+      "variant": "epfl-adult-a-repeat",
+      "accepted": true,
+      "proof_bytes": 16224,
+      "witness_bytes": 311426,
+      "prepare_ms": 0,
+      "present_ms": 15321,
+      "post_ms": 72,
+      "result_ms": 1
+    },
+    {
+      "run": "EPFL hidden-holder",
+      "session": "clean-epfl-adult-holder",
+      "variant": "epfl-adult-holder",
+      "accepted": true,
+      "proof_bytes": 16224,
+      "witness_bytes": 311433,
+      "prepare_ms": 0,
+      "present_ms": 14919,
+      "post_ms": 82,
+      "result_ms": 1
+    }
+  ],
+  "comparisons": {
+    "original_matrix": {
+      "status": "findings",
+      "eligible_pairs": 3,
+      "equivalent_pairs": 3,
+      "mismatch_pairs": 0,
+      "ineligible_pairs": 0,
+      "findings": [
+        {
+          "kind": "unexpected_reject",
+          "session": "clean-c-exp",
+          "explanation": "session accepted flag disagreed with claim classification"
+        }
+      ]
+    },
+    "fresh_expiry_pair": {
+      "status": "clean",
+      "eligible_pairs": 1,
+      "equivalent_pairs": 1,
+      "mismatch_pairs": 0,
+      "ineligible_pairs": 0,
+      "findings": []
+    },
+    "epfl_hidden_holder": {
+      "status": "clean",
+      "eligible_pairs": 3,
+      "equivalent_pairs": 3,
+      "mismatch_pairs": 0,
+      "ineligible_pairs": 0,
+      "findings": []
+    }
+  },
+  "candidate_transcript_findings": [],
+  "stale_policy_rejection": {
+    "session": "clean-c-exp",
+    "accepted": false,
+    "error": "ZK presentation policy time is no longer fresh",
+    "policy_time": 1789990868,
+    "request_iat_offsets_seconds": [
+      102,
+      163,
+      222,
+      281
+    ],
+    "response_receipt_offset_seconds": 321,
+    "enforcement": "HttpZkPresentationVerifier.MAX_POLICY_TIME_SKEW_SECONDS=300"
+  },
+  "original_verifier_control": {
+    "original_binary_sha256": "3c098be92eea4406f44c4cb29ecdb59acd213c6d948fec3a95c9a92b28a6650d",
+    "source_session": "clean-a-baseline",
+    "matching_session_verified": true,
+    "changed_nonce_verified": false,
+    "scope": "One mapped-loader proof checked by the original native verifier; a fresh nonce rejects."
+  },
+  "loader_hashes": {
+    "modified_source_sha256": "6c16beca5a0b5d27c444ce13eee5d871104ec0f4e27d0f2cea1d4b82bd943e25",
+    "binary_sha256": "dead608077c38fceda60b0495f84e0cd80c9a707c9b9cdb33684b45a5c868650"
+  },
+  "resources": {
+    "original_matrix": {
+      "max_swap_growth_mib": 386.6,
+      "min_memory_free_percent": 32
+    },
+    "fresh_expiry_pair": {
+      "max_swap_growth_mib": 295.8,
+      "min_memory_free_percent": 33
+    }
+  },
+  "guard_ledgers": {
+    "expiry-pair-v1-ledger.json": {
+      "state": "completed",
+      "returncode": 0,
+      "seconds": 144.5,
+      "usage": "unknown",
+      "command": [
+        "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/integration/semantics/.venv/bin/python",
+        "expiry-pair/run.py"
+      ]
+    },
+    "native-mmap-v1-ledger.json": {
+      "state": "completed",
+      "returncode": 0,
+      "seconds": 240.9,
+      "usage": "unknown",
+      "command": [
+        "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/integration/semantics/.venv/bin/python",
+        "mmap-run/run.py"
+      ]
+    },
+    "native-run-v2-ledger.json": {
+      "state": "resource_limit",
+      "returncode": -2,
+      "seconds": 41.8,
+      "usage": "unknown",
+      "command": [
+        "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/integration/semantics/.venv/bin/python",
+        "run.py"
+      ]
+    },
+    "native-run-v3-ledger.json": {
+      "state": "resource_limit",
+      "returncode": -2,
+      "seconds": 57.1,
+      "usage": "unknown",
+      "command": [
+        "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/integration/semantics/.venv/bin/python",
+        "run.py"
+      ]
+    },
+    "original-verifier-check-ledger.json": {
+      "state": "completed",
+      "returncode": 0,
+      "seconds": 40.1,
+      "usage": "unknown",
+      "command": [
+        "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/integration/semantics/.venv/bin/python",
+        "check-original-verifier.py"
+      ]
+    },
+    "probe-ledger.json": {
+      "state": "completed",
+      "returncode": 0,
+      "seconds": 16.0,
+      "usage": "unknown",
+      "command": [
+        "pi",
+        "--provider",
+        "cursor",
+        "--model",
+        "composer-2.5",
+        "--cursor-no-fast",
+        "--no-session",
+        "-p",
+        "Reply exactly READY_RESEARCH. No tools."
+      ]
+    }
+  },
+  "limitations": [
+    "Observer scope is four selected HTTP boundaries: management create, request object, direct_post, management result.",
+    "No Android, TLS/packets, live trust registry/status authority, split-proof flow, or timing distribution was assessed.",
+    "Observed durations are operational measurements, not timing-privacy evidence.",
+    "The mmap loader reduces eager file copying; it is a resource workaround, not a privacy fix.",
+    "The original verifier check establishes one-proof compatibility and nonce binding only.",
+    "EPFL compressed witness sizes are local measurements outside the selected HTTP observer.",
+    "EPFL uses a synthetic fixed-header circuit credential; arbitrary SD-JWT compatibility is not established."
+  ],
+  "totals": {
+    "sessions": 9,
+    "accepted": 8,
+    "eligible_equivalent_pairs": 7
+  },
+  "epfl": {
+    "evidence_check": "pass",
+    "proof_hashes_distinct": true,
+    "source": {
+      "core_hashes_match_copy_and_repo": true,
+      "circuit_tree_matches_provenance": true
+    },
+    "guard": {
+      "state": "completed",
+      "returncode": 0,
+      "seconds": 112.09,
+      "remaining_owned": []
+    },
+    "resources": {
+      "records": 96,
+      "min_memory_free_percent": 40,
+      "max_swap_growth_mib": 0.0,
+      "min_disk_free_gib": 28.91
+    },
+    "direct_verifier_control": {
+      "source_session": "clean-epfl-adult-holder",
+      "proof_sha256": "eaac49296bc339518297d91d0bb1ee56b91b7203bb83d5fe9d8b1513b4c58a1e",
+      "bb_sha256": "26c8ec0f769e46694dcc4e889156c697b34f0734824ee66a457ca62fa8721715",
+      "vk_sha256": "9f2878ca13c0e57aaff6b0d5a796e168477329e6882b1846af67f6f20491050a",
+      "controls": {
+        "matching_session": {
+          "returncode": 0,
+          "verified": true
+        },
+        "changed_nonce": {
+          "returncode": 1,
+          "verified": false
+        }
+      },
+      "scope": "One captured changed-holder proof checked directly with bb and independently encoded public fields; a one-byte challenge change must reject.",
+      "guard": {
+        "state": "completed",
+        "returncode": 0,
+        "seconds": 1.47,
+        "remaining_owned": []
+      }
+    },
+    "fixture_scope": "Original provider and circuit; synthetic fixture adds an authenticated holder-key variant using the circuit-fixed header."
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "swiyu.claim-support.v0",
+  "id": "openac-swiyu-age18-status-2k-support",
+  "title": "OpenAC fixed-profile and shared age-25 claim support",
+  "approved_roots": [
+    "../../../components/zkid/wallet-unit-poc/circom"
+  ],
+  "supported_claims": [
+    {
+      "id": "swiyu.openac.age18-status-2k.v0",
+      "statement_digest": "b51397b3ad26a74c5e1e3655cd9ab8916e3bc5c45bf82a590d70933ef28e45c8",
+      "implementation_profile": "swiyu-age18-status-2k-v0",
+      "circuit": "swiyu_age18_status_2k",
+      "enforcement": {
+        "issuer_authentication": "both",
+        "metadata_profile_binding": "both",
+        "credential_validity": "both",
+        "holder_authorization": "proof",
+        "session_binding": "both",
+        "status_freshness_validity": "both",
+        "where": "both"
+      }
+    },
+    {
+      "id": "swiyu.shared.age25-holder-challenge.v0",
+      "statement_digest": "838df32b57b9ca0aadb533270bbc096cd67b7f85c3ead250cacf765742d3ddc5",
+      "implementation_profile": "openac-age25-jwt-v0",
+      "circuit": "swiyu_age25_jwt",
+      "enforcement": {
+        "issuer_authentication": "both",
+        "challenge_binding": "both",
+        "holder_authorization": "proof",
+        "where": "both"
+      }
+    }
+  ],
+  "enforcement": {
+    "issuer_authentication": "both",
+    "metadata_profile_binding": "both",
+    "credential_validity": "both",
+    "holder_authorization": "proof",
+    "session_binding": "both",
+    "status_freshness_validity": "both",
+    "where": "both"
+  },
+  "wallet_prechecks": [],
+  "artifact_pins": [
+    {
+      "path": "provider.mjs",
+      "sha256": "9f81d45523effbb1119e0c826d163024ff909116eb7c5b4f8947c3baa3f569e6"
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "e8829ede03922bca78e272ec3ee1ee90f13d9a24f15b9ee79dfe3e27f46c7bd1"
+    },
+    {
+      "path": "provider-run-fixture.mjs",
+      "sha256": "79f3e4a16b3c9ea1e1a1c3c29d2bd8a4e968a6ab9fca7e862a6519c19cd19072"
+    },
+    {
+      "path": "transcript-fixture.mjs",
+      "sha256": "2b12301c9f283511fe77a402168862fb2f884af56d499c3d115c106e5e67ee72"
+    },
+    {
+      "path": "transcript-fixture-age25.py",
+      "sha256": "16e1db231ea125625e695e26379ec01d7e4fa36b5a88f591f8ff3c3fafcf5a91"
+    },
+    {
+      "path": "transcript-sidecar.mjs",
+      "sha256": "3c07661b06c18c0daf1f11239488512dee61b0a448d0f4f4e216ce5d7c19eb74"
+    },
+    {
+      "path": "transcript-sidecar-age25.py",
+      "sha256": "8289c6b6cf36f5f0a8b1597970050c983fb3e3262064152a98d0cb7acd0df54c"
+    },
+    {
+      "path": "age25_transcript_wallet.py",
+      "sha256": "d316ba1505262609103dfb88af9e98d2b64d733fe275b6627307d9429c6deabc"
+    },
+    {
+      "path": "age25-jwt.md",
+      "sha256": "ddfd17e09cf7d8a4883951f47745cc48a7d3a986fab0ff4b4d2908c9b260021f"
+    },
+    {
+      "path": "../../../components/zkid/wallet-unit-poc/circom/circuits/swiyu-age25-jwt.circom",
+      "sha256": "e893ba2391507c36f04e6a728246b161788b7215f3921095d1d46a12b9395638"
+    },
+    {
+      "path": "../../../components/zkid/wallet-unit-poc/circom/circuits/swiyu/disclosure.circom",
+      "sha256": "a6167717dd655b1b9e9aeb4f648dc4004d2a78ca45b6ad5022d2578253b6dd9c"
+    },
+    {
+      "path": "../../../components/zkid/wallet-unit-poc/circom/circuits/swiyu/yyyymmdd-age.circom",
+      "sha256": "0d153a92d3ad661cab870db964ea2929cc0ac1ea5750153d400c3349092ca8e7"
+    }
+  ]
+}

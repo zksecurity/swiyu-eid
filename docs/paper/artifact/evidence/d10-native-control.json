@@ -1,0 +1,17 @@
+{
+  "source_session": "clean-epfl-adult-holder",
+  "proof_sha256": "eaac49296bc339518297d91d0bb1ee56b91b7203bb83d5fe9d8b1513b4c58a1e",
+  "bb_sha256": "26c8ec0f769e46694dcc4e889156c697b34f0734824ee66a457ca62fa8721715",
+  "vk_sha256": "9f2878ca13c0e57aaff6b0d5a796e168477329e6882b1846af67f6f20491050a",
+  "controls": {
+    "matching_session": {
+      "returncode": 0,
+      "verified": true
+    },
+    "changed_nonce": {
+      "returncode": 1,
+      "verified": false
+    }
+  },
+  "scope": "One captured changed-holder proof checked directly with bb and independently encoded public fields; a one-byte challenge change must reject."
+}

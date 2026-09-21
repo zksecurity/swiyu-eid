@@ -1,0 +1,4 @@
+# Reference cryptography; no contributor SDK dependency.
+cryptography==50.0.1
+cffi==2.1.1
+pycparser==3.0

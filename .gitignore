@@ -7,3 +7,9 @@
 /artifacts/
 /benchmark/results/
 /integration/docker/volumes/
+
+# Python caches and local environments.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/

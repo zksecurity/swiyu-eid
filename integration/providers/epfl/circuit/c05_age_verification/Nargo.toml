@@ -1,0 +1,7 @@
+[package]
+name = "c05_age_verification"
+type = "bin"
+authors = [""]
+
+[dependencies]
+eid = { path = "../eid" }

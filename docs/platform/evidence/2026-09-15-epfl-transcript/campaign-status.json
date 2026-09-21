@@ -1,0 +1,25 @@
+{
+  "campaign": "epfl-d10-transcript",
+  "date": "2026-09-15",
+  "status": "complete",
+  "claim_id": "swiyu.epfl.d10-age25-jwt.v0",
+  "claim_digest": "b0b44776cd76859535394cf88151e1f81ff3d17585edfc208a06e806319b29a5",
+  "evidence_usable": true,
+  "accepted_sessions": 4,
+  "distinct_proofs": 4,
+  "baseline": "clean",
+  "injected": "findings",
+  "proof_bytes": 16224,
+  "witness_gzip_bytes_range": [311413, 311448],
+  "codec": "proof_b64 canonical unpadded base64url on OID4VP wire",
+  "artifacts": {
+    "campaign_report_json": "campaign-report.json",
+    "campaign_report_html": "campaign-report.html",
+    "summary": "summary.md"
+  },
+  "scope_limits": [
+    "Local JDK HTTP adapter + in-memory verifier; not Android/full Spring/TLS",
+    "Synthetic dc+sd-jwt fixtures only; no arbitrary credential compatibility claim",
+    "Classifier checks SD-JWT ES256 + bounded claim; native circuit checks UltraHonk separately"
+  ]
+}

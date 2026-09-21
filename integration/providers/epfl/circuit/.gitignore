@@ -1,0 +1,5 @@
+target/
+*.gz
+proofs/
+Prover.toml
+**/Prover.toml

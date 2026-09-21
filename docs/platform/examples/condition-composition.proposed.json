@@ -1,0 +1,34 @@
+{
+  "schema": "swiyu.condition-fragment.v0",
+  "description": "Proposed condition fragment for a new synthetic full claim using claim.context@1 and the surrounding required assertions. Do not retain the legacy binding recipe. Not an OpenAC capability declaration.",
+  "attributes": {
+    "birthdate": { "credential": "eid", "path": ["birthdate"], "type": "swiyu.date@0" },
+    "nationality": { "credential": "eid", "path": ["nationality"], "type": "ascii-code2@1" },
+    "residence": { "credential": "eid", "path": ["residence_country"], "type": "ascii-code2@1" }
+  },
+  "given": {
+    "cutoff": { "type": "swiyu.date@0" },
+    "allowed_nationalities": { "type": "set<ascii-code2@1>", "max_items": 16 },
+    "required_residence": { "type": "ascii-code2@1" }
+  },
+  "where": {
+    "all": [
+      {
+        "predicate": "date.on-or-before@1",
+        "args": { "value": { "attribute": "birthdate" }, "limit": { "given": "cutoff" } }
+      },
+      {
+        "any": [
+          {
+            "predicate": "value.in-set@1",
+            "args": { "value": { "attribute": "nationality" }, "set": { "given": "allowed_nationalities" } }
+          },
+          {
+            "predicate": "value.equals@1",
+            "args": { "left": { "attribute": "residence" }, "right": { "given": "required_residence" } }
+          }
+        ]
+      }
+    ]
+  }
+}

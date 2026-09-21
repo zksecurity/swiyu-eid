@@ -1,0 +1,11 @@
+{
+  "native_adapter_tests": {
+    "passed": 15,
+    "failed": 0,
+    "seconds": 36.885
+  },
+  "provider_run_exit_code": 0,
+  "independent_review": "cleanup and verification boundaries accepted; no blocking findings",
+  "scope": "Native EPFL c05/d10 provider; full OID4VP transcript differential not run",
+  "private_scratch": "Deleted after operations; caller inputs and compiled cache preserved"
+}

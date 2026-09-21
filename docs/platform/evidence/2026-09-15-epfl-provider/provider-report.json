@@ -1,0 +1,102 @@
+{
+  "schema": "swiyu.provider-report.v1",
+  "run_id": "157ebe94-2a85-4859-b3a9-9ab543e20e75",
+  "overall": "passed",
+  "provider": {
+    "id": "swiyu-epfl-native",
+    "title": "EPFL zkp-pocs native nargo/bb UltraHonk (d10 default, c05 explicit)",
+    "kind": "implementation",
+    "profiles": [
+      "epfl-d10-swiyu-jwt-age25-v0",
+      "epfl-c05-age18-fixedcred-v0"
+    ],
+    "manifest_path": "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/integration/providers/epfl/manifest.json",
+    "support_path": null
+  },
+  "support": {
+    "status": "not_provided",
+    "claims": []
+  },
+  "operation_readiness": {
+    "initialize": "implemented",
+    "prepare": "implemented",
+    "present": "implemented",
+    "verify": "implemented",
+    "cleanup": "implemented"
+  },
+  "benchmark": {
+    "schema": "swiyu.benchmark.v1",
+    "environment": "local",
+    "note": "Wall-clock integration measurements from the declared provider fixture. Witness/prove are marked covered_by_present when the provider exposes them as part of present.",
+    "stages": {
+      "provider_startup": {
+        "status": "completed",
+        "elapsed_ms": 1.85
+      },
+      "initialize": {
+        "status": "completed",
+        "elapsed_ms": 12866.592
+      },
+      "prepare": {
+        "status": "completed",
+        "elapsed_ms": 0.341
+      },
+      "witness": {
+        "status": "covered_by_present",
+        "elapsed_ms": null
+      },
+      "prove": {
+        "status": "covered_by_present",
+        "elapsed_ms": null
+      },
+      "present": {
+        "status": "completed",
+        "elapsed_ms": 9042.915
+      },
+      "verify": {
+        "status": "completed",
+        "elapsed_ms": 33.665
+      },
+      "cleanup": {
+        "status": "completed",
+        "elapsed_ms": 0.217
+      }
+    }
+  },
+  "artifacts": {
+    "sizes_bytes": {
+      "witness": 337075,
+      "proof": 16224,
+      "presentation": 25931
+    },
+    "readiness": {
+      "available": true,
+      "nargo": "/tmp/swiyu-epfl-20260915/owned/scratch/toolchain/bin/nargo",
+      "bb": "/tmp/swiyu-epfl-20260915/owned/scratch/toolchain/bin/bb",
+      "circuit": "d10_swiyu_jwt",
+      "scheme": "ultra_honk",
+      "public_field_count": 97
+    }
+  },
+  "cases": [
+    {
+      "name": "epfl_d10_native_proof_lifecycle",
+      "outcome": "passed",
+      "detail": "provider completed the declared profile fixture"
+    },
+    {
+      "name": "wrong_challenge_nonce",
+      "outcome": "passed",
+      "detail": "negative fixture produced the expected verifier result",
+      "expected": "verified=False",
+      "observed": "verified=False"
+    }
+  ],
+  "leakage": {
+    "schema": "swiyu.differential-leakage.v1",
+    "status": "not_run",
+    "summary": "No differential claim campaign was supplied.",
+    "findings": [],
+    "pairs": []
+  }
+}

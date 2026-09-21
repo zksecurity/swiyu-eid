@@ -1,0 +1,554 @@
+{
+  "schema": "swiyu.transcript-campaign-bundle.v1",
+  "provider": "swiyu-epfl-native",
+  "claim": "swiyu.epfl.d10-age25-jwt.v0",
+  "mode": "live",
+  "evidence_usable": true,
+  "qualification": "Local owned lifecycle: Java production controllers/services via JDK HTTP adapter, memory repository, local signed request objects, and preprovisioned issuer/status. Provider-generated proofs via the registered sidecar (swiyu-epfl-native). Not full Spring dispatch, BeanValidation, deployment filters, Android, TLS, or live authority.",
+  "runtime_evidence": {
+    "http": "verifier-base",
+    "proofs": "provider-present",
+    "engine": "transcript_equivalence.analyze_transcripts"
+  },
+  "campaigns": [
+    {
+      "name": "Clean A/B",
+      "kind": "baseline",
+      "report": {
+        "schema": "swiyu.transcript-campaign.v1",
+        "status": "clean",
+        "policy": {
+          "id": "swiyu-direct-post-http-v1",
+          "observer": "verifier",
+          "expected_boundaries": [
+            "verifier:management_create",
+            "verifier:request_object",
+            "wallet->verifier:direct_post",
+            "verifier:management_result"
+          ],
+          "opaque_fields": [
+            {
+              "event": "wallet->verifier:direct_post",
+              "side": "request",
+              "path": "/vp_token/birth_date/0/proof_b64",
+              "channel": "proof"
+            }
+          ],
+          "public_fields": [
+            {
+              "event": "verifier:request_object",
+              "side": "response",
+              "path": "/payload/nonce",
+              "expected_key": "nonce"
+            },
+            {
+              "event": "verifier:request_object",
+              "side": "response",
+              "path": "/payload/state",
+              "expected_key": "state"
+            },
+            {
+              "event": "wallet->verifier:direct_post",
+              "side": "request",
+              "path": "/state",
+              "expected_key": "state"
+            }
+          ],
+          "rename_session_tokens": true,
+          "request_object_clock": true,
+          "response_clock_headers": [
+            "date"
+          ],
+          "ignored_headers": []
+        },
+        "unassessed_channels": [
+          "timing distributions",
+          "response Date values",
+          "request-object absolute issuance time"
+        ],
+        "oracle_scope": {
+          "independent": [
+            "credential.authentic@1",
+            "where"
+          ],
+          "verifier_evaluated": [
+            "presentation.challenge-bound@1",
+            "holder.signature-valid@1"
+          ],
+          "note": "Independent checks are exactly those listed in the independent array for this claim. presentation.challenge-bound@1, holder.signature-valid@1 are verifier_evaluated (submitted verifier/native adapter). Compact JWS signatures are an explicit unverified crypto assumption: header alg and signature length only.",
+          "crypto_assumptions": [
+            "compact-jws signatures compared by alg and canonical length only; not verified"
+          ]
+        },
+        "classifications": [
+          {
+            "session": "clean-epfl-adult-a",
+            "statement_digest": "b0b44776cd76859535394cf88151e1f81ff3d17585edfc208a06e806319b29a5",
+            "acceptance": true,
+            "release": {
+              "acceptance": true
+            },
+            "public_context": {
+              "issuer": {
+                "public_key": {
+                  "kty": "EC",
+                  "crv": "P-256",
+                  "x": "4USSlk11jn3lnjra3kszN83BEui9N5M8N2mi_rLUTeg",
+                  "y": "q7gsV412hURPl8nlkHDmWhgQtKXYITX4o8WZTb852IQ",
+                  "kid": "epfl-test-key-1"
+                },
+                "issuer_id": "did:example:epfl-test-issuer",
+                "key_id": "epfl-test-key-1",
+                "allowed_vcts": [
+                  "https://example.ch/vct/epfl-d10-test"
+                ]
+              },
+              "now_date": 20240101
+            },
+            "hidden_markers": [
+              {
+                "id": "attribute.birth_date",
+                "kind": "signed_attribute"
+              },
+              {
+                "id": "holder.jwk",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.x",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.y",
+                "kind": "holder_key"
+              },
+              {
+                "id": "status.uri",
+                "kind": "status"
+              }
+            ]
+          },
+          {
+            "session": "clean-epfl-adult-b",
+            "statement_digest": "b0b44776cd76859535394cf88151e1f81ff3d17585edfc208a06e806319b29a5",
+            "acceptance": true,
+            "release": {
+              "acceptance": true
+            },
+            "public_context": {
+              "issuer": {
+                "public_key": {
+                  "kty": "EC",
+                  "crv": "P-256",
+                  "x": "4USSlk11jn3lnjra3kszN83BEui9N5M8N2mi_rLUTeg",
+                  "y": "q7gsV412hURPl8nlkHDmWhgQtKXYITX4o8WZTb852IQ",
+                  "kid": "epfl-test-key-1"
+                },
+                "issuer_id": "did:example:epfl-test-issuer",
+                "key_id": "epfl-test-key-1",
+                "allowed_vcts": [
+                  "https://example.ch/vct/epfl-d10-test"
+                ]
+              },
+              "now_date": 20240101
+            },
+            "hidden_markers": [
+              {
+                "id": "attribute.birth_date",
+                "kind": "signed_attribute"
+              },
+              {
+                "id": "holder.jwk",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.x",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.y",
+                "kind": "holder_key"
+              },
+              {
+                "id": "status.uri",
+                "kind": "status"
+              }
+            ]
+          }
+        ],
+        "pairs": [
+          {
+            "left": "clean-epfl-adult-a",
+            "right": "clean-epfl-adult-b",
+            "eligibility": "compared",
+            "status": "equivalent",
+            "diffs": []
+          }
+        ],
+        "findings": [],
+        "coverage": {
+          "sessions": 2,
+          "classified": 2,
+          "compared_pairs": 1
+        },
+        "exceptions": [],
+        "method": "Claim classification (authentic SD-JWT, metadata, validity, where, and exact public status envelope fields) then observer HTTP structural equality after named public fresh alpha-rename and declared proof-length opacity. Secret markers are scanned on raw and decoded bodies before masking. Compact JWS signatures are unverified (alg+length). Two-to-four samples do not establish timing or size side channels."
+      }
+    },
+    {
+      "name": "Injected transport A/B",
+      "kind": "injected regression",
+      "report": {
+        "schema": "swiyu.transcript-campaign.v1",
+        "status": "findings",
+        "policy": {
+          "id": "swiyu-direct-post-http-v1",
+          "observer": "verifier",
+          "expected_boundaries": [
+            "verifier:management_create",
+            "verifier:request_object",
+            "wallet->verifier:direct_post",
+            "verifier:management_result"
+          ],
+          "opaque_fields": [
+            {
+              "event": "wallet->verifier:direct_post",
+              "side": "request",
+              "path": "/vp_token/birth_date/0/proof_b64",
+              "channel": "proof"
+            }
+          ],
+          "public_fields": [
+            {
+              "event": "verifier:request_object",
+              "side": "response",
+              "path": "/payload/nonce",
+              "expected_key": "nonce"
+            },
+            {
+              "event": "verifier:request_object",
+              "side": "response",
+              "path": "/payload/state",
+              "expected_key": "state"
+            },
+            {
+              "event": "wallet->verifier:direct_post",
+              "side": "request",
+              "path": "/state",
+              "expected_key": "state"
+            }
+          ],
+          "rename_session_tokens": true,
+          "request_object_clock": true,
+          "response_clock_headers": [
+            "date"
+          ],
+          "ignored_headers": []
+        },
+        "unassessed_channels": [
+          "timing distributions",
+          "response Date values",
+          "request-object absolute issuance time"
+        ],
+        "oracle_scope": {
+          "independent": [
+            "credential.authentic@1",
+            "where"
+          ],
+          "verifier_evaluated": [
+            "presentation.challenge-bound@1",
+            "holder.signature-valid@1"
+          ],
+          "note": "Independent checks are exactly those listed in the independent array for this claim. presentation.challenge-bound@1, holder.signature-valid@1 are verifier_evaluated (submitted verifier/native adapter). Compact JWS signatures are an explicit unverified crypto assumption: header alg and signature length only.",
+          "crypto_assumptions": [
+            "compact-jws signatures compared by alg and canonical length only; not verified"
+          ]
+        },
+        "classifications": [
+          {
+            "session": "injected-epfl-adult-a",
+            "statement_digest": "b0b44776cd76859535394cf88151e1f81ff3d17585edfc208a06e806319b29a5",
+            "acceptance": true,
+            "release": {
+              "acceptance": true
+            },
+            "public_context": {
+              "issuer": {
+                "public_key": {
+                  "kty": "EC",
+                  "crv": "P-256",
+                  "x": "4USSlk11jn3lnjra3kszN83BEui9N5M8N2mi_rLUTeg",
+                  "y": "q7gsV412hURPl8nlkHDmWhgQtKXYITX4o8WZTb852IQ",
+                  "kid": "epfl-test-key-1"
+                },
+                "issuer_id": "did:example:epfl-test-issuer",
+                "key_id": "epfl-test-key-1",
+                "allowed_vcts": [
+                  "https://example.ch/vct/epfl-d10-test"
+                ]
+              },
+              "now_date": 20240101
+            },
+            "hidden_markers": [
+              {
+                "id": "attribute.birth_date",
+                "kind": "signed_attribute"
+              },
+              {
+                "id": "holder.jwk",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.x",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.y",
+                "kind": "holder_key"
+              },
+              {
+                "id": "status.uri",
+                "kind": "status"
+              }
+            ]
+          },
+          {
+            "session": "injected-epfl-adult-b",
+            "statement_digest": "b0b44776cd76859535394cf88151e1f81ff3d17585edfc208a06e806319b29a5",
+            "acceptance": true,
+            "release": {
+              "acceptance": true
+            },
+            "public_context": {
+              "issuer": {
+                "public_key": {
+                  "kty": "EC",
+                  "crv": "P-256",
+                  "x": "4USSlk11jn3lnjra3kszN83BEui9N5M8N2mi_rLUTeg",
+                  "y": "q7gsV412hURPl8nlkHDmWhgQtKXYITX4o8WZTb852IQ",
+                  "kid": "epfl-test-key-1"
+                },
+                "issuer_id": "did:example:epfl-test-issuer",
+                "key_id": "epfl-test-key-1",
+                "allowed_vcts": [
+                  "https://example.ch/vct/epfl-d10-test"
+                ]
+              },
+              "now_date": 20240101
+            },
+            "hidden_markers": [
+              {
+                "id": "attribute.birth_date",
+                "kind": "signed_attribute"
+              },
+              {
+                "id": "holder.jwk",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.x",
+                "kind": "holder_key"
+              },
+              {
+                "id": "holder.jwk.y",
+                "kind": "holder_key"
+              },
+              {
+                "id": "status.uri",
+                "kind": "status"
+              }
+            ]
+          }
+        ],
+        "pairs": [
+          {
+            "left": "injected-epfl-adult-a",
+            "right": "injected-epfl-adult-b",
+            "eligibility": "compared",
+            "status": "mismatch",
+            "diffs": [
+              {
+                "pointer": "/request/body/x_swiyu_wallet_tag/disclosures/0/0",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "scalar leaf differed"
+              },
+              {
+                "pointer": "/request/body/x_swiyu_wallet_tag/disclosures/0/2",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "scalar leaf differed"
+              },
+              {
+                "pointer": "/request/body/x_swiyu_wallet_tag/payload/_sd/0",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "unknown hash-like identifier differed"
+              },
+              {
+                "pointer": "/request/headers/4/1",
+                "left_boundary": "wallet->verifier:direct_post",
+                "right_boundary": "wallet->verifier:direct_post",
+                "explanation": "unknown hash-like identifier differed"
+              }
+            ]
+          }
+        ],
+        "findings": [
+          {
+            "kind": "secret_disclosure",
+            "boundary": "wallet->verifier:direct_post",
+            "side": "request",
+            "location": "decoded-body",
+            "explanation": "hidden marker observed on the wire before opaque masking"
+          },
+          {
+            "kind": "unknown_identifier_differential",
+            "left": "injected-epfl-adult-a",
+            "right": "injected-epfl-adult-b",
+            "explanation": "unknown hash-like identifier differed across equivalent sessions"
+          },
+          {
+            "kind": "transcript_mismatch",
+            "left": "injected-epfl-adult-a",
+            "right": "injected-epfl-adult-b",
+            "explanation": "normalized observer transcripts differed",
+            "pointers": [
+              "/request/body/x_swiyu_wallet_tag/disclosures/0/0",
+              "/request/body/x_swiyu_wallet_tag/disclosures/0/2",
+              "/request/body/x_swiyu_wallet_tag/payload/_sd/0",
+              "/request/headers/4/1"
+            ]
+          }
+        ],
+        "coverage": {
+          "sessions": 2,
+          "classified": 2,
+          "compared_pairs": 1
+        },
+        "exceptions": [],
+        "method": "Claim classification (authentic SD-JWT, metadata, validity, where, and exact public status envelope fields) then observer HTTP structural equality after named public fresh alpha-rename and declared proof-length opacity. Secret markers are scanned on raw and decoded bodies before masking. Compact JWS signatures are unverified (alg+length). Two-to-four samples do not establish timing or size side channels."
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "clean-0",
+      "variant": "variant-0",
+      "accepted": true,
+      "event_count": 4,
+      "proof_bytes": 16224,
+      "witness_bytes": 311416,
+      "present_ms": 14909,
+      "prepare_ms": 0,
+      "request_ms": 676,
+      "post_ms": 147,
+      "result_ms": 6,
+      "campaign": "clean",
+      "fresh_label": "fresh",
+      "proof_reuse": null
+    },
+    {
+      "id": "clean-1",
+      "variant": "variant-1",
+      "accepted": true,
+      "event_count": 4,
+      "proof_bytes": 16224,
+      "witness_bytes": 311444,
+      "present_ms": 16283,
+      "prepare_ms": 0,
+      "request_ms": 11,
+      "post_ms": 68,
+      "result_ms": 1,
+      "campaign": "clean",
+      "fresh_label": "fresh",
+      "proof_reuse": null
+    },
+    {
+      "id": "injected-2",
+      "variant": "variant-2",
+      "accepted": true,
+      "event_count": 4,
+      "proof_bytes": 16224,
+      "witness_bytes": 311413,
+      "present_ms": 15405,
+      "prepare_ms": 0,
+      "request_ms": 7,
+      "post_ms": 63,
+      "result_ms": 2,
+      "campaign": "injected",
+      "fresh_label": "fresh",
+      "proof_reuse": null
+    },
+    {
+      "id": "injected-3",
+      "variant": "variant-3",
+      "accepted": true,
+      "event_count": 4,
+      "proof_bytes": 16224,
+      "witness_bytes": 311448,
+      "present_ms": 16131,
+      "prepare_ms": 0,
+      "request_ms": 5,
+      "post_ms": 103,
+      "result_ms": 3,
+      "campaign": "injected",
+      "fresh_label": "fresh",
+      "proof_reuse": null
+    }
+  ],
+  "policy": {
+    "id": "swiyu-direct-post-http-v1",
+    "observer": "verifier",
+    "expected_boundaries": [
+      "verifier:management_create",
+      "verifier:request_object",
+      "wallet->verifier:direct_post",
+      "verifier:management_result"
+    ],
+    "opaque_fields": [
+      {
+        "event": "wallet->verifier:direct_post",
+        "side": "request",
+        "path": "/vp_token/birth_date/0/proof_b64",
+        "channel": "proof"
+      }
+    ],
+    "public_fields": [
+      {
+        "event": "verifier:request_object",
+        "side": "response",
+        "path": "/payload/nonce",
+        "expected_key": "nonce"
+      },
+      {
+        "event": "verifier:request_object",
+        "side": "response",
+        "path": "/payload/state",
+        "expected_key": "state"
+      },
+      {
+        "event": "wallet->verifier:direct_post",
+        "side": "request",
+        "path": "/state",
+        "expected_key": "state"
+      }
+    ],
+    "rename_session_tokens": true,
+    "request_object_clock": true,
+    "response_clock_headers": [
+      "date"
+    ],
+    "ignored_headers": []
+  },
+  "limitations": {
+    "http_scope": "complete selected application HTTP exchanges",
+    "excluded": [
+      "packet/TLS",
+      "Android/emulator",
+      "uninstrumented sidecar unless observer includes verifier->sidecar",
+      "production filters/database when using memory repositories"
+    ],
+    "engine_note": "Semantically equivalent public_context must alpha-normalize the dynamic response_uri request UUID (path segment) as well as session nonce/state. Raw events retain the UUID. Request JWT signatures are treated as length-only when mapping.signature_opaque is set."
+  }
+}

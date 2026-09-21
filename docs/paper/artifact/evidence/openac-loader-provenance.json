@@ -1,0 +1,25 @@
+{
+  "original_sha256": "31faacc50c5c68014178db86533edf5c888d1b46405a0faf25e4c45ca01ac47c",
+  "modified_sha256": "6c16beca5a0b5d27c444ce13eee5d871104ec0f4e27d0f2cea1d4b82bd943e25",
+  "binary_sha256": "dead608077c38fceda60b0495f84e0cd80c9a707c9b9cdb33684b45a5c868650",
+  "tests_sha256": "643f9ee4087eda833ae53303ea3dd75f9e5481b918d18eb13d1da048e16ea764",
+  "test_returncode": 0,
+  "externs": {
+    "ecdsa_spartan2": {
+      "path": "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/components/zkid/wallet-unit-poc/ecdsa-spartan2/target/release/deps/libecdsa_spartan2-3da8699337d91465.rlib",
+      "sha256": "3e2aa1915c23a730168240e05e8eb4327fa7ce03464b3d03e10e80920d8cd706"
+    },
+    "memmap2": {
+      "path": "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/components/zkid/wallet-unit-poc/ecdsa-spartan2/target/release/deps/libmemmap2-fc8ec2d35b9082ff.rlib",
+      "sha256": "f9fda4f1ce1d832f48f5567198690d96fa10a613ce71bf9c023cff7a0edf80a0"
+    },
+    "serde": {
+      "path": "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/components/zkid/wallet-unit-poc/ecdsa-spartan2/target/release/deps/libserde-cac9778d49a83606.rlib",
+      "sha256": "fb7f5f1c4c3c9aef7fd52dcfeae758995425c8a29bcc971a6665038a7b7b64a0"
+    },
+    "serde_json": {
+      "path": "/Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid/components/zkid/wallet-unit-poc/ecdsa-spartan2/target/release/deps/libserde_json-43726cbe55669ee1.rlib",
+      "sha256": "722683489f605e621bdb93019e728095e55f576ee510c6fceefc74b691594267"
+    }
+  }
+}

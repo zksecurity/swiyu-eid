@@ -1,0 +1,61 @@
+{
+  "schema": "swiyu.semantic-assertion-package.v0",
+  "id": "platform.presentation@1",
+  "title": "Platform presentation assertions",
+  "assertions": {
+    "credential.authentic@1": {
+      "args": {
+        "credential": {"ref": "credential"},
+        "issuer": {"ref": "given"}
+      }
+    },
+    "credential.expected-metadata@1": {
+      "args": {
+        "credential": {"ref": "credential"},
+        "issuer": {"ref": "given"}
+      }
+    },
+    "credential.valid-at@1": {
+      "args": {
+        "credential": {"ref": "credential"},
+        "time": {"ref": "given"}
+      }
+    },
+    "holder.signature-valid@1": {
+      "args": {
+        "credential": {"ref": "credential"},
+        "transcript": {"ref": "assertion_output"}
+      }
+    },
+    "presentation.context-bound@1": {
+      "args": {"dynamic": true},
+      "outputs": ["expected_transcript"]
+    },
+    "status.zero-at-reference@1": {
+      "args": {
+        "credential": {"ref": "credential"},
+        "reference": {"ref": "given"},
+        "time": {"ref": "given"}
+      }
+    }
+  },
+  "recipes": {
+    "claim.context@1": {
+      "description": "SHA-256 domain-separated digest over statement_digest and full given record.",
+      "output_type": "sha256-digest-bytes@1",
+      "synthetic": true
+    },
+    "swiyu.show-context@0": {
+      "description": "Legacy OpenAC binding recipe; documentation only for synthetic packages.",
+      "legacy": true,
+      "executable_for": ["swiyu.sd-jwt-es256@0"]
+    }
+  },
+  "mandatory_assertions": [
+    "credential.authentic@1",
+    "credential.expected-metadata@1",
+    "credential.valid-at@1",
+    "holder.signature-valid@1",
+    "presentation.context-bound@1"
+  ]
+}

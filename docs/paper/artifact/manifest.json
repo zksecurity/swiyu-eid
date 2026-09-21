@@ -1,0 +1,200 @@
+{
+  "schema": "swiyu.paper-evidence.v1",
+  "source_head": "73cd99e10284a4c8996150e2ab773fc6fee41f62",
+  "source_tree_dirty": true,
+  "notice": "Content hashes identify the included evidence. The HEAD alone does not describe the modified experiment tree. Private captures and large proof artifacts are excluded.",
+  "files": [
+    {
+      "path": "evidence/openac-20260915.json",
+      "source": "docs/platform/evidence/2026-09-15-openac-transcript/report.json",
+      "sha256": "17c229316d87d58718cde75751ddade85a68ea969cf9253bd75ee9a105f6352b",
+      "bytes": 25508
+    },
+    {
+      "path": "evidence/d10-20260915.json",
+      "source": "docs/platform/evidence/2026-09-15-epfl-transcript/campaign-report.json",
+      "sha256": "04b5c3c2a57533ef5f9a866bec59731ca4b12dd336d33224824cc0bce6f02c44",
+      "bytes": 18838
+    },
+    {
+      "path": "evidence/native-20260921.json",
+      "source": "retained-experiment/analysis-report/assessment.json",
+      "sha256": "360d8669d3cb05bca5f696a99cb0eb87eb9e2380065b2e5db5f59119415d2b8b",
+      "bytes": 9159
+    },
+    {
+      "path": "evidence/d10-evidence-check.json",
+      "source": "retained-experiment/epfl-holder/evidence-check.json",
+      "sha256": "fc285e092026c2afda4e5f7dcab068d1523ae37351c9ede7e7c8401d9d8d3fa2",
+      "bytes": 2972
+    },
+    {
+      "path": "evidence/d10-provenance.json",
+      "source": "retained-experiment/epfl-holder/provenance.json",
+      "sha256": "5e75986ddaf2b339bf390393e0a5c89c2b66ae1b0c22aad6ef53ef966d80f0d8",
+      "bytes": 1471
+    },
+    {
+      "path": "evidence/d10-native-control.json",
+      "source": "retained-experiment/epfl-holder/control/result.json",
+      "sha256": "0c6adc23864de8d8e64ca2016c341024e4367021af32ec1202317d6ee909bfd5",
+      "bytes": 633
+    },
+    {
+      "path": "evidence/openac-loader-provenance.json",
+      "source": "retained-experiment/mmap-driver/hashes.json",
+      "sha256": "1a145d607df1c6f48b188c56016750e06ac569cee4c18dcb6c6d7c528361aaa5",
+      "bytes": 1556
+    },
+    {
+      "path": "evidence/validation.txt",
+      "source": "retained-experiment/analysis-report/validation.txt",
+      "sha256": "44539e7d410bf173ebc863a1ae5799372fc9cc5454afefb6b0b0bdb4d2b35012",
+      "bytes": 224
+    },
+    {
+      "path": "method/transcript-privacy-design.md",
+      "source": "docs/platform/transcript-privacy-design.md",
+      "sha256": "0164a162abb8dce7a299beb7010e5ab26d5d8c29bdd46e71586266fabc846794",
+      "bytes": 7113
+    },
+    {
+      "path": "method/claim-model-design.md",
+      "source": "docs/platform/semantics-claim-proposal.md",
+      "sha256": "0025a76b9992d53f60968fc78670b89912d0d7a4b68fab735192a6f717d7320c",
+      "bytes": 30204
+    },
+    {
+      "path": "method/implemented-semantics.md",
+      "source": "integration/semantics/README.md",
+      "sha256": "70f6328039d6c35f41b4e854d67dee3cfc2380e70d2f5e973fe8f6bad76fbd32",
+      "bytes": 5317
+    },
+    {
+      "path": "method/provider-guide.md",
+      "source": "integration/harness/TRANSCRIPT-PROVIDERS.md",
+      "sha256": "edee92c002871b048a9b1ba9cd02f1ec56e4d992fe48a3b4bb0580db6e02a8dd",
+      "bytes": 9763
+    },
+    {
+      "path": "claims/openac.json",
+      "source": "integration/semantics/claims/openac-age18-status-2k.json",
+      "sha256": "a6913e01fd64e2722e2aeae623e47daf377b5a33656379ed3703fe356b528af9",
+      "bytes": 2673
+    },
+    {
+      "path": "claims/d10.json",
+      "source": "integration/semantics/claims/epfl-d10-age25-jwt.json",
+      "sha256": "d8b7f9f0bac8bc78465b9e474c7727083f967b69e51d6bad6fa0a0e6cd306a33",
+      "bytes": 1667
+    },
+    {
+      "path": "method/d10-upstream.txt",
+      "source": "integration/providers/epfl/circuit/UPSTREAM.txt",
+      "sha256": "dd852a09a3fa9181aa22c72951447783add8a9a54c85b16a15d5c76bcfee613c",
+      "bytes": 314
+    },
+    {
+      "path": "evidence/candidate-assessment.md",
+      "source": "retained-experiment/candidate-assessment.md",
+      "sha256": "d65ce776d24007d9c45c235c69a7dcc0f61949076d7ade2f33a5ab0f1545df82",
+      "bytes": 2220
+    },
+    {
+      "path": "claims/shared-age25.json",
+      "source": "integration/semantics/claims/age25-holder-challenge.json",
+      "sha256": "9e295a1ed65d5244c8b0ee385362be572435ea92157e0cee3cea14ef25b5a246",
+      "bytes": 1678
+    },
+    {
+      "path": "implementation/openac-support.json",
+      "source": "integration/providers/openac/support.json",
+      "sha256": "860027c74abc15277996c6dc27d36dbd80f40fe94aafc3677fd1e3f8a0b3b9f1",
+      "bytes": 3357
+    },
+    {
+      "path": "implementation/epfl-support.json",
+      "source": "integration/providers/epfl/support.json",
+      "sha256": "4229e5bcbb083e88681b17a5a1150b9add0a5624ec6cdddcfa3c266e7166af7f",
+      "bytes": 1875
+    },
+    {
+      "path": "implementation/openac-age25.md",
+      "source": "integration/providers/openac/age25-jwt.md",
+      "sha256": "ddfd17e09cf7d8a4883951f47745cc48a7d3a986fab0ff4b4d2908c9b260021f",
+      "bytes": 1770
+    },
+    {
+      "path": "implementation/swiyu-age25-jwt.circom",
+      "source": "components/zkid/wallet-unit-poc/circom/circuits/swiyu-age25-jwt.circom",
+      "sha256": "e893ba2391507c36f04e6a728246b161788b7215f3921095d1d46a12b9395638",
+      "bytes": 14925
+    },
+    {
+      "path": "implementation/swiyu_age25_jwt-main.circom",
+      "source": "components/zkid/wallet-unit-poc/circom/circuits/main/swiyu_age25_jwt.circom",
+      "sha256": "c0d2ddc908b603c9270c43dc73239ab326568d7ba4e833ed9a2ca50788dc3c3e",
+      "bytes": 203
+    },
+    {
+      "path": "implementation/yyyymmdd-age.circom",
+      "source": "components/zkid/wallet-unit-poc/circom/circuits/swiyu/yyyymmdd-age.circom",
+      "sha256": "0d153a92d3ad661cab870db964ea2929cc0ac1ea5750153d400c3349092ca8e7",
+      "bytes": 1145
+    },
+    {
+      "path": "implementation/disclosure.circom",
+      "source": "components/zkid/wallet-unit-poc/circom/circuits/swiyu/disclosure.circom",
+      "sha256": "a6167717dd655b1b9e9aeb4f648dc4004d2a78ca45b6ad5022d2578253b6dd9c",
+      "bytes": 18922
+    },
+    {
+      "path": "implementation/openac-circuit-registry.json",
+      "source": "components/zkid/wallet-unit-poc/circom/circuits.json",
+      "sha256": "3721a9479e440609ff39b44453dafdbf3d24a01a9393bf0d31b8a3ed93349fb6",
+      "bytes": 8810
+    },
+    {
+      "path": "method/test_shared_age25_conformance.py",
+      "source": "integration/tests/test_shared_age25_conformance.py",
+      "sha256": "98461598f8fd5e23f8f9d3ec3aba341021d53f6ad7a0ddfd121b3db7fe123665",
+      "bytes": 6925
+    },
+    {
+      "path": "method/test_transcript_shared.py",
+      "source": "integration/harness/tests/test_transcript_shared.py",
+      "sha256": "de55ceaa220aabfc344b32527fa41cd5b64c3c5c2d55967b027b17e6163b2a7c",
+      "bytes": 4564
+    },
+    {
+      "path": "method/test_transcript_cross.py",
+      "source": "integration/harness/tests/test_transcript_cross.py",
+      "sha256": "3ce6e852a4918577f9d33fc3d31b75e8537acdbaaead26418ba61b19349625fe",
+      "bytes": 12509
+    },
+    {
+      "path": "method/transcript_shared.py",
+      "source": "integration/harness/transcript_shared.py",
+      "sha256": "af4f286b9482060a6ebf21a3d4120579f19b7b7e17bce1a43ec77ee22b85cb51",
+      "bytes": 19426
+    },
+    {
+      "path": "method/transcript_cross.py",
+      "source": "integration/harness/transcript_cross.py",
+      "sha256": "1fa775816ab958f5a1f65414b07c55d70e722778c4c5efa25f99dfa5c5cc59c5",
+      "bytes": 14040
+    },
+    {
+      "path": "evidence/shared-age25-fixture-regression.json",
+      "source": "retained-experiment/report.json",
+      "sha256": "7ba82d815b7228cf4d92af0c901df194ee9dec71c6be9cb446bc3398cb099be3",
+      "bytes": 67725
+    },
+    {
+      "path": "evidence/shared-regression-validation.txt",
+      "source": "retained-experiment/shared-regression-validation.txt",
+      "sha256": "97ca487084ba4569eddd3d30c9689f625a151e49ecbd2a22f553dd74ef9f2abf",
+      "bytes": 3996
+    }
+  ]
+}

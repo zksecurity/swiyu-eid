@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $0 {jwt|jwt_1k|jwt_2k|jwt_4k|jwt_8k|show|ecdsa|mdoc|swiyu_age18_status_2k|swiyu_age18_status_compact|swiyu_age18_prepare_compact|swiyu_age18_show_split|swiyu_age18_show_packed_chunk_v2|swiyu_canton_prepare_compact|swiyu_canton_show_split|swiyu_residence_prepare_compact|swiyu_residence_combined_prepare_compact|swiyu_residence_show_split|swiyu_residence_show_packed_chunk_v2|swiyu_nullifier_prepare|swiyu_nullifier_show|swiyu_nullifier_age18_prepare|swiyu_nullifier_age18_show|swiyu_nullifier_age18_show_packed_chunk_v2|swiyu_status_dense_17_bench|swiyu_status_binary_17_core_bench|swiyu_status_ternary_11_core_bench|swiyu_status_packed_chunk_v2_core_bench|swiyu_status_sparse_64_bench|all}"
+  echo "Usage: $0 {jwt|jwt_1k|jwt_2k|jwt_4k|jwt_8k|show|ecdsa|mdoc|swiyu_age25_jwt|swiyu_age18_status_2k|swiyu_age18_status_compact|swiyu_age18_prepare_compact|swiyu_age18_show_split|swiyu_age18_show_packed_chunk_v2|swiyu_canton_prepare_compact|swiyu_canton_show_split|swiyu_residence_prepare_compact|swiyu_residence_combined_prepare_compact|swiyu_residence_show_split|swiyu_residence_show_packed_chunk_v2|swiyu_nullifier_prepare|swiyu_nullifier_show|swiyu_nullifier_age18_prepare|swiyu_nullifier_age18_show|swiyu_nullifier_age18_show_packed_chunk_v2|swiyu_status_dense_17_bench|swiyu_status_binary_17_core_bench|swiyu_status_ternary_11_core_bench|swiyu_status_packed_chunk_v2_core_bench|swiyu_status_sparse_64_bench|all}"
   echo "  jwt:    Compile the default JWT circuit."
   echo "  jwt_1k: Compile JWT circuit (1KB - maxMsg=1280)."
   echo "  jwt_2k: Compile JWT circuit (2KB - maxMsg=2048)."
@@ -10,6 +10,7 @@ usage() {
   echo "  show:   Compile Show circuit."
   echo "  ecdsa:  Compile ECDSA circuit."
   echo "  mdoc:   Compile MDOC circuit."
+  echo "  swiyu_age25_jwt: Compile the OpenAC shared age-25 holder-challenge circuit (no status)."
   echo "  swiyu_age18_status_2k: Compile the fixed swiyu Prototype A+B circuit."
   echo "  swiyu_age18_status_compact: Compile the same relation with a 14-block issuer envelope."
   echo "  swiyu_age18_prepare_compact: Compile the reusable credential-authentication stage."
@@ -42,7 +43,8 @@ fi
 compile_circuit() {
   local name="$1"
   echo "Compiling circuit: $name"
-  if [ "$name" = "swiyu_age18_status_2k" ] ||
+  if [ "$name" = "swiyu_age25_jwt" ] ||
+     [ "$name" = "swiyu_age18_status_2k" ] ||
      [ "$name" = "swiyu_age18_status_compact" ] ||
      [ "$name" = "swiyu_age18_prepare_compact" ] ||
      [ "$name" = "swiyu_age18_show_split" ] ||
@@ -77,7 +79,8 @@ compile_circuit() {
     npx circomkit compile "$name" || { echo "Error: Failed to compile $name."; exit 1; }
   fi
   cd "build/$name/" || { echo "Error: 'build/$name/' directory not found."; exit 1; }
-  if [ "$name" = "swiyu_age18_status_2k" ] ||
+  if [ "$name" = "swiyu_age25_jwt" ] ||
+     [ "$name" = "swiyu_age18_status_2k" ] ||
      [ "$name" = "swiyu_age18_status_compact" ] ||
      [ "$name" = "swiyu_age18_prepare_compact" ] ||
      [ "$name" = "swiyu_age18_show_split" ] ||
@@ -104,7 +107,8 @@ compile_circuit() {
     cp "$name.r1cs" "${name}_js/" || { echo "Error: Failed to copy $name.r1cs."; exit 1; }
   fi
   cd ../.. || exit 1
-  if [ "$name" != "swiyu_age18_status_2k" ] &&
+  if [ "$name" != "swiyu_age25_jwt" ] &&
+     [ "$name" != "swiyu_age18_status_2k" ] &&
      [ "$name" != "swiyu_age18_status_compact" ] &&
      [ "$name" != "swiyu_age18_prepare_compact" ] &&
      [ "$name" != "swiyu_age18_show_split" ] &&
@@ -135,7 +139,7 @@ compile_circuit() {
 }
 
 case "$1" in
-  jwt|jwt_1k|jwt_2k|jwt_4k|jwt_8k|show|ecdsa|mdoc|swiyu_age18_status_2k|swiyu_age18_status_compact|swiyu_age18_prepare_compact|swiyu_age18_show_split|swiyu_age18_show_packed_chunk_v2|swiyu_canton_prepare_compact|swiyu_canton_show_split|swiyu_residence_prepare_compact|swiyu_residence_combined_prepare_compact|swiyu_residence_show_split|swiyu_residence_show_packed_chunk_v2|swiyu_nullifier_prepare|swiyu_nullifier_show|swiyu_nullifier_age18_prepare|swiyu_nullifier_age18_show|swiyu_nullifier_age18_show_packed_chunk_v2|swiyu_status_dense_17_bench|swiyu_status_binary_17_core_bench|swiyu_status_ternary_11_core_bench|swiyu_status_packed_chunk_v2_core_bench|swiyu_status_sparse_64_bench)
+  jwt|jwt_1k|jwt_2k|jwt_4k|jwt_8k|show|ecdsa|mdoc|swiyu_age25_jwt|swiyu_age18_status_2k|swiyu_age18_status_compact|swiyu_age18_prepare_compact|swiyu_age18_show_split|swiyu_age18_show_packed_chunk_v2|swiyu_canton_prepare_compact|swiyu_canton_show_split|swiyu_residence_prepare_compact|swiyu_residence_combined_prepare_compact|swiyu_residence_show_split|swiyu_residence_show_packed_chunk_v2|swiyu_nullifier_prepare|swiyu_nullifier_show|swiyu_nullifier_age18_prepare|swiyu_nullifier_age18_show|swiyu_nullifier_age18_show_packed_chunk_v2|swiyu_status_dense_17_bench|swiyu_status_binary_17_core_bench|swiyu_status_ternary_11_core_bench|swiyu_status_packed_chunk_v2_core_bench|swiyu_status_sparse_64_bench)
     compile_circuit "$1"
     ;;
   all)

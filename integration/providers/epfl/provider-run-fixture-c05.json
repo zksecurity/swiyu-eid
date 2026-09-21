@@ -1,0 +1,32 @@
+{
+  "schema": "swiyu.provider-run-fixture.v1",
+  "profile": "epfl-c05-age18-fixedcred-v0",
+  "case_name": "epfl_c05_native_proof_lifecycle",
+  "prepare": {
+    "profile": "epfl-c05-age18-fixedcred-v0",
+    "credential": {
+      "format": "epfl-fixed-credential",
+      "data": "Alice                           Smith                           0958374000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "context": {}
+  },
+  "present": {
+    "profile": "epfl-c05-age18-fixedcred-v0",
+    "request_context": {"current_date": 1762482000},
+    "inputs": {}
+  },
+  "verify": {
+    "profile": "epfl-c05-age18-fixedcred-v0",
+    "request_context": {"current_date": 1762482000},
+    "inputs": {}
+  },
+  "negative_verify": {
+    "name": "wrong_public_current_date",
+    "payload": {
+      "profile": "epfl-c05-age18-fixedcred-v0",
+      "request_context": {"current_date": 1762482001},
+      "inputs": {}
+    },
+    "expected_verified": false
+  }
+}

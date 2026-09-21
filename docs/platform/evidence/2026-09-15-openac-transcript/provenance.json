@@ -1,0 +1,24 @@
+{
+  "date": "2026-09-15",
+  "native_threads": 2,
+  "source_sha256": {
+    "integration/harness/transcript_equivalence.py": "7531ccaca20deda7685ea3c9768a319e0f6a671f8437b81709db38b4615a81c9",
+    "integration/harness/transcript_runner.py": "98f92a3b133b83f4a97097d760dbe0a67da7cb1ad1cfb6b35a531dbe8c81cc68",
+    "integration/harness/transcript_local.py": "3d72abd946ee4fdbbf804cc730ae27539f8df4b96f7978c4992f0cf9ca97f6a8",
+    "integration/harness/transcript_policy.py": "28387776e8d358eff4007c838cf370a41e0a4b17be87d420d4e0546dc6df5bb9",
+    "integration/runtime/transcript/http_capture.py": "d49abb98a0ea6da84e6c51d79025041800ea94fec0ae0eb353110d0770487d30",
+    "integration/runtime/transcript/oid4vp.py": "fc4f86fef7cea4e61fd22f9e3e8afa05335306e866203ea8986b7483564b062e",
+    "integration/providers/openac/manifest.json": "91a01d439238d215dc66265895fa66cb9e8b558cadebdb8b9de8e0b8814c02e3",
+    "integration/providers/openac/support.json": "2b9b12c712a0bf9c5dd5a96501f86cb217170ab35e21c27723c26c2ce76b30f9",
+    "integration/providers/openac/transcript-fixture.mjs": "2b12301c9f283511fe77a402168862fb2f884af56d499c3d115c106e5e67ee72",
+    "integration/providers/openac/transcript-sidecar.mjs": "3c07661b06c18c0daf1f11239488512dee61b0a448d0f4f4e216ce5d7c19eb74",
+    "components/swiyu-verifier/verifier-application/src/test/java/ch/admin/bj/swiyu/verifier/infrastructure/web/oid4vp/TranscriptTransportHarnessIT.java": "613e28a7ea9a2779b1e193417f32373468878dfb09e352e542b9dba86c9b1194"
+  },
+  "artifact_sha256": {
+    "report.json": "17c229316d87d58718cde75751ddade85a68ea969cf9253bd75ee9a105f6352b",
+    "report.html": "6382dc35149fa22c625c7737cf6394c9e7a9df57ecfdadea2b4d61c6c3b6ca05",
+    "execution-checks.json": "5a83eeed93ebf8de59413b54b02ec4741962612bb1cb7f02ea3f4af5a3c5ef3f"
+  },
+  "native_campaign_exit_code": 0,
+  "raw_transcripts": "Local optional capture; omitted from public evidence."
+}

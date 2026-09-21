@@ -1,0 +1,12 @@
+{
+  "schema": "swiyu.provider-manifest.v1",
+  "id": "swiyu-test-stub",
+  "title": "Swiyu test-only integration stub (not cryptographic ZK)",
+  "kind": "test-only",
+  "profiles": ["swiyu-test-age18-v0"],
+  "command": ["python3", "provider.py"],
+  "source": {
+    "purpose": "integration scaffolding only",
+    "certification": "none"
+  }
+}

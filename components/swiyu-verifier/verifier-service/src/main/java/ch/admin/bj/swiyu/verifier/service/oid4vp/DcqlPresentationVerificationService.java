@@ -145,14 +145,20 @@ public class DcqlPresentationVerificationService {
     private void validateZkResult(ZkPresentationPolicy policy, ZkPresentationVerificationResult result) {
         if (result == null
                 || !policy.profile().equals(result.profile())
-                || !policy.circuitId().equals(result.circuitId())
-                || !Objects.equals(policy.statusListSnapshot(), result.statusListSnapshot())) {
+                || !policy.circuitId().equals(result.circuitId())) {
             throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
                     "ZK presentation result does not match the signed policy");
         }
         if (!result.predicateSatisfied()) {
             throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
                     "ZK presentation predicate was not satisfied");
+        }
+        if (policy.omitsStatusList()) {
+            return;
+        }
+        if (!Objects.equals(policy.statusListSnapshot(), result.statusListSnapshot())) {
+            throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
+                    "ZK presentation result does not match the signed policy");
         }
         if (!result.statusValid()) {
             throw submissionError(VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
@@ -167,9 +173,13 @@ public class DcqlPresentationVerificationService {
         var response = new LinkedHashMap<String, Object>();
         response.put("profile", result.profile());
         response.put("circuit_id", result.circuitId());
+        response.put("predicate_satisfied", true);
+        if (policy.omitsStatusList()) {
+            response.put("now_date", policy.nowDate());
+            return response;
+        }
         response.put("cutoff_date", policy.cutoffDate());
         response.put("current_time", policy.currentTime());
-        response.put("predicate_satisfied", true);
 
         var status = new LinkedHashMap<String, Object>();
         status.put("valid", true);

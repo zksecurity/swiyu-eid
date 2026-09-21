@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>EPFL d10/c05 case report</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:2rem;max-width:920px}
+td,th{border:1px solid #ccc;padding:.4rem;text-align:left}
+table{border-collapse:collapse;margin-bottom:1rem}
+.pass{background:#e8f5e9}
+.warn{background:#fff8e1}
+.skip{background:#f5f5f5}
+</style></head><body>
+<h1>EPFL native provider case report (2026-09-15, d10 adapter)</h1>
+<p>Native UltraHonk only. Not OpenAC. Not OID4VP. No raw JWTs, Prover.toml, or holder keys in this evidence.</p>
+<h2>Comparison</h2>
+<table>
+<tr><th></th><th>c05</th><th>d10 (default provider-run)</th></tr>
+<tr><td>Circuit</td><td>c05_age_verification</td><td>d10_swiyu_jwt</td></tr>
+<tr><td>Profile</td><td>epfl-c05-age18-fixedcred-v0</td><td>epfl-d10-swiyu-jwt-age25-v0</td></tr>
+<tr><td>Public inputs</td><td>1 field (unix current_date)</td><td>97 fields (issuer x/y, now_date YYYYMMDD, challenge_nonce)</td></tr>
+<tr><td>Issuer ES256</td><td>no</td><td>yes</td></tr>
+<tr><td>birth_date disclosure</td><td>no (ASCII unix DOB in 218-byte string)</td><td>yes</td></tr>
+<tr><td>Age rule</td><td>&gt;=18 via 31557600 s/year</td><td>&gt;=25 via YYYYMMDD + 250000</td></tr>
+<tr><td>Holder sig / nonce</td><td>none</td><td>ECDSA over static demo challenge_nonce (not a fresh OID4VP nonce)</td></tr>
+<tr><td>Status list</td><td>no</td><td>no</td></tr>
+<tr><td>proof_bytes</td><td>16224</td><td>16224</td></tr>
+<tr><td>compressed witness</td><td>826 (prior c05 run)</td><td>337075</td></tr>
+</table>
+<h2>This d10 provider-run (zkbench stages)</h2>
+<table>
+<tr><th>Stage</th><th>Status</th><th>ms</th></tr>
+<tr><td>provider_startup</td><td>completed</td><td>2.5</td></tr>
+<tr><td>initialize</td><td>completed</td><td>14162</td></tr>
+<tr><td>prepare</td><td>completed</td><td>0.4</td></tr>
+<tr><td>witness</td><td>covered_by_present</td><td></td></tr>
+<tr><td>prove</td><td>covered_by_present</td><td></td></tr>
+<tr><td>present</td><td>completed</td><td>9641</td></tr>
+<tr><td>verify</td><td>completed</td><td>35</td></tr>
+<tr><td>cleanup</td><td>completed</td><td>0.1</td></tr>
+</table>
+<h2>Tests</h2>
+<table>
+<tr><th>Case</th><th>Result</th></tr>
+<tr class="pass"><td>unittest c05 lifecycle / tamper / date / underage / unsupported</td><td>passed</td></tr>
+<tr class="pass"><td>unittest d10 roundtrip (16224 proof, 337075 witness)</td><td>passed</td></tr>
+<tr class="pass"><td>tampered proof / wrong nonce / wrong issuer / wrong date</td><td>passed (rejected)</td></tr>
+<tr class="pass"><td>envelope PI/VK substitution ignored; tampered proof still rejected</td><td>passed</td></tr>
+<tr class="pass"><td>zkbench provider-run d10 + negative wrong_challenge_nonce</td><td>passed</td></tr>
+<tr class="skip"><td>generic claim / OID4VP rows</td><td>not_run / not_provided — not claimed</td></tr>
+<tr class="warn"><td>full transcript differential</td><td>not run</td></tr>
+</table>
+<h2>Claim and transcript scope</h2>
+<p>No <code>swiyu.claim.v0</code> file: the approved SD-JWT claim model does not match d10's 97 public fields, and no Java routing was added. Native negatives above are verifier rejects, not leakage findings. The generic provider HTML may show semantic support <code>not_provided</code> and leakage <code>not_run</code>.</p>
+<p>To run transcript differential later: (1) classifier route that accepts native UltraHonk presentations instead of only SD-JWT ES256 OpenAC, (2) generator mapping d10 issuer/now_date/nonce into OID4VP-shaped transcripts without relabeling the static demo nonce as a fresh VP nonce, (3) Java verifier profile other than <code>swiyu-age18-status-2k</code>.</p>
+</body></html>

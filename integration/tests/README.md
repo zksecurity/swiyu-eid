@@ -1,3 +1,14 @@
-# Integration tests
+# Cross-cutting integration tests
 
-Component tests cover the circuits, TypeScript profiles, Spartan backend, Java sidecar adapter, baseline controls, and nullifier concurrency. Verifier tests exercise the normal OID4VP submission endpoint. Android and TypeScript tests share a golden runtime request and challenge hash. A device-to-verifier test still requires the mobile proof runtime.
+This directory holds repository-level checks for the integration tree itself. Component-specific tests stay with their module:
+
+- `harness/tests` checks provider process lifecycle, manifest handling, reports and claim campaigns.
+- `semantics/tests` checks claims, predicates, support declarations, fixtures and leakage analysis.
+- `providers/<name>/tests` checks a concrete provider adapter.
+- `tools/tests` checks developer tooling.
+
+Run these layout checks from the repository root:
+
+```bash
+python3 -m unittest discover -s integration/tests -p 'test_*.py'
+```

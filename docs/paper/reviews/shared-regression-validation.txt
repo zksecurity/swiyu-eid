@@ -1,0 +1,91 @@
+Shared age-25 regression validation — 2026-09-21
+
+Scope
+-----
+Lightweight existing semantic/conformance, cross-comparison, and fixture-only
+shared-transcript tests. No circuit compilation, native proving, or native
+verification was run.
+
+1. Common-claim conformance
+---------------------------
+Working directory:
+  /Users/coding/Downloads/zkSecurity Internship/swiyu/swiyu-eid
+
+Command:
+  PYTHONPATH=integration/semantics integration/semantics/.venv/bin/python -m unittest discover -v -s integration/tests -p 'test_shared_age25*.py'
+
+Outcome:
+  PASS — Ran 11 tests in 0.031s; OK.
+
+Coverage named by the tests includes shared claim identity/digest registration,
+different backend implementations, OpenAC age-25 and EPFL d10 circuit declarations,
+adult fixtures, exact age boundary, underage rejection, wrong issuer, wrong holder
+signature, and wrong/replayed challenge.
+
+2. Shared-transcript and cross-implementation engine
+-----------------------------------------------------
+Command:
+  integration/semantics/.venv/bin/python -m unittest -v integration/harness/tests/test_transcript_shared.py integration/harness/tests/test_transcript_cross.py
+
+Outcome:
+  PASS — Ran 11 tests in 0.840s; OK.
+
+The first sandboxed attempt produced 10 passing tests and one environment error
+because the fixture verifier could not bind a loopback port. The same command was
+rerun with loopback permission and passed all 11 tests. This was not a product or
+test assertion failure.
+
+3. Reproducible sanitized fixture-only report
+----------------------------------------------
+Command:
+  integration/semantics/.venv/bin/python integration/harness/zkbench.py shared-claim-run --claim integration/semantics/claims/age25-holder-challenge.json --fixture-only --inject hash_header,hidden_field --output /tmp/swiyu-shared-age25-fixture-validation-20260921
+
+Outcome:
+  Exit 0.
+
+Sanitized JSON:
+  /tmp/swiyu-shared-age25-fixture-validation-20260921/report.json
+
+HTML:
+  /tmp/swiyu-shared-age25-fixture-validation-20260921/report.html
+
+JSON SHA-256:
+  7ba82d815b7228cf4d92af0c901df194ee9dec71c6be9cb446bc3398cb099be3
+
+Exact report results:
+  mode: fixture-only
+  evidence_usable: false
+  sessions: 8; accepted: 8
+  EPFL clean: 2 sessions, 1 equivalent pair, status clean
+  OpenAC clean: 2 sessions, 1 equivalent pair, status clean
+  Cross-implementation clean: 4 sessions, 4 equivalent pairs, status clean
+  EPFL injected: 2 sessions, 1 mismatch pair, status findings
+  OpenAC injected: 2 sessions, 1 mismatch pair, status findings
+  Cross-implementation injected: 4 sessions, 4 mismatch pairs, status findings
+
+Both report backends are fixture-mock with fixture-opaque proof fields. These
+counts validate classification, normalization, observer comparison, and injected
+control detection. They are not a live Java or cryptographic result.
+
+4. Source-level alignment statement
+------------------------------------
+The source supports this bounded claim: the authored OpenAC
+`swiyu_age25_jwt` circuit and EPFL `d10_swiyu_jwt` register the same pinned claim
+`swiyu.shared.age25-holder-challenge.v0` and statement digest
+`838df32b57b9ca0aadb533270bbc096cd67b7f85c3ead250cacf765742d3ddc5`.
+The claim contains issuer authentication, authenticated hidden `birth_date`, the
+EPFL-style YYYYMMDD age-at-least-25 relation, and holder authorization over a
+challenge; it omits status/revocation, nbf/exp, and metadata hashes.
+
+Primary source paths:
+  integration/semantics/claims/age25-holder-challenge.json
+  integration/providers/openac/support.json
+  integration/providers/epfl/support.json
+  components/zkid/wallet-unit-poc/circom/circuits/swiyu-age25-jwt.circom
+  components/zkid/wallet-unit-poc/circom/circuits/swiyu/yyyymmdd-age.circom
+  integration/harness/transcript_shared.py
+  integration/harness/transcript_cross.py
+
+This is source and regression evidence for statement alignment. It is not a
+cryptographic audit or proof that the Circom and Noir constraint systems are
+semantically equivalent in every accepted witness.
