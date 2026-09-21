@@ -1,0 +1,105 @@
+{
+  "schema": "swiyu.epfl-evidence-check.v1",
+  "status": "pass",
+  "summary": {
+    "sessions": 3,
+    "accepted": 3,
+    "boundaries_per_session": 4,
+    "eligible_equivalent_pairs": 3,
+    "candidate_findings": 0,
+    "distinct_proofs": 3
+  },
+  "rows": [
+    {
+      "session": "clean-epfl-adult-a",
+      "variant": "epfl-adult-a",
+      "accepted": true,
+      "http_statuses": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "management_state": "SUCCESS",
+      "proof_bytes": 16224,
+      "proof_sha256": "d48ac1a7cc81e9c2dde3705196b194b78a0177de95d87222ad088851f12fe6a2",
+      "witness_bytes": 311420
+    },
+    {
+      "session": "clean-epfl-adult-a-repeat",
+      "variant": "epfl-adult-a-repeat",
+      "accepted": true,
+      "http_statuses": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "management_state": "SUCCESS",
+      "proof_bytes": 16224,
+      "proof_sha256": "3df3119ce00f7c5e369e5e8a9ee12b6ae9c3030c7ddc1c0bde001a1c53d63c1c",
+      "witness_bytes": 311426
+    },
+    {
+      "session": "clean-epfl-adult-holder",
+      "variant": "epfl-adult-holder",
+      "accepted": true,
+      "http_statuses": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "management_state": "SUCCESS",
+      "proof_bytes": 16224,
+      "proof_sha256": "eaac49296bc339518297d91d0bb1ee56b91b7203bb83d5fe9d8b1513b4c58a1e",
+      "witness_bytes": 311433
+    }
+  ],
+  "class_key_count": 1,
+  "guard": {
+    "state": "completed",
+    "returncode": 0,
+    "seconds": 112.09,
+    "remaining_owned": []
+  },
+  "resources": {
+    "records": 96,
+    "min_memory_free_percent": 40,
+    "max_swap_growth_mib": 0.0,
+    "min_disk_free_gib": 28.91
+  },
+  "source": {
+    "core_hashes_match_copy_and_repo": true,
+    "circuit_tree_matches_provenance": true
+  },
+  "direct_verifier_control": {
+    "source_session": "clean-epfl-adult-holder",
+    "proof_sha256": "eaac49296bc339518297d91d0bb1ee56b91b7203bb83d5fe9d8b1513b4c58a1e",
+    "bb_sha256": "26c8ec0f769e46694dcc4e889156c697b34f0734824ee66a457ca62fa8721715",
+    "vk_sha256": "9f2878ca13c0e57aaff6b0d5a796e168477329e6882b1846af67f6f20491050a",
+    "controls": {
+      "matching_session": {
+        "returncode": 0,
+        "verified": true
+      },
+      "changed_nonce": {
+        "returncode": 1,
+        "verified": false
+      }
+    },
+    "scope": "One captured changed-holder proof checked directly with bb and independently encoded public fields; a one-byte challenge change must reject.",
+    "guard": {
+      "state": "completed",
+      "returncode": 0,
+      "seconds": 1.47,
+      "remaining_owned": []
+    }
+  },
+  "limits": [
+    "Synthetic fixed-header circuit credential fixture.",
+    "Compressed witness sizes are local measurements, outside the selected HTTP observer.",
+    "No timing distribution, Android, TLS/packets, live registry/status authority, or split-proof flow was assessed.",
+    "Distinct proof hashes rule out exact reuse only."
+  ]
+}

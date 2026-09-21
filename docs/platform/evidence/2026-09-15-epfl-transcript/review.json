@@ -1,0 +1,26 @@
+{
+  "blocking": [],
+  "findings": [
+    "Codec-final fixed prior opaque_invalid: campaign-report shows 4/4 accepted fresh HTTP proofs (epfl-adult-a/b \u00d7 clean+injected), fresh_label fresh, proof_reuse null, 4 boundaries/session; clean pair compared equivalent; injected flagged (secret_disclosure, unknown hash header, transcript_mismatch).",
+    "Claim/support aligned: digest b0b44776\u2026; ES256 issuer, birth_date, YYYYMMDD age\u226525 const 25, holder 32-byte challenge; release acceptance-only; no status/exp/vct in require. Sidecar derives challenge via swiyu-show-v1 SHA-256; rejects supplied nonce unless server digest matches; native-static-v0 absent from campaign.",
+    "Synthetic fixtures honestly dual-map wire dc+sd-jwt header vs circuit typ=JWT signing input; deterministic test keys only\u2014not arbitrary Swiyu credentials.",
+    "Strict decoding: harness rejects standard base64 proof_b64; provider wire is canonical unpadded base64url; verify accepts legacy envelope via _decode_b64. Clean baseline normalizes proof leaf only.",
+    "regression-ready: semantics 211/211, harness 183/183; codec-ready 38/38 transcript equivalence/support. Scope explicit: JDK HTTP adapter + in-memory verifier, not Android/full Spring/TLS.",
+    "Stale docs: summary.md and completion.json still say campaign incomplete (cf9891ad\u2026, 0 accepted); campaign-status.json + campaign-report.json are authoritative final artifacts."
+  ],
+  "tests_verified": {
+    "codec_unit": "2/2 ProofCodecTests pass (provider)",
+    "harness_proof_b64": "2/2 pass (standard base64 rejected, canonical url roundtrip)",
+    "regression_ready": "211/211 semantics, 183/183 harness per contract",
+    "codec_ready_contract": "4/4 codec + 38/38 equivalence per results/codec-ready.json",
+    "campaign_report": "4 accepted, 4 distinct proofs, 16224 proof bytes, witness 311413\u2013311448"
+  },
+  "verdict": "pass",
+  "required_fixes": [
+    "Update docs/platform/evidence/2026-09-15-epfl-transcript/summary.md to match campaign-status/report (digest b0b44776\u2026, 4 accepted); stop linking stale completion.json as final contract"
+  ],
+  "required_fixes_resolved": [
+    "Replaced stale evidence summary; final report links no longer use old completion.json",
+    "Corrected generic oracle-note wording to refer to the exact independent-check list"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "distinct_proofs": 4,
+  "sessions": [
+    {
+      "accepted": true,
+      "submit_http": 200,
+      "management_state": "SUCCESS",
+      "proof_bytes": 315967,
+      "events": 4
+    },
+    {
+      "accepted": true,
+      "submit_http": 200,
+      "management_state": "SUCCESS",
+      "proof_bytes": 315967,
+      "events": 4
+    },
+    {
+      "accepted": true,
+      "submit_http": 200,
+      "management_state": "SUCCESS",
+      "proof_bytes": 315967,
+      "events": 4
+    },
+    {
+      "accepted": true,
+      "submit_http": 200,
+      "management_state": "SUCCESS",
+      "proof_bytes": 315967,
+      "events": 4
+    }
+  ],
+  "public_report_excludes_credentials": true
+}

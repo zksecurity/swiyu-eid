@@ -1,0 +1,65 @@
+{
+  "schema": "swiyu.claim.v0",
+  "id": "swiyu.shared.age25-holder-challenge.v0",
+  "packages": {
+    "format": "platform.sd-jwt-es256@1",
+    "assertions": "platform.epfl-d10@1",
+    "predicates": "core.predicates@1"
+  },
+  "credential": {"id": "eid", "format": "platform.sd-jwt-es256@1"},
+  "attributes": {
+    "birth_date": {
+      "credential": "eid",
+      "path": ["birth_date"],
+      "type": "swiyu.date@0"
+    }
+  },
+  "given": {
+    "issuer": {"type": "platform.expected-issuer@1"},
+    "now_date": {"type": "swiyu.date-yyyymmdd@0"},
+    "challenge_nonce": {"type": "platform.expected-challenge@1"}
+  },
+  "require": [
+    {
+      "id": "issuer_authentication",
+      "assert": "credential.authentic@1",
+      "args": {
+        "credential": {"credential": "eid"},
+        "issuer": {"given": "issuer"}
+      }
+    },
+    {
+      "id": "challenge_binding",
+      "assert": "presentation.challenge-bound@1",
+      "args": {
+        "challenge": {"given": "challenge_nonce"}
+      }
+    },
+    {
+      "id": "holder_authorization",
+      "assert": "holder.signature-valid@1",
+      "args": {
+        "credential": {"credential": "eid"},
+        "transcript": {
+          "assertion": "challenge_binding",
+          "output": "expected_transcript"
+        }
+      }
+    }
+  ],
+  "where": {
+    "predicate": "date.yyyymmdd-age-at-least@1",
+    "args": {
+      "birthdate": {"attribute": "birth_date"},
+      "reference": {"given": "now_date"},
+      "min_years": {"const": "25"}
+    }
+  },
+  "release": {
+    "observer": "verifier",
+    "semantic_values": ["acceptance"],
+    "protocol_derived": [],
+    "opaque_channels": ["proof"],
+    "branch_identity": "hidden"
+  }
+}

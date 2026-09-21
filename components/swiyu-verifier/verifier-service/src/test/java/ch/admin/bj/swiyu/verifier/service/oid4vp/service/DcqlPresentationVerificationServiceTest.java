@@ -314,7 +314,10 @@ class DcqlPresentationVerificationServiceTest {
                 "swiyu_age18_status_2k",
                 "2008-07-15",
                 "snapshot-2026-07-15",
-                1_784_092_800L);
+                1_784_092_800L,
+                null,
+                null,
+                null);
     }
 
     private static DcqlCredential zkCredential(ZkPresentationPolicy policy) {

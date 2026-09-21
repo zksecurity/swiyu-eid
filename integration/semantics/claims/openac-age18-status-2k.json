@@ -1,0 +1,100 @@
+{
+  "schema": "swiyu.claim.v0",
+  "id": "swiyu.openac.age18-status-2k.v0",
+  "packages": {
+    "format": "platform.sd-jwt-es256@1",
+    "assertions": "platform.presentation@1",
+    "predicates": "core.predicates@1"
+  },
+  "credential": {"id": "eid", "format": "platform.sd-jwt-es256@1"},
+  "attributes": {
+    "birthdate": {
+      "credential": "eid",
+      "path": ["birthdate"],
+      "type": "swiyu.date@0"
+    }
+  },
+  "given": {
+    "issuer": {"type": "platform.expected-issuer@1"},
+    "current_time": {"type": "swiyu.unix-seconds@0"},
+    "age18_cutoff": {"type": "swiyu.date@0"},
+    "session": {"type": "platform.expected-session@1"},
+    "status_snapshot": {"type": "platform.expected-status@1"}
+  },
+  "require": [
+    {
+      "id": "issuer_authentication",
+      "assert": "credential.authentic@1",
+      "args": {
+        "credential": {"credential": "eid"},
+        "issuer": {"given": "issuer"}
+      }
+    },
+    {
+      "id": "metadata_profile_binding",
+      "assert": "credential.expected-metadata@1",
+      "args": {
+        "credential": {"credential": "eid"},
+        "issuer": {"given": "issuer"}
+      }
+    },
+    {
+      "id": "credential_validity",
+      "assert": "credential.valid-at@1",
+      "args": {
+        "credential": {"credential": "eid"},
+        "time": {"given": "current_time"}
+      }
+    },
+    {
+      "id": "holder_authorization",
+      "assert": "holder.signature-valid@1",
+      "args": {
+        "credential": {"credential": "eid"},
+        "transcript": {
+          "assertion": "session_binding",
+          "output": "expected_transcript"
+        }
+      }
+    },
+    {
+      "id": "session_binding",
+      "assert": "presentation.context-bound@1",
+      "recipe": "claim.context@1",
+      "args": {
+        "session": {"given": "session"},
+        "age18_cutoff": {"given": "age18_cutoff"},
+        "current_time": {"given": "current_time"},
+        "status_snapshot": {"given": "status_snapshot"}
+      }
+    },
+    {
+      "id": "status_freshness_validity",
+      "assert": "status.zero-at-reference@1",
+      "args": {
+        "credential": {"credential": "eid"},
+        "reference": {"given": "status_snapshot"},
+        "time": {"given": "current_time"}
+      }
+    }
+  ],
+  "where": {
+    "predicate": "date.on-or-before@1",
+    "args": {
+      "value": {"attribute": "birthdate"},
+      "limit": {"given": "age18_cutoff"}
+    }
+  },
+  "release": {
+    "observer": "verifier",
+    "semantic_values": [
+      "acceptance",
+      "eid.issuer",
+      "eid.key_id",
+      "eid.credential_type"
+    ],
+    "protocol_derived": ["claim.context@1"],
+    "opaque_channels": ["proof"],
+    "branch_identity": "hidden"
+  }
+}

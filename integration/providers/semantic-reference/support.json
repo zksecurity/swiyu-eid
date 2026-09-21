@@ -1,0 +1,54 @@
+{
+  "schema": "swiyu.claim-support.v0",
+  "id": "semantic-reference-support",
+  "title": "Transparent reference provider claim support",
+  "approved_roots": [
+    "../../semantics"
+  ],
+  "supported_claims": [
+    {
+      "id": "test.clearance-status.v1",
+      "statement_digest": "6acd3831b976bf68d61ff4f8e8a71b76e9e46e9762d4fa0379db5ec15a9ca6dd"
+    },
+    {
+      "id": "test.composed-cutoff-or-status.v1",
+      "statement_digest": "7dc6e7c027d8fa592ed715281ec0c8c3040537bb06be864578160a9f06956ffa"
+    },
+    {
+      "id": "test.cutoff-status.v1",
+      "statement_digest": "78fa225885116a3511f84a4b519f4e2f377f2af131014bcc0b8892d47454e305"
+    }
+  ],
+  "enforcement": {
+    "issuer_authentication": "verifier",
+    "metadata": "verifier",
+    "validity": "verifier",
+    "holder_authorization": "verifier",
+    "session_binding": "verifier",
+    "status": "verifier",
+    "where": "verifier"
+  },
+  "wallet_prechecks": [],
+  "artifact_pins": [
+    {
+      "path": "provider.py",
+      "sha256": "a85e3d956ed6822f7731f7e853f6b7243e28b22b93ada4d8c308fc1bf9e9e34e"
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "b06b718a40bad258e683723b041fdad776a1876aaf601cb7ef8757b401a8c1f1"
+    },
+    {
+      "path": "../../semantics/semantics/assertions.py",
+      "sha256": "f490d51dd1821a765cf003539c1d6b21071fc71c67be78cfab21831037fdba65"
+    },
+    {
+      "path": "../../semantics/semantics/claims.py",
+      "sha256": "f5bd8dcf300396da154b375350b59d82ef29ba4ad5bfb321156a19a2c7ebd5ae"
+    },
+    {
+      "path": "../../semantics/catalog.lock.json",
+      "sha256": "54888a0af4ae8de44a5885b874845bf61e214c021918630fa93f7fd6f18bc4bf"
+    }
+  ]
+}

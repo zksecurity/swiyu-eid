@@ -1,0 +1,62 @@
+{
+  "schema": "swiyu.semantic-catalog-lock.v0",
+  "packages": {
+    "platform.sd-jwt-es256@1": {
+      "path": "formats/platform-sd-jwt-es256-v1/package.json",
+      "digest": "b9f74ef96dc331e66aa6983a53748d137f67a6d9a7aea9f55e73d110e05a13b2"
+    },
+    "platform.presentation@1": {
+      "path": "assertions/platform-presentation-v1/package.json",
+      "digest": "a5fa687b6c62e45e765902318657354f00eb6b33b4afb5e33d673657e8d1328d"
+    },
+    "platform.epfl-d10@1": {
+      "path": "assertions/platform-epfl-d10-v1/package.json",
+      "digest": "620ad835a57b590aa6aad74ff0c0d78d8ee6e06d6d21d1ae0b09d3b30b84c219"
+    },
+    "core.predicates@1": {
+      "path": "predicates/core-v1/package.json",
+      "digest": "8b323c33b0270cbb9d86fc2eca5b532d7ad056c9338bc5083962a3254eba5f9f"
+    }
+  },
+  "types": {
+    "swiyu.date@0": {},
+    "swiyu.unix-seconds@0": {},
+    "ascii-code2@1": {},
+    "utf8@1": {},
+    "platform.expected-issuer@1": {},
+    "platform.expected-session@1": {},
+    "platform.expected-status@1": {},
+    "platform.expected-challenge@1": {},
+    "swiyu.date-yyyymmdd@0": {}
+  },
+  "sources": {
+    "claims": {
+      "path": "semantics/claims.py",
+      "digest": "f5bd8dcf300396da154b375350b59d82ef29ba4ad5bfb321156a19a2c7ebd5ae"
+    },
+    "catalog": {
+      "path": "semantics/catalog.py",
+      "digest": "28d813dfa240fc829a3f5ab62fd416969791b78cefd8eb865d92499fa4fb6653"
+    },
+    "claim_types": {
+      "path": "semantics/claim_types.py",
+      "digest": "5539cb3950dd8f5418992081dc6684049ad94460c367021ba7d18f53a8b8573f"
+    },
+    "predicates": {
+      "path": "semantics/predicates.py",
+      "digest": "75bc587849dc64c641c90ba54339a93d210b07c9e42be20b55bebbeea5117a32"
+    },
+    "canonical": {
+      "path": "semantics/canonical.py",
+      "digest": "2d79c7cdabcacd6af300e51a4185066876633a76462d3d705c695bb00a699887"
+    },
+    "credentials": {
+      "path": "semantics/credentials.py",
+      "digest": "71245eb2bc4c24a362f73403018cb214d8a7848cc7046fd0d0eb5f9718dcc4cf"
+    },
+    "assertions": {
+      "path": "semantics/assertions.py",
+      "digest": "f490d51dd1821a765cf003539c1d6b21071fc71c67be78cfab21831037fdba65"
+    }
+  }
+}

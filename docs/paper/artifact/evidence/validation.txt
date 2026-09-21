@@ -1,0 +1,1 @@
+PASS: nine sessions, eight accepted, seven eligible equivalent pairs; EPFL evidence/source/guard checks pass; OpenAC clock/control retained; no raw credential, fresh token, proof body, or direct_post body in public outputs.

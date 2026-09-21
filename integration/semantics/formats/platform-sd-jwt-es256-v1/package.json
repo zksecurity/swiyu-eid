@@ -1,0 +1,22 @@
+{
+  "schema": "swiyu.semantic-format-package.v0",
+  "id": "platform.sd-jwt-es256@1",
+  "title": "Platform SD-JWT ES256 synthetic credential format",
+  "description": "Flat top-level selected SD-JWT attributes with ES256 P-256 issuer signatures.",
+  "attribute_types": [
+    "swiyu.date@0",
+    "swiyu.unix-seconds@0",
+    "ascii-code2@1",
+    "utf8@1"
+  ],
+  "metadata_exports": {
+    "issuer": "iss",
+    "key_id": "kid",
+    "credential_type": "vct"
+  },
+  "limits": {
+    "max_disclosures": 16,
+    "max_credential_bytes": 65536,
+    "max_attributes": 16
+  }
+}

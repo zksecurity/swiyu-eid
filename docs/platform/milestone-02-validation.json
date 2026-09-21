@@ -1,0 +1,265 @@
+{
+  "unique_passing_tests": 305,
+  "checks": [
+    {
+      "label": "source-pins",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.093,
+      "tests": null
+    },
+    {
+      "label": "semantics-suite",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 1.963,
+      "tests": 202
+    },
+    {
+      "label": "platform-suite",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 12.74,
+      "tests": 66
+    },
+    {
+      "label": "legacy-platform-system",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 9.164,
+      "tests": 45
+    },
+    {
+      "label": "demo-composed-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.702,
+      "tests": null
+    },
+    {
+      "label": "check-composed-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.078,
+      "tests": null
+    },
+    {
+      "label": "explain-composed-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.073,
+      "tests": null
+    },
+    {
+      "label": "plan-composed-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.232,
+      "tests": null
+    },
+    {
+      "label": "demo-clearance-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.376,
+      "tests": null
+    },
+    {
+      "label": "check-clearance-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.072,
+      "tests": null
+    },
+    {
+      "label": "explain-clearance-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.063,
+      "tests": null
+    },
+    {
+      "label": "plan-clearance-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.12,
+      "tests": null
+    },
+    {
+      "label": "demo-cutoff-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.327,
+      "tests": null
+    },
+    {
+      "label": "check-cutoff-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.066,
+      "tests": null
+    },
+    {
+      "label": "explain-cutoff-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.062,
+      "tests": null
+    },
+    {
+      "label": "plan-cutoff-status",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.128,
+      "tests": null
+    },
+    {
+      "label": "accept-all",
+      "exit": 1,
+      "expected": 1,
+      "passed": true,
+      "seconds": 0.341,
+      "tests": null
+    },
+    {
+      "label": "injected-leak",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.442,
+      "tests": null
+    },
+    {
+      "label": "repeat-output",
+      "exit": 0,
+      "expected": 0,
+      "passed": true,
+      "seconds": 0.416,
+      "tests": null
+    },
+    {
+      "label": "missing-dependency",
+      "exit": 2,
+      "expected": 2,
+      "passed": true,
+      "seconds": 0.044,
+      "tests": null
+    }
+  ],
+  "unchanged_node_regressions": [
+    {
+      "name": "openac-provider",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.73,
+      "tests": 20
+    },
+    {
+      "name": "sdk-runtime-sidecar",
+      "exit": 0,
+      "passed": true,
+      "seconds": 4.99,
+      "tests": 17
+    }
+  ],
+  "campaigns": [
+    {
+      "artifact": "artifacts/platform-semantics/report.json",
+      "overall": "passed",
+      "statement_identity": "5e86c0d15fc985870f271fcee643dca5c29fb750dd8a46f1ce207e06fc84e3d2",
+      "implementation_identity": "e00af5fc15f9af98a854bb83a656a5f3143905e300f39b189c7ddec1105aba71",
+      "campaign_identity": "37c371d98ccd43e57b00cfbf3a04be2ef803fad71ff22078f7ca94da582931e2",
+      "coverage": {
+        "executed": 12,
+        "omitted": 0,
+        "total": 12,
+        "unknown_codec": 0,
+        "unavailable_projection": 1
+      },
+      "eligible_pairs": 16,
+      "privacy_status": "findings"
+    },
+    {
+      "artifact": "artifacts/platform-semantics-clearance/report.json",
+      "overall": "passed",
+      "statement_identity": "f44faf3a17f52b1fdf25d9550965248c158539354c2cfd4d44527fc5a3cd58f9",
+      "implementation_identity": "e00af5fc15f9af98a854bb83a656a5f3143905e300f39b189c7ddec1105aba71",
+      "campaign_identity": "8060a591716d9a315b6a65035af67508a336e6626a4774f92c8241ed1f0b5c0b",
+      "coverage": {
+        "executed": 8,
+        "omitted": 0,
+        "total": 8,
+        "unknown_codec": 0,
+        "unavailable_projection": 1
+      },
+      "eligible_pairs": 6,
+      "privacy_status": "findings"
+    },
+    {
+      "artifact": "artifacts/platform-semantics-cutoff/report.json",
+      "overall": "passed",
+      "statement_identity": "cc4b6085a5a5432f80d56adaddf84ff809fafbc770aa9a1d272592654d824739",
+      "implementation_identity": "e00af5fc15f9af98a854bb83a656a5f3143905e300f39b189c7ddec1105aba71",
+      "campaign_identity": "f716e567da872a3b002b8c4f6ebc6354f6a86c452919a2dedfc3e0f18191796c",
+      "coverage": {
+        "executed": 8,
+        "omitted": 0,
+        "total": 8,
+        "unknown_codec": 0,
+        "unavailable_projection": 1
+      },
+      "eligible_pairs": 6,
+      "privacy_status": "findings"
+    },
+    {
+      "artifact": "artifacts/platform-semantics-accept-all/report.json",
+      "overall": "failed",
+      "statement_identity": "5e86c0d15fc985870f271fcee643dca5c29fb750dd8a46f1ce207e06fc84e3d2",
+      "implementation_identity": "e00af5fc15f9af98a854bb83a656a5f3143905e300f39b189c7ddec1105aba71",
+      "campaign_identity": "37c371d98ccd43e57b00cfbf3a04be2ef803fad71ff22078f7ca94da582931e2",
+      "coverage": {
+        "executed": 12,
+        "omitted": 0,
+        "total": 12,
+        "unknown_codec": 0,
+        "unavailable_projection": 1
+      },
+      "eligible_pairs": 16,
+      "privacy_status": "findings"
+    },
+    {
+      "artifact": "artifacts/platform-semantics-injected-leak/report.json",
+      "overall": "passed",
+      "statement_identity": "5e86c0d15fc985870f271fcee643dca5c29fb750dd8a46f1ce207e06fc84e3d2",
+      "implementation_identity": "e00af5fc15f9af98a854bb83a656a5f3143905e300f39b189c7ddec1105aba71",
+      "campaign_identity": "37c371d98ccd43e57b00cfbf3a04be2ef803fad71ff22078f7ca94da582931e2",
+      "coverage": {
+        "executed": 12,
+        "omitted": 0,
+        "total": 12,
+        "unknown_codec": 0,
+        "unavailable_projection": 1
+      },
+      "eligible_pairs": 16,
+      "privacy_status": "findings"
+    }
+  ],
+  "independent_review": "CORE/CRYPTO and final campaign findings closed by separate Cursor reviewer contexts",
+  "limits": "Synthetic transparent reference provider; no ZK or Android benchmark"
+}

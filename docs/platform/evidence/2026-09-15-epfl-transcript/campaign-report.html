@@ -1,0 +1,100 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Transcript privacy · swiyu-epfl-native</title>
+<style>
+:root{color-scheme:light;--ink:#17332f;--muted:#526862;--line:#d0ddd6;--paper:#f5f7f1;--accent:#006e59}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,sans-serif}main{max-width:1160px;margin:auto;padding:48px 26px 80px}header{border-bottom:1px solid var(--line);padding-bottom:30px}h1{font-size:clamp(30px,5vw,54px);letter-spacing:-.045em;line-height:1.12;margin:12px 0 22px;max-width:850px}h2{font-size:23px;letter-spacing:-.02em;margin:7px 0 15px}h3{font-size:17px}p{max-width:920px}.eyebrow{text-transform:uppercase;font-size:12px;letter-spacing:.12em;font-weight:700;color:var(--accent)}.sub{color:var(--muted)}.metrics{display:flex;gap:40px;flex-wrap:wrap;margin:28px 0}.metric strong{display:block;font-size:35px;line-height:1.2}.metric span{font-size:13px;color:var(--muted)}.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#e5efe7;border:1px solid var(--line);border-radius:12px;padding:22px;margin:28px 0}.flow span{flex:1;min-width:160px}.flow small{display:block;color:var(--muted)}.flow b{color:var(--accent)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}article{background:white;border:1px solid var(--line);padding:25px;border-radius:12px;overflow:hidden}.pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;background:#e9eee4;border-radius:20px}section{margin-top:38px}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line)}th{font-size:11px;text-transform:uppercase;letter-spacing:.06em}.scroll{overflow:auto}code,pre{font:12px/1.5 ui-monospace,monospace;overflow-wrap:anywhere;white-space:pre-wrap}pre{max-height:360px;overflow:auto}.findings{padding-left:20px}.findings li{margin-bottom:16px}details{margin-top:15px}summary{cursor:pointer;font-size:13px;font-weight:600}.note{border-left:3px solid var(--accent);padding-left:20px}footer{margin-top:40px;color:var(--muted);font-size:13px}
+</style></head><body><main><header><div class="eyebrow">Swiyu · Provider integration evidence</div><h1>Does a private proof stay private through the whole flow?</h1><p class="sub">swiyu-epfl-native · swiyu.epfl.d10-age25-jwt.v0</p><p>The same approved claim is exercised with different hidden inputs. Each observed flow is checked against that semantic relation.</p><div class="metrics"><div class="metric"><strong>4</strong><span>observed sessions</span></div><div class="metric"><strong>4</strong><span>accepted presentations</span></div><div class="metric"><strong>2</strong><span>separate campaigns</span></div></div></header>
+<div class="flow"><span><b>1 · Same permitted claim</b><small>Authenticate fixtures; vary hidden data</small></span><b>→</b><span><b>2 · Real presentation flow</b><small>Capture each selected HTTP exchange</small></span><b>→</b><span><b>3 · Compare observer views</b><small>Validate session bindings; retain extra data</small></span></div>
+<section><h2>What this run actually exercised</h2><p class="note">Local owned lifecycle: Java production controllers/services via JDK HTTP adapter, memory repository, local signed request objects, and preprovisioned issuer/status. Provider-generated proofs via the registered sidecar (swiyu-epfl-native). Not full Spring dispatch, BeanValidation, deployment filters, Android, TLS, or live authority.</p><details><summary>Normalization policy and unassessed channels</summary><pre>{
+  &quot;policy&quot;: {
+    &quot;id&quot;: &quot;swiyu-direct-post-http-v1&quot;,
+    &quot;observer&quot;: &quot;verifier&quot;,
+    &quot;expected_boundaries&quot;: [
+      &quot;verifier:management_create&quot;,
+      &quot;verifier:request_object&quot;,
+      &quot;wallet-&gt;verifier:direct_post&quot;,
+      &quot;verifier:management_result&quot;
+    ],
+    &quot;opaque_fields&quot;: [
+      {
+        &quot;event&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;side&quot;: &quot;request&quot;,
+        &quot;path&quot;: &quot;/vp_token/birth_date/0/proof_b64&quot;,
+        &quot;channel&quot;: &quot;proof&quot;
+      }
+    ],
+    &quot;public_fields&quot;: [
+      {
+        &quot;event&quot;: &quot;verifier:request_object&quot;,
+        &quot;side&quot;: &quot;response&quot;,
+        &quot;path&quot;: &quot;/payload/nonce&quot;,
+        &quot;expected_key&quot;: &quot;nonce&quot;
+      },
+      {
+        &quot;event&quot;: &quot;verifier:request_object&quot;,
+        &quot;side&quot;: &quot;response&quot;,
+        &quot;path&quot;: &quot;/payload/state&quot;,
+        &quot;expected_key&quot;: &quot;state&quot;
+      },
+      {
+        &quot;event&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;side&quot;: &quot;request&quot;,
+        &quot;path&quot;: &quot;/state&quot;,
+        &quot;expected_key&quot;: &quot;state&quot;
+      }
+    ],
+    &quot;rename_session_tokens&quot;: true,
+    &quot;request_object_clock&quot;: true,
+    &quot;response_clock_headers&quot;: [
+      &quot;date&quot;
+    ],
+    &quot;ignored_headers&quot;: []
+  },
+  &quot;unassessed_channels&quot;: [
+    &quot;request-object absolute issuance time&quot;,
+    &quot;response Date values&quot;,
+    &quot;timing distributions&quot;
+  ]
+}</pre></details></section><section class="cards"><article><div class="eyebrow">baseline</div><h2>Clean A/B</h2><span class="pill">clean</span><p>No findings in these observations.</p><details><summary>Pair comparisons (1)</summary><pre>[
+  {
+    &quot;left&quot;: &quot;clean-epfl-adult-a&quot;,
+    &quot;right&quot;: &quot;clean-epfl-adult-b&quot;,
+    &quot;eligibility&quot;: &quot;compared&quot;,
+    &quot;status&quot;: &quot;equivalent&quot;,
+    &quot;diffs&quot;: []
+  }
+]</pre></details></article><article><div class="eyebrow">injected regression</div><h2>Injected transport A/B</h2><span class="pill">findings</span><ul class="findings"><li><strong>secret_disclosure</strong><br><code>wallet-&gt;verifier:direct_post · decoded-body</code><br>hidden marker observed on the wire before opaque masking</li><li><strong>unknown_identifier_differential</strong><br><code></code><br>unknown hash-like identifier differed across equivalent sessions</li><li><strong>transcript_mismatch</strong><br><code>/request/body/x_swiyu_wallet_tag/disclosures/0/0, /request/body/x_swiyu_wallet_tag/disclosures/0/2, /request/body/x_swiyu_wallet_tag/payload/_sd/0, /request/headers/4/1</code><br>normalized observer transcripts differed</li></ul><details><summary>Pair comparisons (1)</summary><pre>[
+  {
+    &quot;left&quot;: &quot;injected-epfl-adult-a&quot;,
+    &quot;right&quot;: &quot;injected-epfl-adult-b&quot;,
+    &quot;eligibility&quot;: &quot;compared&quot;,
+    &quot;status&quot;: &quot;mismatch&quot;,
+    &quot;diffs&quot;: [
+      {
+        &quot;pointer&quot;: &quot;/request/body/x_swiyu_wallet_tag/disclosures/0/0&quot;,
+        &quot;left_boundary&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;right_boundary&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;explanation&quot;: &quot;scalar leaf differed&quot;
+      },
+      {
+        &quot;pointer&quot;: &quot;/request/body/x_swiyu_wallet_tag/disclosures/0/2&quot;,
+        &quot;left_boundary&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;right_boundary&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;explanation&quot;: &quot;scalar leaf differed&quot;
+      },
+      {
+        &quot;pointer&quot;: &quot;/request/body/x_swiyu_wallet_tag/payload/_sd/0&quot;,
+        &quot;left_boundary&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;right_boundary&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;explanation&quot;: &quot;unknown hash-like identifier differed&quot;
+      },
+      {
+        &quot;pointer&quot;: &quot;/request/headers/4/1&quot;,
+        &quot;left_boundary&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;right_boundary&quot;: &quot;wallet-&gt;verifier:direct_post&quot;,
+        &quot;explanation&quot;: &quot;unknown hash-like identifier differed&quot;
+      }
+    ]
+  }
+]</pre></details></article></section>
+<section><h2>Proof and flow evidence</h2><div class="scroll"><table><thead><tr><th>Session</th><th>Private variant</th><th>Verifier</th><th>Exchanges</th><th>Proof bytes (presentation leaf)</th><th>Witness bytes (provider-reported)</th><th>Prepare ms</th><th>Present ms</th><th>Submit + verify ms</th></tr></thead><tbody><tr><td>clean-0</td><td>variant-0</td><td>Accepted</td><td>4</td><td>16,224</td><td>311,416</td><td>0</td><td>14,909</td><td>147</td></tr><tr><td>clean-1</td><td>variant-1</td><td>Accepted</td><td>4</td><td>16,224</td><td>311,444</td><td>0</td><td>16,283</td><td>68</td></tr><tr><td>injected-2</td><td>variant-2</td><td>Accepted</td><td>4</td><td>16,224</td><td>311,413</td><td>0</td><td>15,405</td><td>63</td></tr><tr><td>injected-3</td><td>variant-3</td><td>Accepted</td><td>4</td><td>16,224</td><td>311,448</td><td>0</td><td>16,131</td><td>103</td></tr></tbody></table></div><p class="sub">Submit + verify includes HTTP transport, Swiyu processing, and provider verification. Proof size is measured from the actual presentation leaf. Witness sizes are provider-reported. Times are observations on this laptop. These samples do not establish a timing distribution or phone performance.</p></section>
+<section><h2>The contribution</h2><p>A reusable connection from pinned semantic claims and approved releases to differential checks over complete selected OID4VP flows, alongside real proof integration and benchmarks.</p><p>Finite tests can expose a violation of the declared privacy relation. A passing campaign does not prove cryptographic zero knowledge, circuit correctness, or universal unlinkability. Proof contents remain an audit obligation; their observable lengths remain part of the comparison.</p></section><footer>Baseline observations and injected regressions are labeled separately. Observer scope and normalization exceptions define what this report can establish.</footer></main></body></html>

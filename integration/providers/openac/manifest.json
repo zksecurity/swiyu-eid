@@ -1,0 +1,35 @@
+{
+  "schema": "swiyu.provider-manifest.v1",
+  "id": "swiyu-openac-adapter",
+  "title": "OpenAC SDK adapter (swiyu-age18-status-2k-v0)",
+  "kind": "implementation",
+  "incomplete": false,
+  "profiles": [
+    "swiyu-age18-status-2k-v0",
+    "openac-age25-jwt-v0"
+  ],
+  "command": [
+    "node",
+    "provider.mjs"
+  ],
+  "coverage": {
+    "prepare": "sdk-parse-precompute",
+    "present": "native-swiyu-profile",
+    "verify": "native-swiyu-profile"
+  },
+  "source": {
+    "sdk_root_entry": "components/zkid/wallet-unit-poc/openac-sdk/dist/index.js",
+    "sdk_entry": "components/zkid/wallet-unit-poc/openac-sdk/dist/swiyu-zkp/index.js",
+    "native_backend_entry": "components/zkid/wallet-unit-poc/openac-sdk/dist/swiyu-zkp/native-backend-node.js",
+    "certification": "none",
+    "note": "Default profile is swiyu-age18-status-2k-v0. openac-age25-jwt-v0 is the shared age-25 holder-challenge circuit (no status); proving artifacts for that profile are not packaged yet.",
+    "provider_run_fixture": "provider-run-fixture.mjs",
+    "transcript_fixture": "transcript-fixture.mjs",
+    "transcript_fixture_age25": "transcript-fixture-age25.py",
+    "transcript_sidecar": "transcript-sidecar.mjs"
+  },
+  "circuits": [
+    "swiyu_age18_status_2k",
+    "swiyu_age25_jwt"
+  ]
+}

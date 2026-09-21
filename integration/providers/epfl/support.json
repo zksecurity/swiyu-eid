@@ -1,0 +1,60 @@
+{
+  "schema": "swiyu.claim-support.v0",
+  "id": "epfl-d10-age25-jwt-support",
+  "title": "EPFL d10_swiyu_jwt bounded semantic claim support",
+  "supported_claims": [
+    {
+      "id": "swiyu.epfl.d10-age25-jwt.v0",
+      "statement_digest": "b0b44776cd76859535394cf88151e1f81ff3d17585edfc208a06e806319b29a5",
+      "implementation_profile": "epfl-d10-swiyu-jwt-age25-v0",
+      "circuit": "d10_swiyu_jwt",
+      "enforcement": {
+        "issuer_authentication": "both",
+        "challenge_binding": "both",
+        "holder_authorization": "proof",
+        "where": "both"
+      }
+    },
+    {
+      "id": "swiyu.shared.age25-holder-challenge.v0",
+      "statement_digest": "838df32b57b9ca0aadb533270bbc096cd67b7f85c3ead250cacf765742d3ddc5",
+      "implementation_profile": "epfl-d10-swiyu-jwt-age25-v0",
+      "circuit": "d10_swiyu_jwt",
+      "enforcement": {
+        "issuer_authentication": "both",
+        "challenge_binding": "both",
+        "holder_authorization": "proof",
+        "where": "both"
+      }
+    }
+  ],
+  "enforcement": {
+    "issuer_authentication": "both",
+    "challenge_binding": "both",
+    "holder_authorization": "proof",
+    "where": "both"
+  },
+  "wallet_prechecks": [],
+  "artifact_pins": [
+    {
+      "path": "provider.py",
+      "sha256": "d97b88b97ca69c8d706028c5891b1ef2ae677589c2dc0098bba555ed1e8fd10e"
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "f8785c5a4213a0aaa361e2df3f6282147932d08f7b3468516b4a4781700e2f53"
+    },
+    {
+      "path": "fixtures.py",
+      "sha256": "24f92643ae1b40ee39fd991fc1444a7b633351d65c54c76edfa0b82399e0f3eb"
+    },
+    {
+      "path": "transcript-fixture.py",
+      "sha256": "5d0408f71780262f23cafdec20b272fb604fdce2b38427b10156f2418f411fb4"
+    },
+    {
+      "path": "provider-run-fixture.js",
+      "sha256": "65961576265f9d1284fbd4dc79addccf15c978f9b0203f71d839fd6cc4b8c181"
+    }
+  ]
+}

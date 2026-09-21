@@ -1,0 +1,29 @@
+{
+  "schema": "swiyu.semantic-predicate.v1",
+  "id": "age-at-least.v1",
+  "title": "Gregorian age at least",
+  "description": "True when age on reference_date is at least min_age.",
+  "private_inputs": {
+    "birthdate": {
+      "type": "date",
+      "format": "YYYY-MM-DD",
+      "range": "0001-01-01..9999-12-31",
+      "calendar": "gregorian"
+    }
+  },
+  "parameters": {
+    "reference_date": {
+      "type": "date",
+      "format": "YYYY-MM-DD",
+      "range": "0001-01-01..9999-12-31",
+      "calendar": "gregorian",
+      "visibility": "public"
+    },
+    "min_age": {
+      "type": "integer",
+      "range": "0..150",
+      "visibility": "public"
+    }
+  },
+  "rule": "Let age = reference_year - birth_year minus 1 when (reference month,day) is before (birth month,day). For Feb 29 birthdays in a non-leap reference year, treat the birthday as March 1 for the month-day comparison. If birthdate is after reference_date, the predicate is false for every min_age including 0. Otherwise the predicate is true when age >= min_age."
+}

@@ -28,21 +28,29 @@ public record ZkPresentationPolicyDto(
         String circuitId,
 
         @JsonProperty("cutoff_date")
-        @NotBlank
         @Pattern(
                 regexp = "^(19\\d{2}|20\\d{2}|21\\d{2})-\\d{2}-\\d{2}$",
                 message = "cutoff_date must use YYYY-MM-DD with a year from 1900 through 2199")
         String cutoffDate,
 
         @JsonProperty("status_list_snapshot")
-        @NotBlank
         @Size(max = 256)
         @Pattern(regexp = "^[A-Za-z0-9._~:-]+$", message = "status_list_snapshot must be an opaque snapshot id")
         String statusListSnapshot,
 
         @JsonProperty("current_time")
-        @NotNull
         @Positive
-        Long currentTime
+        Long currentTime,
+
+        @JsonProperty("now_date")
+        Integer nowDate,
+
+        @JsonProperty("issuer_pub_x")
+        @Pattern(regexp = "^[0-9a-f]{64}$", message = "issuer_pub_x must be 64-char lowercase hex")
+        String issuerPubX,
+
+        @JsonProperty("issuer_pub_y")
+        @Pattern(regexp = "^[0-9a-f]{64}$", message = "issuer_pub_y must be 64-char lowercase hex")
+        String issuerPubY
 ) {
 }

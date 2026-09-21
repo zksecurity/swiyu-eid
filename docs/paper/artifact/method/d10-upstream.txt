@@ -1,0 +1,4 @@
+Vendored from eid-privacy/zkp-pocs (MPL-2.0) commit d58bc79dd65ea6560bf199ad332d3ba3746c1c08
+noir/c05_age_verification, noir/eid, noir/d10_swiyu_jwt (src only).
+d10 Nargo.toml path-pins noir_base64 v0.5.0 and sha256 v0.3.0 (see deps/UPSTREAM.txt).
+Prover.toml, credential JWTs, and witness files are not vendored.

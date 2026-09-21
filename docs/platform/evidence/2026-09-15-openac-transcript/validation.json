@@ -1,0 +1,38 @@
+{
+  "harness": {
+    "tests": 181,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 70.679,
+    "command": "PYTHONPATH=integration/harness:integration/tools integration/semantics/.venv/bin/python -m unittest discover -s integration/harness/tests -p 'test_*.py'"
+  },
+  "integration_layout_runtime": {
+    "tests": 8,
+    "failures": 0,
+    "errors": 0
+  },
+  "java_transport": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_sidecar_adapter": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0
+  },
+  "native_campaign": {
+    "fresh_proofs": 4,
+    "accepted": 4,
+    "baseline_compared_pairs": 1,
+    "baseline_findings": 0,
+    "injected_compared_pairs": 1,
+    "injected_findings": [
+      "secret_disclosure",
+      "unknown_identifier_differential",
+      "transcript_mismatch"
+    ]
+  },
+  "review": "Independent protocol/integration and final normalization reviews completed; no blocking findings. Witness reporting and clock assumptions are explicitly qualified."
+}

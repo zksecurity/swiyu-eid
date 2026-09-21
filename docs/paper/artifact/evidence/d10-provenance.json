@@ -1,0 +1,37 @@
+{
+  "observed_repo_head": "73cd99e10284a4c8996150e2ab773fc6fee41f62",
+  "repo_dirty": true,
+  "toolchain": {
+    "nargo": "1.0.0-beta.13",
+    "noirc": "1.0.0-beta.13+6e469c3004209a8b107e7707306e25c80a110fd6",
+    "bb": "1.2.1"
+  },
+  "core_sha256": {
+    "provider.py": "d97b88b97ca69c8d706028c5891b1ef2ae677589c2dc0098bba555ed1e8fd10e",
+    "transcript-sidecar.py": "2fc81c871c5af18b3552dca97881d09ef0b07308139aa9f850f2e74e6c118fd4",
+    "epfl_challenge.py": "4e9d90f99d7950a1d3f19cb5c30dd560dd1c5739640a60aaf1443fdf4aa9d5d3"
+  },
+  "circuit_tree": {
+    "files": 67,
+    "sha256_path_and_content": "582bce120293b8b9e874e295d09604b2b4419f5a1cbb1d2bdabb163e64b21b8a"
+  },
+  "experiment_sha256": {
+    "fixtures.py": "2a868a9033d02c5135b937d0d2de2323b73aaf791bdc0a1c3d9a99a4cec7bb1c",
+    "transcript-fixture.py": "380926d2c2d872a7b4c6e532177a46ebdadd441c4691e55ae27b87e55a2adf7f",
+    "manifest.json": "21664035869d39e61e903a5644c051e4359cf516ebbd446fbf325702504a9662",
+    "run.py": "034b0e05c07621c53fb38172acfabcf0b976f94657e8c80809c03b7e0b5d1df2",
+    "test_setup.py": "54613e201d4a396bc13361358b9adb66dc8cf56712d274ecf847daca8e86e67d"
+  },
+  "initial_owned_crs": [
+    {
+      "name": "bn254_g1.dat",
+      "size": 33554496,
+      "sha256": "1df37a2ce1da3713c7300691a65ffe84de144ea64899d5cfbf0061aaaeb6ad31"
+    },
+    {
+      "name": "bn254_g2.dat",
+      "size": 128,
+      "sha256": "01797bfc4de5a96f0e516a9ea4537d18786dc30cb991aca4274c95822b69c32f"
+    }
+  ]
+}

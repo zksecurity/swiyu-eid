@@ -9,6 +9,8 @@ export const present: (a: number, b: number, c: number, d: number, e: number, f:
 export const setup: () => [number, number, number];
 export const setup_prepare: () => [number, number, number];
 export const setup_show: () => [number, number, number];
+export const swiyu_prove_from_witness: (a: number, b: number, c: number, d: number) => [number, number, number];
+export const swiyu_verify: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number];
 export const verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => [number, number, number];
 export const verify_single: (a: number, b: number, c: number, d: number) => [number, number, number];
 export const __wbindgen_malloc: (a: number, b: number) => number;

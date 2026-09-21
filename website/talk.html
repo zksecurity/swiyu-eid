@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Implementing ZK in swiyu</title>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --paper: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;
+      overflow: hidden;
+      cursor: pointer;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .deck {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      padding: 0 6.5vw 7.2vh;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition:
+        opacity 0.45s ease,
+        transform 0.45s ease,
+        visibility 0s linear 0.45s;
+    }
+
+    .slide.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+      transition:
+        opacity 0.5s ease,
+        transform 0.5s ease,
+        visibility 0s;
+    }
+
+    .slide.is-exit {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+
+    .slide-inner {
+      width: min(900px, 100%);
+      margin-top: 24vh;
+    }
+
+    h1 {
+      color: var(--ink);
+      font-size: clamp(2.45rem, 4.4vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      color: var(--ink);
+      font-size: 1.18rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    p, li, code {
+      color: var(--muted);
+      font-size: 1.14rem;
+      font-weight: 400;
+      line-height: 1.55;
+    }
+
+    .slide-title h1 { margin-top: 0.9em; }
+
+    .sub { margin-top: 1.1em; }
+    .sub + .sub { margin-top: 0.55em; }
+
+    .slide-content {
+      align-items: stretch;
+      padding-top: 7vh;
+    }
+
+    .slide-content .slide-inner { margin-top: 0; }
+
+    .slide-content h1 {
+      font-size: clamp(2.05rem, 3.4vw, 2.7rem);
+      margin-bottom: 1.35rem;
+    }
+
+    .slide-inner.wide {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .beats {
+      display: flex;
+      flex-direction: column;
+      gap: 1.35rem;
+    }
+
+    .beats h2 { margin-bottom: 0.28em; }
+
+    .sd-diagram {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.85rem 1.2rem;
+      align-items: start;
+      margin-top: 0.85rem;
+    }
+
+    .sd-diagram h2 {
+      margin-bottom: 0.45em;
+      font-size: 1rem;
+    }
+
+    .token,
+    .disclosures {
+      border: 1px solid var(--line);
+    }
+
+    .token pre,
+    .disclosures {
+      margin: 0;
+      padding: 0.85rem 1rem 0.95rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--ink);
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .disclosures {
+      margin-top: 0.55rem;
+      color: var(--muted);
+    }
+
+    .arrow {
+      align-self: center;
+      padding-top: 1.35rem;
+      color: var(--muted);
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .timeline {
+      display: flex;
+      gap: 2.4rem;
+      margin: 1.8rem 0 2.2rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .timeline li {
+      flex: 1;
+      min-width: 0;
+      list-style: none;
+    }
+
+    .timeline h2 { margin-bottom: 0.35em; }
+
+    .global h2 { margin-bottom: 0.7em; }
+
+    .global ul {
+      list-style: disc;
+      padding-left: 1.15em;
+    }
+
+    .global ul ul {
+      margin-top: 0.35em;
+      padding-left: 1.15em;
+    }
+
+    .global ul ul li + li { margin-top: 0.28em; }
+
+    .why-miss {
+      margin-bottom: 1.45rem;
+    }
+
+    .why-miss .lede { margin-bottom: 0.45rem; }
+
+    .follow-on { margin-top: 1.8rem; }
+
+    .slide[data-slide="7"] .follow-on { margin-top: 1.15rem; }
+
+    .follow-on[data-appear] {
+      display: none;
+      opacity: 1;
+    }
+
+    .follow-on[data-appear].is-on {
+      display: block;
+      animation: chrome-in 0.45s ease both;
+    }
+
+    .follow-on h1 {
+      margin-bottom: 1.1rem;
+    }
+
+    .lede {
+      margin-bottom: 1.15rem;
+    }
+
+    .quad {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.45rem 3.2rem;
+    }
+
+    .quad h2 { margin-bottom: 0.28em; }
+
+    .slide[data-step="2"] .quad {
+      gap: 0.85rem 3.2rem;
+    }
+
+    .gains-arrow {
+      color: var(--muted);
+      font-size: 1.35rem;
+      line-height: 1;
+      margin: 0 0 0.5rem;
+    }
+
+    .gains-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.2rem 2.2rem;
+    }
+
+    .gains-row h2 { margin-bottom: 0.28em; }
+
+    .bench-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.15rem 0 1.25rem;
+    }
+
+    .bench-table th,
+    .bench-table td {
+      padding: 0.55rem 0.65rem 0.55rem 0;
+      text-align: right;
+      font-size: 1.14rem;
+      line-height: 1.35;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .bench-table td { color: var(--muted); }
+
+    .bench-table th:first-child,
+    .bench-table td:first-child {
+      text-align: left;
+      color: var(--ink);
+      font-weight: 600;
+      white-space: normal;
+      padding-left: 0;
+    }
+
+    .bench-table th {
+      color: var(--ink);
+      font-weight: 600;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .bench-table td {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .bench-table tbody tr:last-child td { border-bottom: 0; }
+
+    .diagram {
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 0;
+    }
+
+    .diagram-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .diagram-svg .n {
+      fill: var(--ink);
+      font-size: 21px;
+      font-weight: 600;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .diagram-svg .s {
+      fill: var(--muted);
+      font-size: 15px;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .diagram-svg .lab {
+      fill: var(--muted);
+      font-size: 14px;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .diagram-svg .flow {
+      fill: none;
+      stroke: var(--muted);
+      stroke-width: 1.45;
+    }
+
+    .diagram-svg .batch {
+      fill: none;
+      stroke: var(--muted);
+      stroke-width: 1.35;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .scene-layer {
+      position: fixed;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .scene-layer[hidden] { display: none; }
+
+    .scene-layer .diagram-svg {
+      max-width: none;
+      max-height: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .infra-head {
+      flex: 0 0 12.75rem;
+      height: 12.75rem;
+    }
+
+    .infra-head h1 { margin-bottom: 0.85rem; }
+
+    .slide.is-morph {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition: none;
+    }
+
+    .slide.is-morph-from .infra-head,
+    .slide.is-morph-from .sources {
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .slide.is-morph-gone .infra-head,
+    .slide.is-morph-gone .sources {
+      opacity: 0;
+    }
+
+    .slide.is-morph-gone {
+      opacity: 0;
+      visibility: hidden;
+      transform: none;
+      transition: none;
+    }
+
+    .slide.is-morph-to .infra-head,
+    .slide.is-morph-to .sources {
+      animation: chrome-in 0.55s ease 0.28s both;
+    }
+
+    @keyframes chrome-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .captions {
+      position: relative;
+      min-height: 4.6em;
+      margin-bottom: 0.8rem;
+    }
+
+    .step-caption {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .step-caption.is-now { opacity: 1; }
+
+    [data-appear] {
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    [data-appear].is-on { opacity: 1; }
+
+    .step-caption.is-on { opacity: 0; }
+    .step-caption.is-now { opacity: 1; }
+
+    .sources {
+      position: absolute;
+      left: 6.5vw;
+      right: 16vw;
+      bottom: 1.6vh;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.4;
+      pointer-events: auto;
+    }
+
+    .sources a {
+      color: var(--muted);
+      text-underline-offset: 2px;
+    }
+
+    .foot {
+      position: fixed;
+      right: 2.4vw;
+      bottom: 1.6vh;
+      z-index: 2;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 400;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease 0.3s;
+    }
+
+    .foot.is-visible { opacity: 0.7; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide,
+      .slide.is-active,
+      .slide.is-exit,
+      [data-appear],
+      .step-caption {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+      }
+      .slide.is-morph-from .infra-head,
+      .slide.is-morph-to .infra-head {
+        animation: none !important;
+        transition: none !important;
+      }
+      .slide { opacity: 0; }
+      .slide.is-active { opacity: 1; }
+      [data-appear].is-on,
+      .step-caption.is-now { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck" aria-live="polite">
+    <section class="slide slide-title is-active" data-slide="1">
+      <div class="slide-inner">
+        <h1>Implementing ZK in swiyu</h1>
+        <p class="sub">Antonio Kambiré | zkSecurity | 16 Sept 2026</p>
+        <p class="sub">Supervised by Martín Ochoa</p>
+      </div>
+    </section>
+
+    <section class="slide slide-content" data-slide="2">
+      <div class="slide-inner">
+        <h1>Some background on swiyu</h1>
+        <div class="beats">
+          <div>
+            <h2>The issue</h2>
+            <p>Various services need to verify certain claims about a user (over 18, licensed, is a real person) to operate. The only way to achieve this right now is to hand over a full credential, like a scan of a physical ID, to the service.</p>
+          </div>
+        </div>
+        <ol class="timeline">
+          <li>
+            <h2>Mar 2021</h2>
+            <p>Voters rejected a plan for a privately issued e-ID.</p>
+          </li>
+          <li>
+            <h2>Sept 2025</h2>
+            <p>State-issued e-ID and swiyu was approved.</p>
+          </li>
+          <li>
+            <h2>2027</h2>
+            <p>Planned launch of the swiyu ecosystem after some delays.</p>
+          </li>
+        </ol>
+      </div>
+      <p class="sources">Sources: <a href="https://www.eid.admin.ch/en/technology">e-ID technology</a>; <a href="https://www.eid.admin.ch/en/e-id-gesetz-an-der-urne-angenommen-e">28 Sept 2025 vote</a></p>
+    </section>
+
+    <section class="slide slide-content" data-slide="3">
+      <div class="slide-inner wide">
+        <h1>Selective disclosure JWT tokens</h1>
+        <div class="beats">
+          <div>
+            <p>swiyu Wallet (app) keeps the credential and lets the holder disclose specific fields using an SD-JWT (RFC 9901). The main privacy point is that the actual claims leave the signed payload (replaced by salted hashes) and can be selectively disclosed when needed.</p>
+            <div class="sd-diagram">
+              <div>
+                <h2>JWT token</h2>
+                <div class="token">
+<pre>{
+  "iss": "did:tdw:…",
+  "vct": "beta-id",
+  "birthdate": "2001-05-03",
+  "family_name": "Meier",
+  "cnf": { "jwk": { "kty": "EC", … } }
+}
++ ES256 signature</pre>
+                </div>
+                <pre class="disclosures">(no disclosures)</pre>
+              </div>
+              <div class="arrow" aria-hidden="true">→</div>
+              <div>
+                <h2>SD-JWT</h2>
+                <div class="token">
+<pre>{
+  "iss": "did:tdw:…",
+  "vct": "beta-id",
+  "_sd": [
+    "H(s₁ ‖ birthdate ‖ 2001-05-03)",
+    "H(s₂ ‖ family_name ‖ Meier)"
+  ],
+  "cnf": { "jwk": { "kty": "EC", … } }
+}
++ ES256 signature</pre>
+                </div>
+                <pre class="disclosures">[s₁, "birthdate", "2001-05-03"]
+[s₂, "family_name", "Meier"]
++ kb+jwt (proves cnf.jwk)</pre>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h2>Unlinkability</h2>
+            <p>A disclosed claim can still be correlated, and so can the holder device key in <code>cnf</code>. Presentations that cannot be tied back to a person need ZK, which swiyu does not do yet.</p>
+          </div>
+        </div>
+      </div>
+      <p class="sources">Sources: <a href="https://www.rfc-editor.org/rfc/rfc9901.html">RFC 9901</a>; <a href="https://swiyu-admin-ch.github.io/technology-stack/">swiyu Technology Stack</a></p>
+    </section>
+
+    <section class="slide slide-content" data-slide="4">
+      <div class="slide-inner wide">
+        <div class="infra-head">
+          <h1>Swiyu infrastructure</h1>
+          <p class="lede">fedpol, FEDRO, the cantons, and later companies issue e-ID, driver licenses, and others through the Generic Issuer. 
+            <br>
+            The holder uses swiyu Wallet (app) and receives the issued credentials. 
+            <br>
+            The verifier can use swiyu Check (in person) and the Generic Verifier (online) to query then check the disclosures from the wallet.</p>
+        </div>
+        <div class="diagram" data-scene-slot="infra"></div>
+      </div>
+      <p class="sources">Sources: <a href="https://swiyu-admin-ch.github.io/introduction/">swiyu Introduction</a>; <a href="https://swiyu-admin-ch.github.io/technology-stack/">Technology Stack</a>; <a href="https://swiyu-admin-ch.github.io/open-source-components/">Open Source Components</a>; <a href="https://github.com/swiyu-admin-ch/swiyu-verifier">Generic Verifier</a></p>
+    </section>
+
+    <section class="slide slide-content" data-slide="5">
+      <div class="slide-inner wide">
+        <div class="infra-head">
+          <h1>How does swiyu deal with linkability?</h1>
+          <p class="lede">To solve the linkability of individual SD-JWT presentations, swiyu instead issues a batch of easily renewable credentials at once.</p>
+        </div>
+        <div class="diagram" data-scene-slot="zk"></div>
+      </div>
+      <p class="sources">Sources: <a href="https://www.eid.admin.ch/en/so-wird-die-e-id-unverknuepfbar-e">How to make the e-ID unlinkable</a>; <a href="https://github.com/swiyu-admin-ch/community/blob/main/tech-concepts/e-id-key-management-batch-issuance-and-renewal.md">Batch issuance whitepaper</a>; <a href="https://swiyu-admin-ch.github.io/specifications/swiss-profile-issuance/">Swiss Profile Issuance</a></p>
+    </section>
+
+    <section class="slide slide-content" data-slide="6" data-steps="2">
+      <div class="slide-inner wide">
+        <h1>Why ZK?</h1>
+        <div class="why-miss">
+          <p class="lede">Batch issuance misses:</p>
+          <div class="global">
+            <ul>
+              <li>Predicate proofs over the claims</li>
+              <li>Protection against colluding verifiers (and issuers) who can correlate disclosed claims / holder keys</li>
+            </ul>
+          </div>
+        </div>
+        <div class="follow-on" data-appear="2">
+          <h1>How ZK?</h1>
+          <div class="global">
+            <ul>
+              <li>A lot of mismatched backends: Crescent, Longfellow, etc.</li>
+              <li>OpenAC / zkID: proves the ES256 SD-JWT swiyu already issues; Prepare once, then a cheap Show per presentation. (Ran zkao and shared PoCs.)
+              </li>
+              <li>EPFL + SICPA: Noir with a custom Spartan backend, built for proving speed. (Shadowed and audit.)</li>
+              <li>Mombelli (ETH): general-purpose Circom circuits, including constraints across linked credentials.</li>
+              <li>and others... (more funding is being allocated for this as well)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <p class="sources">Sources: <a href="https://github.com/privacy-ethereum/zkID">OpenAC / zkID</a>; <a href="https://github.com/eid-privacy/spartan-backend">EPFL + SICPA Spartan backend</a>; <a href="https://ethz.ch/content/dam/ethz/special-interest/infk/inst-infsec/appliedcrypto/education/theses/masters-thesis_damiano-mombelli.pdf">Mombelli thesis</a></p>
+    </section>
+
+    <section class="slide slide-content" data-slide="7" data-steps="2">
+      <div class="slide-inner wide">
+        <h1>Circuits on OpenAC</h1>
+        <p class="lede">I used OpenAC's Prepare/Show suite to write four predicates on swiyu SD-JWTs.</p>
+        <div class="quad">
+          <div>
+            <h2>Over 18 + status</h2>
+            <p>Issuer authentication, holder key, credential validity, private Token Status List, and a hidden birthdate cutoff.</p>
+          </div>
+          <div>
+            <h2>Canton allow-list</h2>
+            <p>Private <code>resident_canton</code> against a verifier-chosen list of up to four cantons.</p>
+          </div>
+          <div>
+            <h2>Residence</h2>
+            <p>Municipality / residence eligibility, including combined disclosure.</p>
+          </div>
+          <div>
+            <h2>One claim</h2>
+            <p>One accepted presentation per credential and verifier scope (nullifier).</p>
+          </div>
+        </div>
+        <div class="follow-on" data-appear="2">
+          <table class="bench-table">
+            <thead>
+              <tr>
+                <th>Profile</th>
+                <th>Setup</th>
+                <th>First wallet</th>
+                <th>Repeat wallet</th>
+                <th>Verify</th>
+                <th>Transmitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SD-JWT, no ZK</td>
+                <td>0.3 to 0.6 ms</td>
+                <td>14.8 to 15.6 ms</td>
+                <td>4.4 to 5.3 ms</td>
+                <td>13.1 to 15.9 ms</td>
+                <td>1.3 to 1.8 KB</td>
+              </tr>
+              <tr>
+                <td>Age</td>
+                <td>53.0 s</td>
+                <td>30.9 s</td>
+                <td>13.9 s</td>
+                <td>1.73 s</td>
+                <td>257.9 KB</td>
+              </tr>
+              <tr>
+                <td>Residence</td>
+                <td>51.8 s</td>
+                <td>30.4 s</td>
+                <td>14.8 s</td>
+                <td>1.70 s</td>
+                <td>258.4 KB</td>
+              </tr>
+              <tr>
+                <td>One claim</td>
+                <td>61.0 s</td>
+                <td>32.5 s</td>
+                <td>15.7 s</td>
+                <td>1.80 s</td>
+                <td>258.0 KB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="sources">Sources: <a href="https://github.com/privacy-ethereum/zkID">OpenAC / zkID</a>; <a href="../components/zkid/wallet-unit-poc/benchmark/results/final-container.json">final container campaign</a>; <a href="../components/zkid/wallet-unit-poc/benchmark/results/canton.json">canton pilot</a></p>
+    </section>
+
+    <section class="slide slide-content" data-slide="8" data-steps="2">
+      <div class="slide-inner wide">
+        <h1>A generic integration layer</h1>
+        <p class="lede">We worked on a proof-system-agnostic overlay on the OID4 protocols swiyu already runs. Issuance still uses OID4VCI while ZK presentations use a fork of OID4VP and DCQL with small additions.</p>
+        <div class="global">
+          <ul>
+            <li>Extending DCQL: The Generic Verifier puts <code>x_swiyu_zkp</code> on a DCQL query in the signed request object. The wallet returns an opaque proof in <code>vp_token</code> through the usual <code>direct_post</code>.</li>
+            <li>Using one process contract: All adapters would use <code>swiyu.provider.v1</code> (prepare, present, verify) and would just be backends running the proofs and verification steps.</li>
+            <li>Declaring claims: a versioned JSON claim lists the attributes, assertions, and predicates a presentation must establish, so two adapters can implement the "same thing" (for example age at least 25 plus a holder challenge) even if they use very different proof systems or stacks.</li>
+          </ul>
+        </div>
+        <div class="follow-on" data-appear="2">
+          <div class="gains-row">
+            <div>
+              <p class="gains-arrow" aria-hidden="true">↓</p>
+              <h2>Easy integration of new ZK projects</h2>
+              <p>A new stack is just another <code>swiyu.provider.v1</code> backend and integration is seamless.</p>
+            </div>
+            <div>
+              <p class="gains-arrow" aria-hidden="true">↓</p>
+              <h2>Comparable benchmarks</h2>
+              <p>The same OID4VP flow and stages, across the whole stack, for every adapter.</p>
+            </div>
+            <div>
+              <p class="gains-arrow" aria-hidden="true">↓</p>
+              <h2>Differential leakage testing</h2>
+              <p>Same permitted meaning should yield equivalent observer transcripts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="sources">Sources: <a href="https://openid.net/specs/openid-4-verifiable-presentations-1_0.html">OpenID4VP</a>; <a href="https://github.com/swiyu-admin-ch/swiyu-verifier">Generic Verifier</a></p>
+    </section>
+
+    <section class="slide slide-title" data-slide="10">
+      <div class="slide-inner">
+        <h1>Thank you</h1>
+        <p class="sub">Questions welcome.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="scene-layer" id="scene-layer" hidden>
+    <svg class="diagram-svg" id="ihv-scene" viewBox="0 0 960 400" overflow="visible" role="img" aria-label="swiyu issuance and presentation protocols">
+      <defs>
+        <marker id="arr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+        </marker>
+      </defs>
+      <g id="scene-extras">
+        <text class="n" text-anchor="middle" x="480" y="308">Base Registry</text>
+        <text class="s" text-anchor="middle" x="480" y="332">did:webvh, JWKs, Token Status List</text>
+        <text class="n" text-anchor="middle" x="830" y="308">Trust Registry</text>
+        <text class="s" text-anchor="middle" x="830" y="332">trust statements for a DID</text>
+        <path class="flow" d="M130 100 L430 284" marker-end="url(#arr-a)"/>
+        <path class="flow" d="M830 100 V284" marker-end="url(#arr-a)"/>
+        <path class="flow" d="M830 100 L548 284" marker-end="url(#arr-a)"/>
+        <text class="lab" text-anchor="middle" x="306" y="118">OID4VCI · SD-JWT VC</text>
+        <text class="lab" text-anchor="middle" x="655" y="118">OID4VP · DCQL</text>
+        <text class="lab" x="148" y="214">register DID, keys, TSL</text>
+        <text class="lab" text-anchor="start" x="842" y="204">resolve entity</text>
+        <text class="lab" text-anchor="start" x="510" y="226">JWK + TSL lookup</text>
+      </g>
+      <line id="spine-line" class="flow" x1="130" y1="100" x2="830" y2="100"/>
+      <g id="batch-fan" opacity="0">
+        <path class="batch" id="batch-ih-0"/>
+        <path class="batch" id="batch-ih-1"/>
+        <path class="batch" id="batch-ih-2"/>
+        <path class="batch" id="batch-ih-3"/>
+        <path class="batch" id="batch-ih-4"/>
+        <path class="batch" id="batch-hv-0"/>
+        <path class="batch" id="batch-hv-1"/>
+        <path class="batch" id="batch-hv-2"/>
+        <path class="batch" id="batch-hv-3"/>
+        <path class="batch" id="batch-hv-4"/>
+        <text class="lab" id="batch-lab-ih" text-anchor="end">batch of one-time credentials</text>
+        <text class="lab" id="batch-lab-hv" text-anchor="end">each copy is shown once</text>
+      </g>
+      <line id="tick-i" class="flow" x1="130" y1="100" x2="130" y2="84"/>
+      <line id="tick-h" class="flow" x1="480" y1="100" x2="480" y2="84"/>
+      <line id="tick-v" class="flow" x1="830" y1="100" x2="830" y2="84"/>
+      <g id="node-i" transform="translate(130, 100)">
+        <text class="n" text-anchor="middle" x="0" y="-64">Issuer</text>
+        <text class="s" text-anchor="middle" x="0" y="-42">Generic Issuer (backend service)</text>
+        <text class="s" text-anchor="middle" x="0" y="-22">fedpol, FEDRO, cantons, other companies</text>
+      </g>
+      <g id="node-h" transform="translate(480, 100)">
+        <text class="n" text-anchor="middle" x="0" y="-64">Holder</text>
+        <text class="s" text-anchor="middle" x="0" y="-42">swiyu Wallet (app)</text>
+        <text class="s" text-anchor="middle" x="0" y="-22">SD-JWT + disclosures</text>
+      </g>
+      <g id="node-v" transform="translate(830, 100)">
+        <text class="n" text-anchor="middle" x="0" y="-64">Verifier</text>
+        <text class="s" text-anchor="middle" x="0" y="-42">swiyu Check (app)</text>
+        <text class="s" text-anchor="middle" x="0" y="-22">Generic Verifier (backend service)</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="foot" id="foot">1 / 6</div>
+
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    const foot = document.getElementById("foot");
+    const sceneLayer = document.getElementById("scene-layer");
+    const sceneExtras = document.getElementById("scene-extras");
+    const spineLine = document.getElementById("spine-line");
+    const batchFan = document.getElementById("batch-fan");
+    const batchIh = [0, 1, 2, 3, 4].map((i) => document.getElementById(`batch-ih-${i}`));
+    const batchHv = [0, 1, 2, 3, 4].map((i) => document.getElementById(`batch-hv-${i}`));
+    const batchLabIh = document.getElementById("batch-lab-ih");
+    const batchLabHv = document.getElementById("batch-lab-hv");
+    const ticks = {
+      i: document.getElementById("tick-i"),
+      h: document.getElementById("tick-h"),
+      v: document.getElementById("tick-v"),
+    };
+    const nodes = {
+      i: document.getElementById("node-i"),
+      h: document.getElementById("node-h"),
+      v: document.getElementById("node-v"),
+    };
+    const holderDetail = nodes.h.querySelectorAll("text.s")[1];
+    const total = slides.length;
+    const INFRA = 3;
+    const ZK = 4;
+    const MORPH_MS = 1300;
+    const BATCH_N = 5;
+    let index = 0;
+    let locked = false;
+    let poseT = 0;
+    let morphRaf = 0;
+    let morphWatchdog = 0;
+    let morphPinIndex = null;
+    let morphFinish = null;
+
+    function maxStep(slide) {
+      return Number(slide.dataset.steps || 1);
+    }
+
+    function currentStep(slide) {
+      return Number(slide.dataset.step || 1);
+    }
+
+    function applyStep(slide, n) {
+      const max = maxStep(slide);
+      n = Math.min(Math.max(n, 1), max);
+      slide.dataset.step = String(n);
+      slide.querySelectorAll("[data-appear]").forEach((el) => {
+        const appear = Number(el.dataset.appear);
+        el.classList.toggle("is-on", appear <= n);
+        el.classList.toggle("is-now", appear === n);
+      });
+    }
+
+    function isMorphPair(from, to) {
+      return (from === INFRA && to === ZK) || (from === ZK && to === INFRA);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function setLine(el, x1, y1, x2, y2) {
+      el.setAttribute("x1", x1.toFixed(2));
+      el.setAttribute("y1", y1.toFixed(2));
+      el.setAttribute("x2", x2.toFixed(2));
+      el.setAttribute("y2", y2.toFixed(2));
+    }
+
+    function clamp01(t) {
+      return Math.min(1, Math.max(0, t));
+    }
+
+    function quadPath(x1, y1, cx, cy, x2, y2) {
+      return `M ${x1.toFixed(2)} ${y1.toFixed(2)} Q ${cx.toFixed(2)} ${cy.toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+    }
+
+    function quadPoint(x1, y1, cx, cy, x2, y2, t) {
+      const u = 1 - t;
+      return {
+        x: u * u * x1 + 2 * u * t * cx + t * t * x2,
+        y: u * u * y1 + 2 * u * t * cy + t * t * y2,
+      };
+    }
+
+    function applyPose(t) {
+      poseT = t;
+      const cx = 480;
+      const cy = lerp(100, 168, t);
+      const r = lerp(350, 150, t);
+      const a = t * Math.PI / 2;
+      const ix = cx + r * Math.cos(Math.PI + a);
+      const iy = cy + r * Math.sin(Math.PI + a);
+      const vx = cx + r * Math.cos(a);
+      const vy = cy + r * Math.sin(a);
+      const hx = cx;
+      const hy = cy;
+      const tick = 16;
+      const tx = tick * Math.cos(a - Math.PI / 2);
+      const ty = tick * Math.sin(a - Math.PI / 2);
+      const lx = lerp(0, 168, t);
+      const ly = lerp(0, 42, t);
+      const fan = easeInOutCubic(clamp01((t - 0.58) / 0.42));
+      const dx = vx - ix;
+      const dy = vy - iy;
+      const len = Math.hypot(dx, dy) || 1;
+      const px = -dy / len;
+      const py = dx / len;
+
+      setLine(spineLine, ix, iy, vx, vy);
+      spineLine.style.opacity = String(1 - fan);
+      setLine(ticks.i, ix, iy, ix + tx, iy + ty);
+      setLine(ticks.h, hx, hy, hx + tx, hy + ty);
+      setLine(ticks.v, vx, vy, vx + tx, vy + ty);
+      nodes.i.setAttribute("transform", `translate(${ix + lx}, ${iy + ly})`);
+      nodes.h.setAttribute("transform", `translate(${hx + lx}, ${hy + ly})`);
+      nodes.v.setAttribute("transform", `translate(${vx + lx}, ${vy + ly})`);
+      sceneExtras.style.opacity = String(Math.max(0, 1 - t / 0.38));
+      holderDetail.textContent = fan > 0.45 ? "batch of one-time SD-JWTs" : "SD-JWT + disclosures";
+
+      let outerIh = { x: (ix + hx) / 2, y: (iy + hy) / 2 };
+      let outerHv = { x: (hx + vx) / 2, y: (hy + vy) / 2 };
+      for (let i = 0; i < BATCH_N; i += 1) {
+        const issued = i * 40 * fan;
+        const shown = i * 26 * fan;
+        const ihx = (ix + hx) / 2 + px * issued;
+        const ihy = (iy + hy) / 2 + py * issued;
+        const hvx = (hx + vx) / 2 + px * shown;
+        const hvy = (hy + vy) / 2 + py * shown;
+        batchIh[i].setAttribute("d", quadPath(ix, iy, ihx, ihy, hx, hy));
+        batchHv[i].setAttribute("d", quadPath(hx, hy, hvx, hvy, vx, vy));
+        if (i === BATCH_N - 1) {
+          outerIh = quadPoint(ix, iy, ihx, ihy, hx, hy, 0.5);
+          outerHv = quadPoint(hx, hy, hvx, hvy, vx, vy, 0.5);
+        }
+      }
+
+      batchFan.setAttribute("opacity", String(fan));
+      batchLabIh.setAttribute("x", (outerIh.x + px * 16).toFixed(2));
+      batchLabIh.setAttribute("y", (outerIh.y + 4).toFixed(2));
+      batchLabHv.setAttribute("x", (outerHv.x + px * 16).toFixed(2));
+      batchLabHv.setAttribute("y", (outerHv.y + 4).toFixed(2));
+    }
+
+    function pinScene(slideIndex) {
+      const slot = slides[slideIndex]?.querySelector(".diagram");
+      if (!slot) return;
+      const rect = slot.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) return;
+      sceneLayer.style.left = `${rect.left}px`;
+      sceneLayer.style.top = `${rect.top}px`;
+      sceneLayer.style.width = `${rect.width}px`;
+      sceneLayer.style.height = `${rect.height}px`;
+    }
+
+    function pinVisibleScene() {
+      const target = morphPinIndex != null ? morphPinIndex : index;
+      if (target === INFRA || target === ZK) pinScene(target);
+    }
+
+    function syncScene(slideIndex) {
+      const on = slideIndex === INFRA || slideIndex === ZK;
+      sceneLayer.hidden = !on;
+      if (!on) return;
+      pinScene(slideIndex);
+      applyPose(slideIndex === ZK ? 1 : 0);
+    }
+
+    function animatePose(fromT, toT) {
+      return new Promise((resolve) => {
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          morphFinish = null;
+          cancelAnimationFrame(morphRaf);
+          window.clearTimeout(morphWatchdog);
+          applyPose(toT);
+          resolve();
+        };
+        morphFinish = finish;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          finish();
+          return;
+        }
+
+        const start = performance.now();
+        const step = (now) => {
+          const u = Math.min(1, (now - start) / MORPH_MS);
+          applyPose(lerp(fromT, toT, easeInOutCubic(u)));
+          if (u < 1) morphRaf = requestAnimationFrame(step);
+          else finish();
+        };
+        cancelAnimationFrame(morphRaf);
+        window.clearTimeout(morphWatchdog);
+        morphWatchdog = window.setTimeout(finish, MORPH_MS + 250);
+        morphRaf = requestAnimationFrame(step);
+      });
+    }
+
+    async function morphInfra(next) {
+      const from = slides[index];
+      const to = slides[next];
+      const fromIndex = index;
+      locked = true;
+      morphPinIndex = fromIndex;
+      try {
+        sceneLayer.hidden = false;
+        pinScene(fromIndex);
+        from.classList.add("is-morph", "is-morph-from");
+        to.classList.add("is-active", "is-morph", "is-morph-to");
+        to.classList.remove("is-morph-gone");
+        from.classList.remove("is-active");
+        index = next;
+        applyStep(to, 1);
+        foot.textContent = `${index + 1} / ${total}`;
+        history.replaceState(null, "", `#${index + 1}`);
+        await animatePose(next === ZK ? 0 : 1, next === ZK ? 1 : 0);
+      } catch {
+        applyPose(next === ZK ? 1 : 0);
+      } finally {
+        morphPinIndex = null;
+        from.classList.add("is-morph-gone");
+        from.classList.remove("is-morph", "is-morph-from", "is-exit");
+        to.classList.remove("is-morph", "is-morph-to");
+        pinScene(next);
+        locked = false;
+      }
+    }
+
+    function show(next, { animate = true, step = 1 } = {}) {
+      if (next === index && currentStep(slides[index]) === step) return;
+      if (locked) return;
+      const from = slides[index];
+      const to = slides[next];
+
+      if (next !== index && animate && isMorphPair(index, next)) {
+        morphInfra(next);
+        return;
+      }
+
+      if (next !== index) {
+        if (animate) {
+          from.classList.add("is-exit");
+          from.classList.remove("is-active", "is-morph-gone");
+          to.classList.add("is-active");
+          to.classList.remove("is-morph-gone");
+          window.setTimeout(() => from.classList.remove("is-exit"), 480);
+        } else {
+          from.classList.remove("is-active", "is-exit", "is-morph-gone");
+          to.classList.add("is-active");
+          to.classList.remove("is-morph-gone");
+        }
+        index = next;
+        syncScene(index);
+      }
+
+      applyStep(to, step);
+      foot.textContent = `${index + 1} / ${total}`;
+      history.replaceState(null, "", `#${index + 1}`);
+    }
+
+    function next() {
+      if (locked && morphFinish) {
+        morphFinish();
+        return;
+      }
+      const slide = slides[index];
+      const step = currentStep(slide);
+      if (step < maxStep(slide)) {
+        applyStep(slide, step + 1);
+        return;
+      }
+      if (index < total - 1) show(index + 1);
+    }
+
+    function prev() {
+      if (locked && morphFinish) {
+        morphFinish();
+        return;
+      }
+      const slide = slides[index];
+      const step = currentStep(slide);
+      if (step > 1) {
+        applyStep(slide, step - 1);
+        return;
+      }
+      if (index > 0) {
+        const previous = slides[index - 1];
+        show(index - 1, { step: maxStep(previous) });
+      }
+    }
+
+    function toggleFullscreen() {
+      const root = document.documentElement;
+      const active = document.fullscreenElement || document.webkitFullscreenElement;
+      if (active) {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        return;
+      }
+      const req = root.requestFullscreen || root.webkitRequestFullscreen;
+      if (!req) return;
+      Promise.resolve(req.call(root)).catch(() => {});
+    }
+
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("a")) return;
+      next();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === "f" || event.key === "F" || event.key === "F11") {
+        event.preventDefault();
+        toggleFullscreen();
+        return;
+      }
+      if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(event.key)) {
+        event.preventDefault();
+        next();
+      } else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(event.key)) {
+        event.preventDefault();
+        prev();
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        show(0, { animate: false });
+      } else if (event.key === "End") {
+        event.preventDefault();
+        show(total - 1, { animate: false });
+      }
+    });
+
+    let touchX = 0;
+    document.addEventListener("touchstart", (event) => {
+      touchX = event.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.addEventListener("touchend", (event) => {
+      const dx = event.changedTouches[0].screenX - touchX;
+      if (Math.abs(dx) < 50) return;
+      if (dx < 0) next();
+      else prev();
+    }, { passive: true });
+
+    slides.forEach((slide) => applyStep(slide, 1));
+
+    const initial = Math.min(Math.max(parseInt(location.hash.slice(1), 10) || 1, 1), total) - 1;
+    if (initial !== 0) {
+      slides[0].classList.remove("is-active");
+      slides[initial].classList.add("is-active");
+      index = initial;
+    }
+    requestAnimationFrame(() => {
+      applyStep(slides[index], 1);
+      foot.textContent = `${index + 1} / ${total}`;
+      foot.classList.add("is-visible");
+      syncScene(index);
+    });
+
+    window.addEventListener("resize", pinVisibleScene);
+    document.addEventListener("fullscreenchange", pinVisibleScene);
+    document.addEventListener("webkitfullscreenchange", pinVisibleScene);
+  </script>
+</body>
+</html>

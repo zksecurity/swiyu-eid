@@ -29,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -105,7 +107,13 @@ public final class HttpZkPresentationVerifier implements ZkPresentationVerifier 
         if (policy == null) {
             throw rejected("ZK verification requires a signed policy");
         }
-        validatePolicyTime(policy.currentTime());
+        if (policy.isEpflProfile()) {
+            validateEpflPolicy(policy);
+        } else if (policy.isOpenAcAge25Profile()) {
+            validateOpenAcAge25Policy(policy);
+        } else {
+            validatePolicyTime(policy.currentTime());
+        }
 
         URI endpoint = validateLoopbackEndpoint(properties.getEndpoint());
         var override = management.getConfigurationOverride();
@@ -114,21 +122,14 @@ public final class HttpZkPresentationVerifier implements ZkPresentationVerifier 
         String responseUri = "%s/oid4vp/api/request-object/%s/response-data"
                 .formatted(externalUrl, management.getId());
 
-        var expected = new ExpectedContext(
-                management.getRequestNonce(),
-                clientId,
-                responseUri,
-                management.getOauthState(),
-                dcqlCredential.getId(),
-                policy.profile(),
-                policy.circuitId(),
-                policy.cutoffDate(),
-                policy.currentTime(),
-                policy.statusListSnapshot(),
-                dcqlCredential.getMeta().getVctValues(),
-                nullToEmpty(management.getAcceptedIssuerDids()),
-                nullToEmpty(management.getTrustAnchors())
-        );
+        Object expected;
+        if (policy.isEpflProfile()) {
+            expected = buildEpflExpectedContext(management, dcqlCredential, policy, clientId, responseUri);
+        } else if (policy.isOpenAcAge25Profile()) {
+            expected = buildOpenAcAge25ExpectedContext(management, dcqlCredential, policy, clientId, responseUri);
+        } else {
+            expected = buildOpenAcExpectedContext(management, dcqlCredential, policy, clientId, responseUri);
+        }
 
         String requestBody;
         try {
@@ -162,13 +163,25 @@ public final class HttpZkPresentationVerifier implements ZkPresentationVerifier 
             throw submissionError(e, VerificationErrorResponseCode.INVALID_PRESENTATION_SUBMISSION,
                     "ZK verifier sidecar returned an invalid response");
         }
+        if (policy.omitsStatusList()) {
+            return parseEpflResponse(response, policy);
+        }
+        return parseOpenAcResponse(response, policy);
+    }
+
+    private static ZkPresentationVerificationResult parseOpenAcResponse(
+            SidecarResponse response,
+            ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy policy
+    ) {
         if (response == null || !Boolean.TRUE.equals(response.verified())
                 || response.profile() == null || response.circuitId() == null
                 || response.predicateSatisfied() == null || response.statusValid() == null
                 || response.statusListSnapshot() == null) {
             throw rejected("ZK verifier sidecar rejected the presentation");
         }
-
+        if (!policy.profile().equals(response.profile()) || !policy.circuitId().equals(response.circuitId())) {
+            throw rejected("ZK verifier sidecar returned an unexpected profile");
+        }
         return new ZkPresentationVerificationResult(
                 response.profile(),
                 response.circuitId(),
@@ -176,6 +189,146 @@ public final class HttpZkPresentationVerifier implements ZkPresentationVerifier 
                 response.statusValid(),
                 response.statusListSnapshot()
         );
+    }
+
+    private static ZkPresentationVerificationResult parseEpflResponse(
+            SidecarResponse response,
+            ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy policy
+    ) {
+        if (response == null || !Boolean.TRUE.equals(response.verified())
+                || response.profile() == null || response.circuitId() == null
+                || response.predicateSatisfied() == null) {
+            throw rejected("ZK verifier sidecar rejected the presentation");
+        }
+        if (!policy.profile().equals(response.profile()) || !policy.circuitId().equals(response.circuitId())) {
+            throw rejected("ZK verifier sidecar returned an unexpected profile");
+        }
+        return new ZkPresentationVerificationResult(
+                response.profile(),
+                response.circuitId(),
+                response.predicateSatisfied(),
+                false,
+                null
+        );
+    }
+
+    private static EpflExpectedContext buildEpflExpectedContext(
+            Management management,
+            DcqlCredential dcqlCredential,
+            ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy policy,
+            String clientId,
+            String responseUri
+    ) {
+        var session = new EpflChallengeBinding.SessionContext(
+                management.getRequestNonce(),
+                clientId,
+                responseUri,
+                management.getOauthState(),
+                dcqlCredential.getId(),
+                policy.profile(),
+                policy.circuitId(),
+                policy.nowDate(),
+                policy.issuerPubX(),
+                policy.issuerPubY());
+        return new EpflExpectedContext(
+                management.getRequestNonce(),
+                clientId,
+                responseUri,
+                management.getOauthState(),
+                dcqlCredential.getId(),
+                policy.profile(),
+                policy.circuitId(),
+                EpflChallengeBinding.digestHex(session),
+                hexToU8List(policy.issuerPubX()),
+                hexToU8List(policy.issuerPubY()),
+                policy.nowDate()
+        );
+    }
+
+    private static OpenAcAge25ExpectedContext buildOpenAcAge25ExpectedContext(
+            Management management,
+            DcqlCredential dcqlCredential,
+            ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy policy,
+            String clientId,
+            String responseUri
+    ) {
+        return new OpenAcAge25ExpectedContext(
+                management.getRequestNonce(),
+                clientId,
+                responseUri,
+                management.getOauthState(),
+                dcqlCredential.getId(),
+                policy.profile(),
+                policy.circuitId(),
+                policy.nowDate()
+        );
+    }
+
+    private static OpenAcExpectedContext buildOpenAcExpectedContext(
+            Management management,
+            DcqlCredential dcqlCredential,
+            ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy policy,
+            String clientId,
+            String responseUri
+    ) {
+        return new OpenAcExpectedContext(
+                management.getRequestNonce(),
+                clientId,
+                responseUri,
+                management.getOauthState(),
+                dcqlCredential.getId(),
+                policy.profile(),
+                policy.circuitId(),
+                policy.cutoffDate(),
+                policy.currentTime(),
+                policy.statusListSnapshot(),
+                dcqlCredential.getMeta().getVctValues(),
+                nullToEmpty(management.getAcceptedIssuerDids()),
+                nullToEmpty(management.getTrustAnchors())
+        );
+    }
+
+    private static List<Integer> hexToU8List(String hex) {
+        byte[] bytes = HexFormat.of().parseHex(hex);
+        if (bytes.length != 32) {
+            throw rejected("EPFL issuer coordinate must decode to 32 bytes");
+        }
+        var values = new ArrayList<Integer>(bytes.length);
+        for (byte value : bytes) {
+            values.add(value & 0xff);
+        }
+        return values;
+    }
+
+    private static void validateOpenAcAge25Policy(
+            ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy policy
+    ) {
+        if (policy.nowDate() == null) {
+            throw rejected("OpenAC age-25 ZK presentation policy is incomplete");
+        }
+    }
+
+    private static void validateEpflPolicy(
+            ch.admin.bj.swiyu.verifier.domain.management.dcql.ZkPresentationPolicy policy
+    ) {
+        if (policy.nowDate() == null || policy.issuerPubX() == null || policy.issuerPubY() == null) {
+            throw rejected("EPFL ZK presentation policy is incomplete");
+        }
+        try {
+            EpflChallengeBinding.digestHex(new EpflChallengeBinding.SessionContext(
+                    "probe-nonce",
+                    "probe-client",
+                    "https://probe.example/response-data",
+                    "probe-state",
+                    "probe-query",
+                    policy.profile(),
+                    policy.circuitId(),
+                    policy.nowDate(),
+                    policy.issuerPubX(),
+                    policy.issuerPubY()));
+        } catch (IllegalArgumentException e) {
+            throw rejected("EPFL ZK presentation policy is invalid");
+        }
     }
 
     private static URI validateLoopbackEndpoint(String configuredEndpoint) {
@@ -228,11 +381,23 @@ public final class HttpZkPresentationVerifier implements ZkPresentationVerifier 
 
     record SidecarRequest(
             @JsonProperty("proof_envelope") String proofEnvelope,
-            @JsonProperty("expected") ExpectedContext expected
+            @JsonProperty("expected") Object expected
     ) {
     }
 
-    record ExpectedContext(
+    record OpenAcAge25ExpectedContext(
+            @JsonProperty("nonce") String nonce,
+            @JsonProperty("client_id") String clientId,
+            @JsonProperty("response_uri") String responseUri,
+            @JsonProperty("state") String state,
+            @JsonProperty("query_id") String queryId,
+            @JsonProperty("profile") String profile,
+            @JsonProperty("circuit_id") String circuitId,
+            @JsonProperty("now_date") Integer nowDate
+    ) {
+    }
+
+    record OpenAcExpectedContext(
             @JsonProperty("nonce") String nonce,
             @JsonProperty("client_id") String clientId,
             @JsonProperty("response_uri") String responseUri,
@@ -246,6 +411,21 @@ public final class HttpZkPresentationVerifier implements ZkPresentationVerifier 
             @JsonProperty("vct_values") List<String> vctValues,
             @JsonProperty("accepted_issuer_dids") List<String> acceptedIssuerDids,
             @JsonProperty("trust_anchors") List<TrustAnchor> trustAnchors
+    ) {
+    }
+
+    record EpflExpectedContext(
+            @JsonProperty("nonce") String nonce,
+            @JsonProperty("client_id") String clientId,
+            @JsonProperty("response_uri") String responseUri,
+            @JsonProperty("state") String state,
+            @JsonProperty("query_id") String queryId,
+            @JsonProperty("profile") String profile,
+            @JsonProperty("circuit_id") String circuitId,
+            @JsonProperty("challenge_nonce") String challengeNonce,
+            @JsonProperty("issuer_pub_x") List<Integer> issuerPubX,
+            @JsonProperty("issuer_pub_y") List<Integer> issuerPubY,
+            @JsonProperty("now_date") Integer nowDate
     ) {
     }
 

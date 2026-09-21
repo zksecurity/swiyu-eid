@@ -1,0 +1,36 @@
+{
+  "schema": "swiyu.semantic-predicate-package.v0",
+  "id": "core.predicates@1",
+  "title": "Core claim predicates",
+  "predicates": {
+    "value.equals@1": {
+      "args": {
+        "left": {"operand": "typed"},
+        "right": {"operand": "typed"}
+      },
+      "description": "Exact equality of two typed operands."
+    },
+    "value.in-set@1": {
+      "args": {
+        "value": {"operand": "typed"},
+        "set": {"operand": "set"}
+      },
+      "description": "Membership in a duplicate-free bounded set."
+    },
+    "date.on-or-before@1": {
+      "args": {
+        "value": {"type": "swiyu.date@0"},
+        "limit": {"type": "swiyu.date@0"}
+      },
+      "description": "True when value is on or before limit in the swiyu.date@0 domain."
+    },
+    "date.yyyymmdd-age-at-least@1": {
+      "args": {
+        "birthdate": {"type": "swiyu.date@0"},
+        "reference": {"type": "swiyu.date-yyyymmdd@0"},
+        "min_years": {"type": "swiyu.unix-seconds@0"}
+      },
+      "description": "True when reference YYYYMMDD integer is at least birthdate YYYYMMDD plus min_years times 10000 (EPFL d10 age gate)."
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "compact": "eyJhbGciOiJFUzI1NiIsInR5cCI6ImRjK3NkLWp3dCIsImtpZCI6InN5bnRoZXRpYy1rZXktNDIifQ.eyJpc3MiOiJzeW50aGV0aWMtaXNzdWVyLTQyIiwidmN0Ijoic3dpeXUuc3ludGhldGljLWVpZEAwIiwibmJmIjoxNzAwMDAwMDAwLCJleHAiOjE5MDAwMDAwMDAsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJQN2REaG9BR1F5V0dQZnZqTE5yQUdidWJOTG5WV0wzZUVGbm5rTV9mUEo0IiwieSI6ImJWeTBuMHRkejRWUUgzaGE5cnJTOWl1b3prTUw5T3lTc0xyWXYxNEJzV1EifX0sInN0YXR1cyI6eyJzdGF0dXNfbGlzdCI6eyJ1cmkiOiJodHRwczovL3N0YXR1cy5leGFtcGxlL3N5bnRoZXRpYy1saXN0IiwiaWR4IjoyfX0sIl9zZF9hbGciOiJzaGEtMjU2IiwiX3NkIjpbIlotWHRLU2RxNDN5eEQ4cUpnSEtpSUcxZW5VSjZPOHFxVHpRejViYmpQNEkiLCJ1WTkzLXN6YzZRZkxYbmpLd0p2MXZrNlkwQ2UtWFF4OHc5UjA5ZUdaTXhnIiwidGw2ZE1jdnQzN3FRaVhxZkJDNnE2Z2N1RU93VFJBSFJyT0p3bVUwTkhFayJdfQ.x92Q9xK1PTcbHpjJqImKIZ-nInVkJab7bV0QUiKDrYjpLEKN86Ov1UGeqtPNdlwhxgt1AqZJRpma-BFYAEaBnA~WyJzYWx0LTQyLTAiLCJiaXJ0aGRhdGUiLCIyMDAwLTAxLTAxIl0~WyJzYWx0LTQyLTEiLCJuYXRpb25hbGl0eSIsIkNIIl0~WyJzYWx0LTQyLTIiLCJyZXNpZGVuY2VfY291bnRyeSIsIkNIIl0~",
+  "issuer_record": {
+    "public_key": {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "VpKJ98_zUBTRhWayjilRSgLiSpCMRd1PppZg-oYE20c",
+      "y": "s2J-e4UN5ReV4R-OLAnTiFhSW-VoGQR9akPAA88POS8",
+      "kid": "synthetic-key-42"
+    },
+    "issuer_id": "synthetic-issuer-42",
+    "key_id": "synthetic-key-42",
+    "allowed_vcts": [
+      "swiyu.synthetic-eid@0"
+    ]
+  },
+  "attribute_definitions": {
+    "birthdate": "birthdate",
+    "nationality": "nationality",
+    "residence": "residence_country"
+  },
+  "attributes": {
+    "birthdate": "2000-01-01",
+    "nationality": "CH",
+    "residence": "CH"
+  }
+}

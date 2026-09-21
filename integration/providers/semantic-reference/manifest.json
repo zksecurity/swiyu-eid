@@ -1,0 +1,8 @@
+{
+  "schema": "swiyu.provider-manifest.v1",
+  "id": "semantic-reference",
+  "title": "Transparent semantic reference provider",
+  "kind": "test-only",
+  "profiles": ["swiyu.semantic-reference.v0"],
+  "command": ["python3", "provider.py"]
+}

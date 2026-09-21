@@ -75,7 +75,10 @@ class HttpZkPresentationVerifierTest {
                 "swiyu_age18_status_2k",
                 "2008-07-15",
                 "snapshot-2026-07-15",
-                policyCurrentTime);
+                policyCurrentTime,
+                null,
+                null,
+                null);
         credential = new DcqlCredential(
                 "age-query",
                 "dc+sd-jwt",
@@ -178,7 +181,10 @@ class HttpZkPresentationVerifierTest {
                 "swiyu_age18_status_2k",
                 "2008-07-15",
                 "snapshot-2026-07-15",
-                policyCurrentTime - 301);
+                policyCurrentTime - 301,
+                null,
+                null,
+                null);
         credential.setZkPresentationPolicy(stalePolicy);
         var verifier = new HttpZkPresentationVerifier(
                 properties, applicationProperties, objectMapper, transport);
@@ -231,6 +237,90 @@ class HttpZkPresentationVerifierTest {
             assertThrows(VerificationException.class,
                     () -> verifier.verify("opaque-proof-envelope", management, credential));
         }
+    }
+
+    @Test
+    void verify_epflProfileSendsServerDerivedChallengeAndIssuerCoordinates() throws Exception {
+        var capturedBody = new AtomicReference<String>();
+        HttpZkPresentationVerifier.SidecarTransport transport = (endpoint, body, timeout) -> {
+            capturedBody.set(body);
+            return new HttpZkPresentationVerifier.SidecarHttpResponse(200, """
+                    {
+                      "verified": true,
+                      "profile": "epfl-d10-swiyu-jwt-age25-v0",
+                      "circuit_id": "d10_swiyu_jwt",
+                      "predicate_satisfied": true
+                    }
+                    """);
+        };
+        var epflPolicy = new ZkPresentationPolicy(
+                "epfl-d10-swiyu-jwt-age25-v0",
+                "d10_swiyu_jwt",
+                null,
+                null,
+                null,
+                20240101,
+                "e14492964d758e7de59e3adade4b3337cdc112e8bd37933c3769a2feb2d44de8",
+                "abb82c578d7685444f97c9e59070e65a1810b4a5d82135f8a3c5994dbf39d884");
+        credential.setZkPresentationPolicy(epflPolicy);
+        credential.setId("birth_date");
+        var verifier = new HttpZkPresentationVerifier(
+                properties, applicationProperties, objectMapper, transport);
+
+        var result = verifier.verify("opaque-proof-envelope", management, credential);
+
+        assertTrue(result.predicateSatisfied());
+        var expected = objectMapper.readTree(capturedBody.get()).path("expected");
+        assertEquals("birth_date", expected.path("query_id").asText());
+        assertEquals(20240101, expected.path("now_date").asInt());
+        assertEquals(64, expected.path("challenge_nonce").asText().length());
+        assertEquals(32, expected.path("issuer_pub_x").size());
+        assertFalse(expected.has("status_list_snapshot"));
+        assertFalse(expected.has("cutoff_date"));
+    }
+
+    @Test
+    void verify_openAcAge25SendsNowDateWithoutStatusOrIssuerCoordinates() throws Exception {
+        var capturedBody = new AtomicReference<String>();
+        HttpZkPresentationVerifier.SidecarTransport transport = (endpoint, body, timeout) -> {
+            capturedBody.set(body);
+            return new HttpZkPresentationVerifier.SidecarHttpResponse(200, """
+                    {
+                      "verified": true,
+                      "profile": "openac-age25-jwt-v0",
+                      "circuit_id": "swiyu_age25_jwt",
+                      "predicate_satisfied": true
+                    }
+                    """);
+        };
+        var age25Policy = new ZkPresentationPolicy(
+                "openac-age25-jwt-v0",
+                "swiyu_age25_jwt",
+                null,
+                null,
+                null,
+                20240101,
+                null,
+                null);
+        credential.setZkPresentationPolicy(age25Policy);
+        credential.setId("birth_date");
+        var verifier = new HttpZkPresentationVerifier(
+                properties, applicationProperties, objectMapper, transport);
+
+        var result = verifier.verify("opaque-proof-envelope", management, credential);
+
+        assertTrue(result.predicateSatisfied());
+        assertFalse(result.statusValid());
+        var expected = objectMapper.readTree(capturedBody.get()).path("expected");
+        assertEquals("birth_date", expected.path("query_id").asText());
+        assertEquals("openac-age25-jwt-v0", expected.path("profile").asText());
+        assertEquals("swiyu_age25_jwt", expected.path("circuit_id").asText());
+        assertEquals(20240101, expected.path("now_date").asInt());
+        assertTrue(expected.has("nonce"));
+        assertFalse(expected.has("challenge_nonce"));
+        assertFalse(expected.has("status_list_snapshot"));
+        assertFalse(expected.has("cutoff_date"));
+        assertFalse(expected.has("issuer_pub_x"));
     }
 
     @Test

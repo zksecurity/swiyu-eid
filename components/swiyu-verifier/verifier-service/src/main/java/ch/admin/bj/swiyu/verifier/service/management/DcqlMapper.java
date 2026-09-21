@@ -118,7 +118,10 @@ public class DcqlMapper {
                 policy.circuitId(),
                 policy.cutoffDate(),
                 policy.statusListSnapshot(),
-                policy.currentTime()
+                policy.currentTime(),
+                policy.nowDate(),
+                policy.issuerPubX(),
+                policy.issuerPubY()
         );
     }
 
@@ -131,7 +134,10 @@ public class DcqlMapper {
                 policy.circuitId(),
                 policy.cutoffDate(),
                 policy.statusListSnapshot(),
-                policy.currentTime()
+                policy.currentTime(),
+                policy.nowDate(),
+                policy.issuerPubX(),
+                policy.issuerPubY()
         );
     }
 

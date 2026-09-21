@@ -1,0 +1,3 @@
+Vendored from eid-privacy/zkp-pocs noir/d10_swiyu_jwt at d58bc79dd65ea6560bf199ad332d3ba3746c1c08 (MPL-2.0).
+Source files only (src/main.nr, src/constants.nr). Nargo.toml rewritten to path-pin known tags; no circuit edits.
+Do not add Prover.toml or data/ here — those are local demo credential material.

@@ -1,0 +1,28 @@
+{
+  "schema": "swiyu.provider-manifest.v1",
+  "id": "swiyu-epfl-native",
+  "title": "EPFL zkp-pocs native nargo/bb UltraHonk (d10 default, c05 explicit)",
+  "kind": "implementation",
+  "incomplete": false,
+  "profiles": [
+    "epfl-d10-swiyu-jwt-age25-v0",
+    "epfl-c05-age18-fixedcred-v0"
+  ],
+  "command": ["../../semantics/.venv/bin/python", "provider.py"],
+  "coverage": {
+    "prepare": "d10-local-prover-toml-path; c05-fixed-credential-parse",
+    "present": "native-nargo-bb-ultra-honk",
+    "verify": "native-bb-verify-trusted-vk-encoded-public-inputs"
+  },
+  "source": {
+    "upstream": "https://github.com/eid-privacy/zkp-pocs.git",
+    "revision": "d58bc79dd65ea6560bf199ad332d3ba3746c1c08",
+    "circuit_entry": "circuit/d10_swiyu_jwt/src/main.nr",
+    "certification": "none",
+    "note": "Default profile is native d10_swiyu_jwt (ES256 issuer, birth_date disclosure, age>=25 YYYYMMDD, holder sig over static demo challenge_nonce). Not OpenAC, not OID4VP, no status list, no swiyu.claim.v0 mapping. Factory fixture needs SWIYU_EPFL_SOURCE_ROOT or SWIYU_EPFL_D10_PROVER_TOML; Prover.toml is not in git. c05 remains at profile epfl-c05-age18-fixedcred-v0 with provider-run-fixture-c05.json.",
+    "provider_run_fixture": "provider-run-fixture.js",
+    "transcript_fixture": "transcript-fixture.py",
+    "transcript_sidecar": "transcript-sidecar.py"
+  },
+  "circuits": ["d10_swiyu_jwt", "c05_age_verification"]
+}
