@@ -1,6 +1,6 @@
 # Integrating and Testing Zero-Knowledge Presentations in Swiyu
 
-**Antonio Kambiré and Martìn Ochoa, zkSecurity.**
+**Antonio Kambiré and Martín Ochoa, zkSecurity.**
 
 The working paper is [claim-guided-transcript-testing.pdf](claim-guided-transcript-testing.pdf): five pages including references. Editable source is `paper.tex`, with `references.bib`. Run `sh build.sh` with a standard LaTeX installation to rebuild it.
 

@@ -9,6 +9,6 @@
 
 The narrative explains the system and the contribution. Resource guards, loader workarounds, development chronology, and repeated absence-of-findings statements are omitted. Existing scientific boundaries remain attached to the specific results: shared source alignment, fixture-only cross-provider regression, and native per-provider runs.
 
-Authors: Antonio Kambiré and Martìn Ochoa, zkSecurity.
+Authors: Antonio Kambiré and Martín Ochoa, zkSecurity.
 
 Reviews: talk-narrative-review.md (outline), linear-technical-r1.md (evidence), linear-editorial-visual-r2.md (prose/layout).

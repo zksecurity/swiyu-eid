@@ -2,7 +2,7 @@
   "paper_title": "Integrating and Testing Zero-Knowledge Presentations in Swiyu",
   "authors": [
     "Antonio Kambiré",
-    "Martìn Ochoa"
+    "Martín Ochoa"
   ],
   "affiliation": "zkSecurity",
   "pages_including_references": 5,
@@ -22,10 +22,11 @@
   },
   "shared_regression_mode": "fixture-only; evidence_usable:false",
   "pdf": "claim-guided-transcript-testing.pdf",
-  "pdf_sha256": "834a5b9ea98fa2563d2a45a1a4e449f37e6928aa335f1b1860f588308a64fbfa",
-  "source_sha256": "57e83e2f8e7155c8761023876e9e42a54c9dacf6547cef7a1e0b4fc1383064c6",
+  "pdf_sha256": "2dd4c98b20a251db059eb55909cc7dab8e13715586e0bd749ca6a25bb5c822ef",
+  "source_sha256": "d0154e9018a903dde8a9d8b415cf6f8bacd9d8b37bdc7fe0f3f4f0c7add5f740",
   "remaining_submission_work": [
     "Venue template",
     "Durable public artifact deposit and native-artifact acquisition/build instructions"
-  ]
+  ],
+  "author_spelling_check": "Martín Ochoa; metadata, author block and bibliography checked; changed pages 1 and 5 rendered and inspected"
 }

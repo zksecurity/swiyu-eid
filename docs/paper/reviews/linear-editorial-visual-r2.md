@@ -6,7 +6,7 @@ The revised evaluation now gives the full denominator: “Across nine sessions, 
 
 The paper follows the requested order and reads as a research paper rather than a repository or work-session log: Swiyu and SD-JWT; batch issuance and the remaining predicate gap; current OpenAC profiles and eid-privacy; the generic provider/OID4VP integration; shared semantics and circuit alignment; differential tests; then evaluation and scope. The prose passes the no-AI-slop rubric. Claims are concrete, limitations are attached to the relevant evidence, and there is no inflated priority or novelty language.
 
-The author block renders **Antonio Kambiré**, **Martìn Ochoa**, and **zkSecurity** correctly. The PDF remains exactly **5 pages**.
+The author block renders **Antonio Kambiré**, **Martín Ochoa**, and **zkSecurity** correctly. The PDF remains exactly **5 pages**.
 
 ## Final image QA
 

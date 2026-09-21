@@ -8,7 +8,7 @@ One substantive result is missing from the conclusion of Section 5.2. The paragr
 
 No other editorial blocker found. The prose passes the no-AI-slop audit: no banned filler, faux-insight setup, dramatic fragments, inflated novelty claim, fake-profound ending, or excessive em dashes. “Our contribution connects…” is normal research framing and is supported by concrete mechanisms.
 
-Author verification: **Antonio Kambiré** and **Martìn Ochoa**, with **zkSecurity** directly below, render on page 1; PDF text extraction and metadata preserve both accents.
+Author verification: **Antonio Kambiré** and **Martín Ochoa**, with **zkSecurity** directly below, render on page 1; PDF text extraction and metadata preserve both accents.
 
 ## Image-by-image visual QA
 
